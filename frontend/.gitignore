@@ -1,0 +1,50 @@
+# Dependencias
+/node_modules
+
+# Archivos de compilación
+/build
+/dist
+/out
+
+# Archivos de configuración de IDE y editores
+/.idea
+/.vscode
+*.swp
+*.swo
+
+# Sistema de archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
+.env.local
+.env.development
+.env.production
+.env.test.local
+.env.production.local
+
+# Archivos de registro
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Directorios de cobertura de pruebas
+/coverage
+
+# Archivos de bloqueo de paquetes
+package-lock.json
+yarn.lock
+
+# Archivos y carpetas relacionados con la configuración de herramientas de desarrollo
+/.eslintcache
+/.tscache
+/.vite/
+.vitest/
+coverage/
+
+# Archivos de configuración personalizados
+firebase-config.js
+
+# Carpeta de archivos estáticos generados
+/public/hashed/

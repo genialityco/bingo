@@ -1,0 +1,50 @@
+# Dependencias
+/node_modules
+
+# Archivos de compilación
+/lib
+/dist
+/build
+
+# Archivos de configuración de IDE y editores
+/.idea
+/.vscode
+*.swp
+*.swo
+
+# Sistema de archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
+.env.development
+.env.production
+.env.*.local
+
+# Archivos de registro
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de configuración de Firebase que no deberían ser compartidos
+.firebaserc
+.firebase/*
+
+# Archivos de bloqueo de paquetes
+package-lock.json
+yarn.lock
+
+# Directorios de cobertura de pruebas
+/coverage
+
+# Carpeta de función compilada de Firebase Functions
+/functions/lib
+
+# Archivos de configuración de despliegue de Vercel
+.vercel
+.vercelignore
+vercel.json
+
+# Carpeta de archivos estáticos generados
+/public
