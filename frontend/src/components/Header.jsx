@@ -60,7 +60,7 @@ export function Header() {
   }, []);
 
   return (
-    <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg mb-3">
+    <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg">
       <div className="flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
