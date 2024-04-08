@@ -7,6 +7,7 @@ const BingoCardStatic = ({ bingoConfig }) => {
   // Calcula el número de filas y columnas a partir de las dimensiones.
   const [rows, cols] = dimensions.format.split("x").map(Number);
   const totalSquares = rows * cols;
+  
   // Intenta recuperar los valores del cartón y las casillas marcadas desde localStorage
   const savedCardValues = JSON.parse(localStorage.getItem("cardValues"));
   const savedMarkedSquares = JSON.parse(localStorage.getItem("markedSquares"));
@@ -70,7 +71,7 @@ const BingoCardStatic = ({ bingoConfig }) => {
         <Card className="h-full">
           <CardBody
             // className={`relative w-full h-full ${gridClass}`}
-            className={`relative w-full h-full grid grid-cols-${cols} gap-1`}
+            className={`grid grid-cols-4  gap-1 relative w-full h-full `}
             style={{ backgroundColor: bingo_appearance.background_color }}
           >
             {cardValues.map((item, index) => (

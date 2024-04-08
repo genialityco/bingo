@@ -71,7 +71,8 @@ export const RoomPage = () => {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div
-        className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4"
+        // className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4"
+        className="flex flex-col lg:h-screen w-full  bg-gray-300 p-4"
         ref={bottomSectionRef}
       >
         {/* Información del evento */}
@@ -491,7 +492,7 @@ const DraggableLiveStream = ({ position }) => {
 const ButtonWinBingo = () => {
   const [bingoNumbers, setBingoNumbers] = useState([]);
   const [templateSelected, setTemplateSelected] = useState({});
-  console.log(templateSelected)
+  // console.log(templateSelected)
 
   
   const handleClickSingBingo = () => {
