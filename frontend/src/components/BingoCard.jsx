@@ -7,7 +7,6 @@ const BingoCardStatic = ({ bingoConfig }) => {
   // Calcula el número de filas y columnas a partir de las dimensiones.
   const [rows, cols] = dimensions.format.split("x").map(Number);
   const totalSquares = rows * cols;
-
   // Intenta recuperar los valores del cartón y las casillas marcadas desde localStorage
   const savedCardValues = JSON.parse(localStorage.getItem("cardValues"));
   const savedMarkedSquares = JSON.parse(localStorage.getItem("markedSquares"));
@@ -47,7 +46,7 @@ const BingoCardStatic = ({ bingoConfig }) => {
   }, [markedSquares]);
 
   // Clase para la grilla según las columnas.
-  const gridClass = `grid grid-cols-${cols} p-1 gap-1`;
+  // const gridClass = `grid grid-cols-${cols} p-1 gap-1`;
 
   // Función para marcar o desmarcar una casilla.
   const markSquare = (index) => {
@@ -55,6 +54,8 @@ const BingoCardStatic = ({ bingoConfig }) => {
       currentMarks.map((marked, i) => (i === index ? !marked : marked))
     );
   };
+
+
   return (
     <div className="flex flex-col flex-1 w-full h-full">
       {bingo_appearance.banner && (
@@ -68,7 +69,8 @@ const BingoCardStatic = ({ bingoConfig }) => {
       <div className="relative w-full h-full">
         <Card className="h-full">
           <CardBody
-            className={`relative w-full h-full ${gridClass}`}
+            // className={`relative w-full h-full ${gridClass}`}
+            className={`relative w-full h-full grid grid-cols-${cols} gap-1`}
             style={{ backgroundColor: bingo_appearance.background_color }}
           >
             {cardValues.map((item, index) => (
@@ -84,7 +86,7 @@ const BingoCardStatic = ({ bingoConfig }) => {
                   <div className="absolute inset-0 flex justify-center items-center bg-opacity-50">
                     <Typography
                       color="red"
-                      className={`text-8xl font-bold select-none ${
+                      className={`lg:text-5xl xl:text-8xl font-bold select-none ${
                         markedSquares[index] === true
                           ? "animate-mark-in"
                           : "animate-mark-out"
