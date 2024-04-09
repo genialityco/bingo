@@ -79,6 +79,44 @@ export const PlayBingoPage = () => {
     }
   };
 
+  const [histoySangBingo, setHistoySangBingo] = useState([]);
+
+//   useEffect(() => {
+//     const socket = io(SOCKET_SERVER_URL);
+
+//     socket.on("sangBingo", (data) => {
+//       console.log("Datos recibidos del servidor:", data);
+//       let message;
+//       let color;
+
+//       if (data === "Validando") {
+//         message = "Estamos validando el bingo, ¡espera un momento!";
+//         color = "Grey"; // o cualquier color de tu elección
+//       } else if (data === true) {
+//         message = "¡Felicidades! Han cantado bingo y es un ganador.";
+//         color = "green"; // o cualquier color de tu elección
+//       } else if (data === false) {
+//         message = "Lo sentimos, no es un ganador esta vez.";
+//         color = "red"; // o cualquier color de tu elección
+//       }
+
+//       setAlertData({ color, message });
+//       setShowAlert(true);
+
+//       // Ocultar la alerta después de un tiempo
+//       setTimeout(() => {
+//         setShowAlert(true);
+//       }, 2000); // Ajusta el tiempo según tus necesidades
+//     });
+
+//     return () => {
+//       socket.off("ballotUpdate");
+//       socket.off("sangBingo");
+//       socket.disconnect();
+//     };
+//   }, []);
+
+
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4">
       <section className="mb-5 text-center">
@@ -121,7 +159,8 @@ export const PlayBingoPage = () => {
             <CardBody className="flex flex-col justify-between">
               {/* Espacio para las solicitudes de Bingo */}
               <Typography variant="h6">Solicitudes de bingo</Typography>
-              <Typography>No han gritado bingo</Typography>
+              <Typography>Juan ha cantado bingo</Typography>
+              <span>El bingo es correcto, juan ganó</span>
               {/* Espacio para el validador de cartones, aquí podría ir un formulario */}
               <Typography variant="h6">Validador de cartones</Typography>
             </CardBody>

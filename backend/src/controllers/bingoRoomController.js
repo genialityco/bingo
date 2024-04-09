@@ -101,7 +101,7 @@ class BingoRoomController {
     const figure = room.bingoFigure.index_to_validate;
     const historyBallots = room.history_of_ballots;
 
-    customEmitter.emit("sangBingo", "Validando");
+    customEmitter.emit("sangBingo", { userId: userId, status: "Validando" });
 
     // Obtener los índices marcados que están marcados como true
     const indicesMarcados = markedSquares
