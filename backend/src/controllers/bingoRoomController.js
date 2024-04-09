@@ -96,7 +96,7 @@ class BingoRoomController {
   }
 
   async sangBingo(req, res) {
-    const { markedSquares, roomId } = req.body;
+    const { markedSquares, roomId, userId } = req.body;
     const room = await BingoRoomServices.getRoomById(roomId);
     const figure = room.bingoFigure.index_to_validate;
     const historyBallots = room.history_of_ballots;
@@ -123,13 +123,15 @@ class BingoRoomController {
     const esGanador = esFiguraCompleta && esValido;
 
     // Emitir el evento y enviar la respuesta basada en si es ganador o no
-    if (esGanador) {
-      customEmitter.emit("sangBingo", true);
-      sendResponse(res, 200, null, "¡Ganaste el Bingo!");
-    } else {
-      customEmitter.emit("sangBingo", false);
-      sendResponse(res, 400, null, "Todavía no ganas el Bingo.");
-    }
+    setTimeout(() => {
+      if (esGanador) {
+        customEmitter.emit("sangBingo", { userId: userId, status: true });
+        sendResponse(res, 200, esGanador, "¡Ganaste el Bingo!");
+      } else {
+        customEmitter.emit("sangBingo", { userId: userId, status: false });
+        sendResponse(res, 400, esGanador, "Todavía no ganas el Bingo.");
+      }
+    }, "3000");
   }
 }
 

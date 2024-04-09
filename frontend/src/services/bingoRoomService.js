@@ -87,11 +87,12 @@ const bingoRoomService = {
     }
   },
 
-  sangBingo: async (markedSquares, roomId) => {
+  sangBingo: async (markedSquares, roomId, userId) => {
     try {
       const response = await apiBingoRoom.post(`/sangBingo`, {
         markedSquares,
         roomId,
+        userId,
       });
       return response.data;
     } catch (error) {
