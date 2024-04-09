@@ -1,5 +1,6 @@
 import BingoRoomServices from "../services/bingoRoom.service";
 import sendResponse from "../utils/sendResponse";
+const customEmitter = require("../utils/eventEmitter");
 
 class BingoRoomController {
   // POST /rooms - Crear una nueva sala
@@ -91,6 +92,43 @@ class BingoRoomController {
       sendResponse(res, 200, result, "Room deleted successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
+    }
+  }
+
+  async sangBingo(req, res) {
+    const { markedSquares, roomId } = req.body;
+    const room = await BingoRoomServices.getRoomById(roomId);
+    const figure = room.bingoFigure.index_to_validate;
+    const historyBallots = room.history_of_ballots;
+
+    customEmitter.emit("sangBingo", "Validando");
+
+    // Obtener los índices marcados que están marcados como true
+    const indicesMarcados = markedSquares
+      .map((celda, indice) => celda.isMarked && indice)
+      .filter((indice) => indice !== false);
+
+    // Verificar si todos los índices de la figura están marcados
+    const esFiguraCompleta = figure.every((indiceFigura) =>
+      indicesMarcados.includes(indiceFigura)
+    );
+
+    // Verificar si los valores en los índices de la figura que están marcados
+    // coinciden con los valores de las balotas que han salido
+    const esValido = figure.every((indiceFigura) =>
+      historyBallots.includes(markedSquares[indiceFigura].value)
+    );
+
+    // Determinar si es ganador
+    const esGanador = esFiguraCompleta && esValido;
+
+    // Emitir el evento y enviar la respuesta basada en si es ganador o no
+    if (esGanador) {
+      customEmitter.emit("sangBingo", true);
+      sendResponse(res, 200, null, "¡Ganaste el Bingo!");
+    } else {
+      customEmitter.emit("sangBingo", false);
+      sendResponse(res, 400, null, "Todavía no ganas el Bingo.");
     }
   }
 }

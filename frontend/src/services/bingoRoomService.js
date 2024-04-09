@@ -86,6 +86,18 @@ const bingoRoomService = {
       throw error;
     }
   },
+
+  sangBingo: async (markedSquares, roomId) => {
+    try {
+      const response = await apiBingoRoom.post(`/sangBingo`, {
+        markedSquares,
+        roomId,
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default bingoRoomService;

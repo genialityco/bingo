@@ -390,7 +390,7 @@ const SelectFigure = ({
       >
         {bingoTemplates.map((template) => (
           <Option key={template._id} value={template._id}>
-            {template.title}
+            {template.title} - {template.format}
           </Option>
         ))}
       </Select>

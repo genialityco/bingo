@@ -27,4 +27,6 @@ router.put("/rooms/:id", BingoRoomController.updateRoom);
 // Ruta para eliminar una sala específica
 router.delete("/rooms/:id", BingoRoomController.deleteRoom);
 
+router.post("/rooms/sangBingo", BingoRoomController.sangBingo);
+
 export default router;

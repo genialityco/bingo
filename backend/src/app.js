@@ -70,6 +70,15 @@ io.on("connection", (socket) => {
     socket.emit("ballotUpdate", data); // Emitir eventos a los clientes conectados con los cambios de datos
   });
 
+  customEmitter.on("sangBingo", (isWinner) => {
+    if (isWinner) {
+      console.log("Tenemos un ganador en sangBingo!");
+    } else {
+      console.log("No hay ganador esta vez en sangBingo.");
+    }
+    socket.emit("sangBingo", isWinner);
+  });
+
   socket.on("disconnect", () => {
     console.log("Cliente desconectado");
   });
