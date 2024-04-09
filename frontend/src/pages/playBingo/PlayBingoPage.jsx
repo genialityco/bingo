@@ -134,6 +134,44 @@ export const PlayBingoPage = () => {
     }
   };
 
+  const [histoySangBingo, setHistoySangBingo] = useState([]);
+
+//   useEffect(() => {
+//     const socket = io(SOCKET_SERVER_URL);
+
+//     socket.on("sangBingo", (data) => {
+//       console.log("Datos recibidos del servidor:", data);
+//       let message;
+//       let color;
+
+//       if (data === "Validando") {
+//         message = "Estamos validando el bingo, ¡espera un momento!";
+//         color = "Grey"; // o cualquier color de tu elección
+//       } else if (data === true) {
+//         message = "¡Felicidades! Han cantado bingo y es un ganador.";
+//         color = "green"; // o cualquier color de tu elección
+//       } else if (data === false) {
+//         message = "Lo sentimos, no es un ganador esta vez.";
+//         color = "red"; // o cualquier color de tu elección
+//       }
+
+//       setAlertData({ color, message });
+//       setShowAlert(true);
+
+//       // Ocultar la alerta después de un tiempo
+//       setTimeout(() => {
+//         setShowAlert(true);
+//       }, 2000); // Ajusta el tiempo según tus necesidades
+//     });
+
+//     return () => {
+//       socket.off("ballotUpdate");
+//       socket.off("sangBingo");
+//       socket.disconnect();
+//     };
+//   }, []);
+
+
   return (
     
     <div className="flex flex-col w-full bg-gray-300 p-4">
