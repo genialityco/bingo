@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -10,14 +10,20 @@ import {
   TabPanel,
   Button,
   Alert,
-} from "@material-tailwind/react";
-import { DndContext, useDraggable } from "@dnd-kit/core";
-import BingoCardStatic from "../../components/BingoCard";
-import io from "socket.io-client";
-import bingoRoomService from "../../services/bingoRoomService";
-import bingoConfig from "./bingoConfig.json";
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Input,
+  Textarea,
+} from '@material-tailwind/react';
+import { DndContext, useDraggable } from '@dnd-kit/core';
+import BingoCardStatic from '../../components/BingoCard';
+import io from 'socket.io-client';
+import bingoRoomService from '../../services/bingoRoomService';
+import bingoConfig from './bingoConfig.json';
 
-const SOCKET_SERVER_URL = "http://localhost:5000";
+const SOCKET_SERVER_URL = 'http://localhost:5000';
 
 export const RoomPage = () => {
   const bottomSectionRef = useRef(null);
@@ -26,10 +32,10 @@ export const RoomPage = () => {
 
   const { dimensions } = bingoConfig;
   // Calcula el número de filas y columnas a partir de las dimensiones.
-  const [rows, cols] = dimensions.format.split("x").map(Number);
+  const [rows, cols] = dimensions.format.split('x').map(Number);
   const totalSquares = rows * cols;
 
-  const savedMarkedSquares = JSON.parse(localStorage.getItem("markedSquares"));
+  const savedMarkedSquares = JSON.parse(localStorage.getItem('markedSquares'));
 
   const [markedSquares, setMarkedSquares] = useState(
     savedMarkedSquares ||
@@ -55,10 +61,13 @@ export const RoomPage = () => {
   // con markedSquares como dependencia, o realizar el console.log dentro de
   // una promesa o función asíncrona si setMarkedSquares lo permite.
 
+  //extraer el userId de la localStorage
+  const storageUserId = JSON.parse(localStorage.getItem('userId'));
+
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
-      await bingoRoomService.sangBingo(markedSquares, room._id);
+      await bingoRoomService.sangBingo(markedSquares, room._id, storageUserId);
     } catch (error) {
       console.error(error);
     }
@@ -66,12 +75,12 @@ export const RoomPage = () => {
 
   useEffect(() => {
     // Guarda las casillas marcadas en localStorage cada vez que cambian
-    localStorage.setItem("markedSquares", JSON.stringify(markedSquares));
+    localStorage.setItem('markedSquares', JSON.stringify(markedSquares));
   }, [markedSquares]);
 
   useEffect(() => {
     if (bottomSectionRef.current) {
-      bottomSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
@@ -86,7 +95,7 @@ export const RoomPage = () => {
   const getBallotsHistory = async () => {
     try {
       const roomData = await bingoRoomService.getRoomById(
-        "661077c0bfb6c413af382930"
+        '661077c0bfb6c413af382930'
       );
       setRoom(roomData);
       setBallotsHistory(roomData.history_of_ballots);
@@ -97,15 +106,15 @@ export const RoomPage = () => {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
-    color: "lightBlue",
-    message: "",
+    color: 'lightBlue',
+    message: '',
   });
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
 
-    socket.on("ballotUpdate", (data) => {
-      console.log("Datos recibidos del servidor:", data);
+    socket.on('ballotUpdate', (data) => {
+      console.log('Datos recibidos del servidor:', data);
 
       // Si los campos actualizados incluyen el historial de balotas,
       // extrae el número de la última balota.
@@ -116,12 +125,12 @@ export const RoomPage = () => {
         // Encuentra la clave que contiene la cadena 'history_of_ballots'
         // y obtén el valor de la última balota actualizada.
         for (const key in updatedFields) {
-          if (key.startsWith("history_of_ballots")) {
+          if (key.startsWith('history_of_ballots')) {
             const lastBallot = updatedFields[key];
             setLastBallot(lastBallot); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
-          if (key.startsWith("bingoFigure")) {
+          if (key.startsWith('bingoFigure')) {
             getBallotsHistory(); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
@@ -129,20 +138,22 @@ export const RoomPage = () => {
       }
     });
 
-    socket.on("sangBingo", (data) => {
-      console.log("Datos recibidos del servidor:", data);
+    socket.on('sangBingo', (data) => {
+      console.log('Datos recibidos del servidor:', data);
+      // const data={userId:"123", status:"Validando"}
       let message;
       let color;
+      const{userId, status}=data;
 
-      if (data === "Validando") {
-        message = "Estamos validando el bingo, ¡espera un momento!";
-        color = "Grey"; // o cualquier color de tu elección
-      } else if (data === true) {
-        message = "¡Felicidades! Han cantado bingo y es un ganador.";
-        color = "green"; // o cualquier color de tu elección
-      } else if (data === false) {
-        message = "Lo sentimos, no es un ganador esta vez.";
-        color = "red"; // o cualquier color de tu elección
+      if (userId === storageUserId && status== 'Validando') {
+        message = 'Estamos validando el bingo, ¡espera un momento!';
+        color = 'Grey'; // o cualquier color de tu elección
+      } else if (status === true) {
+        message = '¡Felicidades! Han cantado bingo y es un ganador.';
+        color = 'green'; // o cualquier color de tu elección
+      } else if (status === false) {
+        message = 'Lo sentimos, no es un ganador esta vez.';
+        color = 'red'; // o cualquier color de tu elección
       }
 
       setAlertData({ color, message });
@@ -155,8 +166,8 @@ export const RoomPage = () => {
     });
 
     return () => {
-      socket.off("ballotUpdate");
-      socket.off("sangBingo");
+      socket.off('ballotUpdate');
+      socket.off('sangBingo');
       socket.disconnect();
     };
   }, []);
@@ -169,101 +180,173 @@ export const RoomPage = () => {
   }, [lastBallot]);
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div
-        // className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4"
-        className="flex flex-col lg:h-screen w-full  bg-gray-300 p-1"
-        ref={bottomSectionRef}
-      >
-        {showAlert && (
-          <Alert
-            color={alertData.color}
-            onClose={() => setShowAlert(false)}
-            animate={{
-              mount: { y: 0 },
-              unmount: { y: 100 },
-            }}
-          >
-            {alertData.message}
-          </Alert>
-        )}
-        {/* Información del evento */}
-        <section>
-          <Accordion title="Bingo especial de fin de semana">
-            <Typography variant="small" className="mb-1">
-              <strong>Sala:</strong> 10025
-            </Typography>
-            <Typography variant="small" className="mb-1">
-              <strong>Código de cartón:</strong> QC525
-            </Typography>
-            <Typography variant="small">
-              <strong>Jugador:</strong> Juan Mosquera
-            </Typography>
-            {/* Agrega aquí más detalles que quieras mostrar al expandir */}
-          </Accordion>
-        </section>
+    <>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div
+          // className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4"
+          className="flex flex-col lg:h-screen w-full  bg-gray-300 p-1"
+          ref={bottomSectionRef}
+        >
+          {showAlert && (
+            <Alert
+              color={alertData.color}
+              onClose={() => setShowAlert(false)}
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: 100 },
+              }}
+            >
+              {alertData.message}
+            </Alert>
+          )}
+          {/* Información del evento */}
+          <section>
+            <Accordion title="Bingo especial de fin de semana">
+              <Typography variant="small" className="mb-1">
+                <strong>Sala:</strong> 10025
+              </Typography>
+              <Typography variant="small" className="mb-1">
+                <strong>Código de cartón:</strong> QC525
+              </Typography>
+              <Typography variant="small">
+                <strong>Jugador:</strong> Juan Mosquera
+              </Typography>
+              {/* Agrega aquí más detalles que quieras mostrar al expandir */}
+            </Accordion>
+          </section>
 
-        {/* Contenido principal dividido en dos */}
-        <div className="flex flex-1 min-h-0 flex-col md:flex-row">
-          {/* Sección del cartón de bingo */}
-          <div className="flex flex-col md:hidden">
-            <Card className="flex-none">
-              <CardBody>
-                {/* Balotas y controles */}
+          {/* Contenido principal dividido en dos */}
+          <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+            {/* Sección del cartón de bingo */}
+            <div className="flex flex-col md:hidden">
+              <Card className="flex-none">
+                <CardBody>
+                  {/* Balotas y controles */}
+                  <DataGame
+                    lastBallot={lastBallot}
+                    ballotsHistory={ballotsHistory}
+                  />
+                </CardBody>
+              </Card>
+            </div>
+
+            <div className="flex flex-col flex-1 mb-4 md:mb-0 md:mr-2">
+              <Card className="flex flex-col flex-1 overflow-y-auto">
+                <div className="shadow-lg p-2 flex justify-evenly items-center">
+                  <Button size="sm" color="green" onClick={handleBingoCall}>
+                    Cantar Bingo
+                  </Button>
+                  <Button size="sm" color="blue">
+                    Limpiar Cartón
+                  </Button>
+                  <Button size="sm" color="gray">
+                    Chat
+                  </Button>
+                </div>
+                <BingoCard
+                  markedSquares={markedSquares}
+                  onMarkSquare={handleMarkSquare}
+                />
+              </Card>
+            </div>
+
+            {/* Transmisión en miniatura arrastrable para móviles */}
+
+            <DraggableLiveStream position={liveStreamPosition} />
+
+            {/* Sección de transmisión y balotas */}
+            <div className="hidden md:flex flex-col flex-1">
+              {/* <Card className="mb-4 md:mb-2 flex-1">
+              <CardBody className="overflow-auto"> */}
+              <Card className="h-full mb-4 md:mb-2 flex-1">
+                <CardBody className="relative h-full">
+                  {/* Contenido de la transmisión */}
+                  <LiveStream />
+                </CardBody>
+              </Card>
+              <Card className="flex-none">
                 <DataGame
                   lastBallot={lastBallot}
                   ballotsHistory={ballotsHistory}
                 />
-              </CardBody>
-            </Card>
-          </div>
-
-          <div className="flex flex-col flex-1 mb-4 md:mb-0 md:mr-2">
-            <Card className="flex flex-col flex-1 overflow-y-auto">
-              <div className="shadow-lg p-2 flex justify-evenly items-center">
-                <Button size="sm" color="green" onClick={handleBingoCall}>
-                  Cantar Bingo
-                </Button>
-                <Button size="sm" color="blue">
-                  Limpiar Cartón
-                </Button>
-                <Button size="sm" color="gray">
-                  Chat
-                </Button>
-              </div>
-              <BingoCard
-                markedSquares={markedSquares}
-                onMarkSquare={handleMarkSquare}
-              />
-            </Card>
-          </div>
-
-          {/* Transmisión en miniatura arrastrable para móviles */}
-
-          <DraggableLiveStream position={liveStreamPosition} />
-
-          {/* Sección de transmisión y balotas */}
-          <div className="hidden md:flex flex-col flex-1">
-            {/* <Card className="mb-4 md:mb-2 flex-1">
-              <CardBody className="overflow-auto"> */}
-            <Card className="h-full mb-4 md:mb-2 flex-1">
-              <CardBody className="relative h-full">
-                {/* Contenido de la transmisión */}
-                <LiveStream />
-              </CardBody>
-            </Card>
-            <Card className="flex-none">
-              <DataGame
-                lastBallot={lastBallot}
-                ballotsHistory={ballotsHistory}
-              />
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
-      </div>
-    </DndContext>
+      </DndContext>
+      <MessageDialog />
+    </>
   );
 };
+
+
+// componente de ingreso del nombre del jugador
+export function MessageDialog() {
+  const [open, setOpen] = React.useState(false);
+  const [userId, setUserId] = useState('');
+  const [hasUserEntered, setHasUserEntered] = useState(false);
+
+  useEffect(() => {
+    // Verificar si el usuario ya ha ingresado
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setHasUserEntered(true);
+    } else {
+      // Si el usuario no ha ingresado, abrir el diálogo automáticamente
+      setOpen(true);
+    }
+  }, []);
+
+  const handleButtonSendUser = (e) => {
+    e.preventDefault();
+    console.log('Enviando', userId);
+    localStorage.setItem('userId', JSON.stringify(userId));
+    setOpen(false);
+    setHasUserEntered(true); // Marcar que el usuario ha ingresado
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    // Puedes agregar lógica adicional aquí si es necesario
+  };
+
+  // Si el usuario ya ha ingresado, no renderizar el componente
+  if (hasUserEntered) {
+    return null;
+  }
+
+  return (
+    <>
+      <Dialog
+        open={open}
+        size="xs"
+       /*  handler={handleClose} */
+      >
+        <div className="flex items-center justify-between">
+        </div>
+        <DialogBody>
+          <form onSubmit={handleButtonSendUser}>
+            <div className="grid gap-6">
+              <Typography className="-mb-1" color="blue-gray" variant="h6">
+                Ingrese un nombre para jugar
+              </Typography>
+              <Input
+                label="Nombre"
+                onChange={(e) => setUserId(e.target.value)}
+              />
+            </div>
+            <DialogFooter className="space-x-2">
+              <Button onClick={handleCancel}>Cancel</Button>
+              <Button variant="gradient" color="gray" type="submit" disabled={!userId}>
+                Enviar
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogBody>
+      </Dialog>
+    </>
+  );
+}
 
 const BingoCard = ({ markedSquares, onMarkSquare }) => {
   // Componente para renderizar el cartón de bingo
@@ -288,8 +371,8 @@ const BallsDrawn = ({ lastBallot }) => {
     <div>
       <Typography>
         {lastBallot
-          ? "¡El bingo ha iniciado!"
-          : "¡El bingo aún no ha iniciado!"}
+          ? '¡El bingo ha iniciado!'
+          : '¡El bingo aún no ha iniciado!'}
       </Typography>
       {lastBallot && (
         <Typography variant="h5" className="bg-green-500">
@@ -325,18 +408,18 @@ const Figure = () => {
 const DataGame = ({ lastBallot, ballotsHistory }) => {
   const dataTabs = [
     {
-      label: "Balotas",
-      value: "balls",
+      label: 'Balotas',
+      value: 'balls',
       content: <BallsDrawn lastBallot={lastBallot} />,
     },
     {
-      label: "Historial de balotas",
-      value: "HistoryBalls",
+      label: 'Historial de balotas',
+      value: 'HistoryBalls',
       content: <History ballotsHistory={ballotsHistory} />,
     },
     {
-      label: "Figura",
-      value: "Figure",
+      label: 'Figura',
+      value: 'Figure',
       content: <Figure />,
     },
   ];
@@ -382,12 +465,12 @@ const Accordion = ({ title, children }) => {
 
 const DraggableLiveStream = ({ position }) => {
   const { attributes, listeners, setNodeRef } = useDraggable({
-    id: "draggable-live-stream",
+    id: 'draggable-live-stream',
   });
 
   const style = {
     transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-    transition: "transform 0.2s",
+    transition: 'transform 0.2s',
   };
 
   return (
