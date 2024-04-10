@@ -25,34 +25,33 @@ export const PlayBingoPage = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [bingoRequests, setBingoRequests] = useState([]);
 
+  const STATUS_WINNER = "Ganador";
+  const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
+  const STATUS_VALIDATING = "Validando";
+
   // Función para agregar una nueva solicitud de bingo al estado o actualizar el estado existente
   const addBingoRequest = (user, status) => {
-    user = JSON.parse(localStorage.getItem("userId"));
     setBingoRequests((prevRequests) => {
-      // Verificar si ya hay una solicitud para el usuario
-      const existingRequestIndex = prevRequests.findIndex(
+      const existingRequest = prevRequests.find(
         (request) => request.user === user
       );
 
-      // Si existe, actualiza el estado del usuario
-      if (existingRequestIndex !== -1) {
-        const updatedRequests = [...prevRequests];
-        if (status === true) {
-          updatedRequests[existingRequestIndex] = {
-            ...updatedRequests[existingRequestIndex],
-            status: "Ganador",
-          };
-        } else if (status === false) {
-          updatedRequests[existingRequestIndex] = {
-            ...updatedRequests[existingRequestIndex],
-            status: "Aun no ha ganado",
-          };
-        }
+      if (existingRequest) {
+        const updatedStatus = status ? STATUS_WINNER : STATUS_NOT_YET_WINNER;
+        const updatedRequests = prevRequests.map((request) =>
+          request.user === user
+            ? { ...request, status: updatedStatus }
+            : request
+        );
+
         localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
         return updatedRequests;
       } else {
-        // Si no existe, agrega una nueva solicitud con el estado "Validando"
-        return [...prevRequests, { user, status: "Validando" }];
+        const newRequest = { user, status: STATUS_VALIDATING };
+        const updatedRequests = [...prevRequests, newRequest];
+
+        localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
+        return updatedRequests;
       }
     });
   };

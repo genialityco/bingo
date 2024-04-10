@@ -61,9 +61,6 @@ export const RoomPage = () => {
   // con markedSquares como dependencia, o realizar el console.log dentro de
   // una promesa o función asíncrona si setMarkedSquares lo permite.
 
-  //extraer el userId de la localStorage
-  const storageUserId = JSON.parse(localStorage.getItem("userId"));
-  console.log(storageUserId);
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
@@ -143,6 +140,10 @@ export const RoomPage = () => {
       // const data={userId:"123", status:"Validando"}
       let message;
       let color;
+
+      //extraer el userId de la localStorage
+      const storageUserId = JSON.parse(localStorage.getItem("userId"));
+
       const { userId, status } = data;
       console.log(userId, storageUserId);
       if (userId === storageUserId && status == "Validando") {
@@ -389,7 +390,7 @@ const BallsDrawn = ({ lastBallot }) => {
           : "¡El bingo aún no ha iniciado!"}
       </Typography>
       {lastBallot && (
-        <Typography variant="h5" >
+        <Typography variant="h5">
           Última balota sacada:{" "}
           <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
             {lastBallot}
