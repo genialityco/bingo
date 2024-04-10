@@ -234,6 +234,7 @@ export const RoomPage = () => {
                   <DataGame
                     lastBallot={lastBallot}
                     ballotsHistory={ballotsHistory}
+                    room={room}
                   />
                 </CardBody>
               </Card>
@@ -277,6 +278,7 @@ export const RoomPage = () => {
                 <DataGame
                   lastBallot={lastBallot}
                   ballotsHistory={ballotsHistory}
+                  room={room}
                 />
               </Card>
             </div>
@@ -387,8 +389,11 @@ const BallsDrawn = ({ lastBallot }) => {
           : "¡El bingo aún no ha iniciado!"}
       </Typography>
       {lastBallot && (
-        <Typography variant="h5" className="bg-green-500">
-          Última balota sacada: {lastBallot}
+        <Typography variant="h5" >
+          Última balota sacada:{" "}
+          <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
+            {lastBallot}
+          </Typography>
         </Typography>
       )}
       {/* Puedes agregar más lógica aquí para mostrar las balotas como lo necesites */}
@@ -413,11 +418,21 @@ const History = ({ ballotsHistory }) => {
   );
 };
 
-const Figure = () => {
-  return <div>Figura aquí</div>;
+const Figure = ({ room }) => {
+  return (
+    <div>
+      <img
+        src={room?.bingoFigure?.image}
+        alt="Figura de Bingo"
+        width={"140"}
+        height={"100"}
+        className="m-auto mt-2"
+      />
+    </div>
+  );
 };
 
-const DataGame = ({ lastBallot, ballotsHistory }) => {
+const DataGame = ({ lastBallot, ballotsHistory, room }) => {
   const dataTabs = [
     {
       label: "Balotas",
@@ -432,7 +447,7 @@ const DataGame = ({ lastBallot, ballotsHistory }) => {
     {
       label: "Figura",
       value: "Figure",
-      content: <Figure />,
+      content: <Figure room={room} />,
     },
   ];
 
