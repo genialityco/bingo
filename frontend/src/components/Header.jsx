@@ -63,8 +63,8 @@ export function Header() {
   }, []);
 
   const goToAdminBingo = () => {
-    navigate("/play-bingo")
-  }
+    navigate("/play-bingo");
+  };
 
   return (
     <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg">
