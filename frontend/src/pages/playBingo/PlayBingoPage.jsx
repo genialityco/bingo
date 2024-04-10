@@ -51,6 +51,7 @@ export const PlayBingoPage = () => {
         const updatedRequests = [...prevRequests, newRequest];
 
         localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
+        console.log(bingoRequests);
         return updatedRequests;
       }
     });
