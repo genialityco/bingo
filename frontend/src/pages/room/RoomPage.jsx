@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardBody,
@@ -16,14 +16,14 @@ import {
   DialogFooter,
   Input,
   Textarea,
-} from '@material-tailwind/react';
-import { DndContext, useDraggable } from '@dnd-kit/core';
-import BingoCardStatic from '../../components/BingoCard';
-import io from 'socket.io-client';
-import bingoRoomService from '../../services/bingoRoomService';
-import bingoConfig from './bingoConfig.json';
+} from "@material-tailwind/react";
+import { DndContext, useDraggable } from "@dnd-kit/core";
+import BingoCardStatic from "../../components/BingoCard";
+import io from "socket.io-client";
+import bingoRoomService from "../../services/bingoRoomService";
+import bingoConfig from "./bingoConfig.json";
 
-const SOCKET_SERVER_URL = 'http://localhost:5000';
+const SOCKET_SERVER_URL = "http://localhost:5000";
 
 export const RoomPage = () => {
   const bottomSectionRef = useRef(null);
@@ -32,10 +32,10 @@ export const RoomPage = () => {
 
   const { dimensions } = bingoConfig;
   // Calcula el número de filas y columnas a partir de las dimensiones.
-  const [rows, cols] = dimensions.format.split('x').map(Number);
+  const [rows, cols] = dimensions.format.split("x").map(Number);
   const totalSquares = rows * cols;
 
-  const savedMarkedSquares = JSON.parse(localStorage.getItem('markedSquares'));
+  const savedMarkedSquares = JSON.parse(localStorage.getItem("markedSquares"));
 
   const [markedSquares, setMarkedSquares] = useState(
     savedMarkedSquares ||
@@ -62,8 +62,8 @@ export const RoomPage = () => {
   // una promesa o función asíncrona si setMarkedSquares lo permite.
 
   //extraer el userId de la localStorage
-  const storageUserId = JSON.parse(localStorage.getItem('userId'));
-
+  const storageUserId = JSON.parse(localStorage.getItem("userId"));
+  console.log(storageUserId);
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
@@ -75,12 +75,12 @@ export const RoomPage = () => {
 
   useEffect(() => {
     // Guarda las casillas marcadas en localStorage cada vez que cambian
-    localStorage.setItem('markedSquares', JSON.stringify(markedSquares));
+    localStorage.setItem("markedSquares", JSON.stringify(markedSquares));
   }, [markedSquares]);
 
   useEffect(() => {
     if (bottomSectionRef.current) {
-      bottomSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      bottomSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
@@ -95,7 +95,7 @@ export const RoomPage = () => {
   const getBallotsHistory = async () => {
     try {
       const roomData = await bingoRoomService.getRoomById(
-        '661077c0bfb6c413af382930'
+        "661077c0bfb6c413af382930"
       );
       setRoom(roomData);
       setBallotsHistory(roomData.history_of_ballots);
@@ -106,15 +106,15 @@ export const RoomPage = () => {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
-    color: 'lightBlue',
-    message: '',
+    color: "lightBlue",
+    message: "",
   });
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
 
-    socket.on('ballotUpdate', (data) => {
-      console.log('Datos recibidos del servidor:', data);
+    socket.on("ballotUpdate", (data) => {
+      console.log("Datos recibidos del servidor:", data);
 
       // Si los campos actualizados incluyen el historial de balotas,
       // extrae el número de la última balota.
@@ -125,12 +125,12 @@ export const RoomPage = () => {
         // Encuentra la clave que contiene la cadena 'history_of_ballots'
         // y obtén el valor de la última balota actualizada.
         for (const key in updatedFields) {
-          if (key.startsWith('history_of_ballots')) {
+          if (key.startsWith("history_of_ballots")) {
             const lastBallot = updatedFields[key];
             setLastBallot(lastBallot); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
-          if (key.startsWith('bingoFigure')) {
+          if (key.startsWith("bingoFigure")) {
             getBallotsHistory(); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
@@ -138,22 +138,31 @@ export const RoomPage = () => {
       }
     });
 
-    socket.on('sangBingo', (data) => {
-      console.log('Datos recibidos del servidor:', data);
+    socket.on("sangBingo", (data) => {
+      console.log("Datos recibidos del servidor:", data);
       // const data={userId:"123", status:"Validando"}
       let message;
       let color;
-      const{userId, status}=data;
-
-      if (userId === storageUserId && status== 'Validando') {
-        message = 'Estamos validando el bingo, ¡espera un momento!';
-        color = 'Grey'; // o cualquier color de tu elección
+      const { userId, status } = data;
+      console.log(userId, storageUserId);
+      if (userId === storageUserId && status == "Validando") {
+        message = "Estamos validando el bingo, ¡espera un momento!";
+        color = "Grey";
+      } else if (userId === storageUserId && status === true) {
+        message = "Felicidades! Eres el ganador del bingo.";
+        color = "green";
+      } else if (userId === storageUserId && status === false) {
+        message = "Lo sentimos, no has ganado, revisa las balotas.";
+        color = "red";
+      } else if (status == "Validando") {
+        message = "Alguien ha cantado bingo, ¡espera un momento!";
+        color = "Grey";
       } else if (status === true) {
-        message = '¡Felicidades! Han cantado bingo y es un ganador.';
-        color = 'green'; // o cualquier color de tu elección
+        message = "Alguien han cantado bingo y es un ganador.";
+        color = "green"; // o cualquier color de tu elección
       } else if (status === false) {
-        message = 'Lo sentimos, no es un ganador esta vez.';
-        color = 'red'; // o cualquier color de tu elección
+        message = "Lo sentimos, no es un ganador esta vez.";
+        color = "red"; // o cualquier color de tu elección
       }
 
       setAlertData({ color, message });
@@ -166,8 +175,8 @@ export const RoomPage = () => {
     });
 
     return () => {
-      socket.off('ballotUpdate');
-      socket.off('sangBingo');
+      socket.off("ballotUpdate");
+      socket.off("sangBingo");
       socket.disconnect();
     };
   }, []);
@@ -279,16 +288,15 @@ export const RoomPage = () => {
   );
 };
 
-
 // componente de ingreso del nombre del jugador
 export function MessageDialog() {
   const [open, setOpen] = React.useState(false);
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState("");
   const [hasUserEntered, setHasUserEntered] = useState(false);
 
   useEffect(() => {
     // Verificar si el usuario ya ha ingresado
-    const storedUserId = localStorage.getItem('userId');
+    const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setHasUserEntered(true);
     } else {
@@ -299,8 +307,8 @@ export function MessageDialog() {
 
   const handleButtonSendUser = (e) => {
     e.preventDefault();
-    console.log('Enviando', userId);
-    localStorage.setItem('userId', JSON.stringify(userId));
+    console.log("Enviando", userId);
+    localStorage.setItem("userId", JSON.stringify(userId));
     setOpen(false);
     setHasUserEntered(true); // Marcar que el usuario ha ingresado
   };
@@ -320,10 +328,9 @@ export function MessageDialog() {
       <Dialog
         open={open}
         size="xs"
-       /*  handler={handleClose} */
+        /*  handler={handleClose} */
       >
-        <div className="flex items-center justify-between">
-        </div>
+        <div className="flex items-center justify-between"></div>
         <DialogBody>
           <form onSubmit={handleButtonSendUser}>
             <div className="grid gap-6">
@@ -337,7 +344,12 @@ export function MessageDialog() {
             </div>
             <DialogFooter className="space-x-2">
               <Button onClick={handleCancel}>Cancel</Button>
-              <Button variant="gradient" color="gray" type="submit" disabled={!userId}>
+              <Button
+                variant="gradient"
+                color="gray"
+                type="submit"
+                disabled={!userId}
+              >
                 Enviar
               </Button>
             </DialogFooter>
@@ -371,8 +383,8 @@ const BallsDrawn = ({ lastBallot }) => {
     <div>
       <Typography>
         {lastBallot
-          ? '¡El bingo ha iniciado!'
-          : '¡El bingo aún no ha iniciado!'}
+          ? "¡El bingo ha iniciado!"
+          : "¡El bingo aún no ha iniciado!"}
       </Typography>
       {lastBallot && (
         <Typography variant="h5" className="bg-green-500">
@@ -408,18 +420,18 @@ const Figure = () => {
 const DataGame = ({ lastBallot, ballotsHistory }) => {
   const dataTabs = [
     {
-      label: 'Balotas',
-      value: 'balls',
+      label: "Balotas",
+      value: "balls",
       content: <BallsDrawn lastBallot={lastBallot} />,
     },
     {
-      label: 'Historial de balotas',
-      value: 'HistoryBalls',
+      label: "Historial de balotas",
+      value: "HistoryBalls",
       content: <History ballotsHistory={ballotsHistory} />,
     },
     {
-      label: 'Figura',
-      value: 'Figure',
+      label: "Figura",
+      value: "Figure",
       content: <Figure />,
     },
   ];
@@ -465,12 +477,12 @@ const Accordion = ({ title, children }) => {
 
 const DraggableLiveStream = ({ position }) => {
   const { attributes, listeners, setNodeRef } = useDraggable({
-    id: 'draggable-live-stream',
+    id: "draggable-live-stream",
   });
 
   const style = {
     transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-    transition: 'transform 0.2s',
+    transition: "transform 0.2s",
   };
 
   return (

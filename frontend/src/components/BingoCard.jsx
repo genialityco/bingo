@@ -38,6 +38,7 @@ const BingoCardStatic = ({ bingoConfig, markedSquares, onMarkSquare }) => {
       const newCardValues = generateRandomValues();
       setCardValues(newCardValues);
       localStorage.setItem("cardValues", JSON.stringify(newCardValues)); // Guarda los nuevos valores en localStorage
+      
     }
   }, [bingo_values, totalSquares, savedCardValues]);
 
