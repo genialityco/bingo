@@ -9,6 +9,8 @@ import {
   ListItem,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+
 function NavList() {
   return (
     <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
@@ -51,6 +53,7 @@ function NavList() {
 
 export function Header() {
   const [openNav, setOpenNav] = React.useState(false);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     window.addEventListener(
@@ -58,6 +61,10 @@ export function Header() {
       () => window.innerWidth >= 960 && setOpenNav(false)
     );
   }, []);
+
+  const goToAdminBingo = () => {
+    navigate("/play-bingo")
+  }
 
   return (
     <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg">
@@ -74,8 +81,8 @@ export function Header() {
           <NavList />
         </div>
         <div className="hidden gap-2 lg:flex">
-          <Button size="sm" color="blue-gray">
-            Iniciar sesión
+          <Button size="sm" color="blue-gray" onClick={goToAdminBingo}>
+            Ir a la sala del bingo
           </Button>
           <Button variant="gradient" size="sm">
             Registrarse
