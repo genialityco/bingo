@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Asegúrate de reemplazar esto con el origen de tu cliente, si es diferente
+    origin: process.env.CLIENT_URI, // Asegúrate de reemplazar esto con el origen de tu cliente, si es diferente
     methods: ["GET", "POST"], // Métodos HTTP permitidos
     allowedHeaders: ["my-custom-header"], // Cabeceras permitidas
     credentials: true, // Permite cookies de origen cruzado

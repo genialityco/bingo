@@ -23,7 +23,7 @@ import io from "socket.io-client";
 import bingoRoomService from "../../services/bingoRoomService";
 import bingoConfig from "./bingoConfig.json";
 
-const SOCKET_SERVER_URL = "http://localhost:5000";
+const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
 export const RoomPage = () => {
   const bottomSectionRef = useRef(null);

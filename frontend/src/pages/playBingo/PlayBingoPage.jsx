@@ -13,7 +13,7 @@ import bingoRoomService from "../../services/bingoRoomService";
 import bingoConfigJson from "../room/bingoConfig.json";
 import io from "socket.io-client";
 
-const SOCKET_SERVER_URL = "http://localhost:5000";
+const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
 const bingoConfig = bingoConfigJson;
 
