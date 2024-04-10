@@ -67,7 +67,7 @@ export const RoomPage = () => {
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
-      console.log(markedSquares, room._id, storageUserId);
+      console.log(markedSquares, room._id, storageUserId)
       await bingoRoomService.sangBingo(markedSquares, room._id, storageUserId);
     } catch (error) {
       console.error(error);
@@ -144,7 +144,8 @@ export const RoomPage = () => {
       // const data={userId:"123", status:"Validando"}
       let message;
       let color;
-      const storageUserId = JSON.parse(localStorage.getItem("userId"));
+      let storageUserId = JSON.parse(localStorage.getItem("userId"));
+
       const { userId, status } = data;
       console.log(userId, storageUserId);
       if (userId === storageUserId && status == "Validando") {
@@ -287,7 +288,7 @@ export const RoomPage = () => {
           </div>
         </div>
       </DndContext>
-      <MessageDialog userId={userId} />
+      <MessageDialog />
     </>
   );
 };
