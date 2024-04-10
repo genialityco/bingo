@@ -37,15 +37,33 @@ export const PlayBingoPage = () => {
       );
 
       if (existingRequest) {
-        const updatedStatus = status ? STATUS_WINNER : STATUS_NOT_YET_WINNER;
-        const updatedRequests = prevRequests.map((request) =>
-          request.user === user
-            ? { ...request, status: updatedStatus }
-            : request
-        );
+        if (status === "Validando") {
+          const updatedStatus = status;
+          const updatedRequests = prevRequests.map((request) =>
+            request.user === user
+              ? { ...request, status: updatedStatus }
+              : request
+          );
 
-        localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
-        return updatedRequests;
+          localStorage.setItem(
+            "bingoRequests",
+            JSON.stringify(updatedRequests)
+          );
+          return updatedRequests;
+        } else {
+          const updatedStatus = status ? STATUS_WINNER : STATUS_NOT_YET_WINNER;
+          const updatedRequests = prevRequests.map((request) =>
+            request.user === user
+              ? { ...request, status: updatedStatus }
+              : request
+          );
+
+          localStorage.setItem(
+            "bingoRequests",
+            JSON.stringify(updatedRequests)
+          );
+          return updatedRequests;
+        }
       } else {
         const newRequest = { user, status: STATUS_VALIDATING };
         const updatedRequests = [...prevRequests, newRequest];
