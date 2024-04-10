@@ -61,9 +61,13 @@ export const RoomPage = () => {
   // con markedSquares como dependencia, o realizar el console.log dentro de
   // una promesa o función asíncrona si setMarkedSquares lo permite.
 
+  //extraer el userId de la localStorage
+  const storageUserId = JSON.parse(localStorage.getItem("userId"));
+
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
+      console.log(markedSquares, room._id, storageUserId)
       await bingoRoomService.sangBingo(markedSquares, room._id, storageUserId);
     } catch (error) {
       console.error(error);
@@ -140,9 +144,6 @@ export const RoomPage = () => {
       // const data={userId:"123", status:"Validando"}
       let message;
       let color;
-
-      //extraer el userId de la localStorage
-      const storageUserId = JSON.parse(localStorage.getItem("userId"));
 
       const { userId, status } = data;
       console.log(userId, storageUserId);
