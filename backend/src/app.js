@@ -6,8 +6,9 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import templatesBingoRoutes from "./routes/templateBingo";
+import bingoRoutes from "./routes/bingo.js";
 import roomBingoRoutes from "./routes/roomBingo.js";
+import templatesBingoRoutes from "./routes/templateBingo";
 
 const customEmitter = require("./utils/eventEmitter.js");
 const http = require("http");
@@ -30,8 +31,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
-app.use(templatesBingoRoutes);
+app.use(bingoRoutes);
 app.use(roomBingoRoutes);
+app.use(templatesBingoRoutes);
 
 app.get("/", (req, res) => {
   res.send("API bingo");

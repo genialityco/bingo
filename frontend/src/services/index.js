@@ -14,7 +14,8 @@ const createAxiosInstance = (baseURL) => {
   return api;
 };
 
-const apiTemplatesBingo = createAxiosInstance(`${API_BASE_URL}/templates`);
+const apiBingo = createAxiosInstance(`${API_BASE_URL}/bingos`);
 const apiBingoRoom = createAxiosInstance(`${API_BASE_URL}/rooms`);
+const apiTemplatesBingo = createAxiosInstance(`${API_BASE_URL}/templates`);
 
-export { apiTemplatesBingo, apiBingoRoom };
+export { apiBingo, apiBingoRoom, apiTemplatesBingo };

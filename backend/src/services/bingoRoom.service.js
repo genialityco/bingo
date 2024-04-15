@@ -29,6 +29,7 @@ class BingoRoomServices {
       await room.save();
       return room;
     } catch (error) {
+      console.error("Error add ballot to history:", error);
       throw error;
     }
   }
@@ -37,13 +38,14 @@ class BingoRoomServices {
     try {
       const room = await this._findRoomById(roomId);
       if (room) {
-        room.end_time = new Date(); // Establece el tiempo de finalización
-        room.number_of_winners = winners.length; // Actualiza el número de ganadores
-        room.winners = winners; // Actualiza la lista de ganadores
+        room.end_time = new Date();
+        room.number_of_winners = winners.length;
+        room.winners = winners;
         await room.save();
         return room;
       }
     } catch (error) {
+      console.error("Error at the end of the game:", error);
       throw error;
     }
   }
@@ -57,6 +59,7 @@ class BingoRoomServices {
       );
       return room;
     } catch (error) {
+      console.error("Error updating room capacity:", error);
       throw error;
     }
   }

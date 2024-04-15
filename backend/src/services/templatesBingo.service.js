@@ -7,7 +7,6 @@ class TemplatesBingoServices {
       await template.save();
       return template;
     } catch (error) {
-      // Manejo de errores, por ejemplo, loguear el error y luego lanzarlo
       console.error("Error creating template:", error);
       throw error;
     }
