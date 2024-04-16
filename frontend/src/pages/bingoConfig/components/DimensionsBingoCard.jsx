@@ -11,9 +11,6 @@ import {
   DialogBody,
   DialogFooter,
 } from '@material-tailwind/react';
-import bingoConfig from '../../room/bingoConfig.json';
-import bingoConfig2 from '../../room/bingoConfig2.json';
-import bingoConfing3 from '../../room/bingoConfig3.json';
 
 const TABLE_HEAD = ['Tipo de Cartón', 'Valor de la Balota', 'Opciones'];
 
