@@ -1,0 +1,19 @@
+{
+    "title": "Bingo de Palabras",
+    "rules": "Marca las palabras a medida que se llaman. Completa una fila, columna o diagonal para ganar.",
+    "creatorId": "625f3c5376abfe2e3a000027",
+    "bingoAppearance": {
+      "background_color": "#00bcd4",
+      "background_image": null,
+      "banner": "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoHeader.png?alt=media&token=973f45a2-deab-42f4-9479-546d9a0315aa",
+      "footer": "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoFooter.png?alt=media&token=08c9bac6-563d-419a-b207-d2dd2846ba1d",
+      "dial_image": null
+    },
+    "bingo_values": [
+      { "id": "1", "value": "Árbol", "type": "text" },
+      { "id": "2", "value": "Casa", "type": "text" },
+      { "id": "3", "value": "Perro", "type": "text" },
+      { "id": "4", "value": "Sol", "type": "text" }
+    ],
+    "dimensions": "4x4"
+  }

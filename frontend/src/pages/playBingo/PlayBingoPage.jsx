@@ -24,7 +24,8 @@ export const PlayBingoPage = () => {
   const [bingoTemplates, setBingoTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [bingoRequests, setBingoRequests] = useState([]);
-
+ 
+ 
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
   const STATUS_VALIDATING = "Validando";
@@ -98,7 +99,8 @@ export const PlayBingoPage = () => {
     const fetchRoom = async () => {
       try {
         const room = await bingoRoomService.getRoomById(
-          "661077c0bfb6c413af382930"
+          // "661077c0bfb6c413af382930"
+          "661c84fba4f025589e4ce1ea"
         );
         if (room.bingoFigure) {
           setSelectedTemplate(String(room.bingoFigure._id));
@@ -181,7 +183,11 @@ export const PlayBingoPage = () => {
               <Button onClick={drawBallot}>Sacar Balota</Button>
             </CardBody>
           </Card>
+          
         </div>
+
+      
+
 
         {/* Sección central para la figura del Bingo */}
         <div className="w-full md:w-1/3 flex flex-col items-center mb-4">

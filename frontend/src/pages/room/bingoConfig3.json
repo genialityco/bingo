@@ -1,0 +1,18 @@
+{
+    "title": "Bingo de Imágenes",
+    "rules": "Identifica las imágenes a medida que se muestran. Completa una fila, columna o diagonal para ganar.",
+    "creatorId": "625f3c5376abfe2e3a000027",
+    "bingoAppearance": {
+      "background_color": "#00bcd4",
+      "background_image": null,
+      "banner": "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoHeader.png?alt=media&token=973f45a2-deab-42f4-947je-546d9a0315aa",
+      "footer": "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoFooter.png?alt=media&token=08c9bac6-563d-419a-b207-d2dd2846ba1d",
+      "dial_image": null
+    },
+    "bingoValues": [
+      { "id": "1", "value": "Montaña", "type": "image", "imageUrl": "https://example.com/path/to/mountain.jpg" },
+      { "id": "2", "value": "Río", "type": "image", "imageUrl": "https://example.com/path/to/river.jpg" },
+      { "id": "3", "value": "Bosque", "type": "image", "imageUrl": "https://example.com/path/to/forest.jpg" }
+    ],
+    "dimensions": "3x3"
+  }

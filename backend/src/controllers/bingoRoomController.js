@@ -97,7 +97,6 @@ class BingoRoomController {
 
   async sangBingo(req, res) {
     const { markedSquares, roomId, userId } = req.body;
-    console.log(req.body)
     const room = await BingoRoomServices.getRoomById(roomId);
     const figure = room.bingoFigure.index_to_validate;
     const historyBallots = room.history_of_ballots;

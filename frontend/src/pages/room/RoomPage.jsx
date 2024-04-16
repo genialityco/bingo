@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardBody,
@@ -16,12 +16,12 @@ import {
   DialogFooter,
   Input,
   Textarea,
-} from "@material-tailwind/react";
-import { DndContext, useDraggable } from "@dnd-kit/core";
-import BingoCardStatic from "../../components/BingoCard";
-import io from "socket.io-client";
-import bingoRoomService from "../../services/bingoRoomService";
-import bingoConfig from "./bingoConfig.json";
+} from '@material-tailwind/react';
+import { DndContext, useDraggable } from '@dnd-kit/core';
+import BingoCardStatic from '../../components/BingoCard';
+import io from 'socket.io-client';
+import bingoRoomService from '../../services/bingoRoomService';
+import bingoConfig from './bingoConfig.json';
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -30,26 +30,31 @@ export const RoomPage = () => {
   const [liveStreamPosition, setLiveStreamPosition] = useState({ x: 0, y: 0 });
   const [lastBallot, setLastBallot] = useState(null);
 
+ 
+ 
+
   const { dimensions } = bingoConfig;
   // Calcula el número de filas y columnas a partir de las dimensiones.
-  const [rows, cols] = dimensions.format.split("x").map(Number);
+  const [rows, cols] = dimensions.format.split('x').map(Number);
   const totalSquares = rows * cols;
 
-  const savedMarkedSquares = JSON.parse(localStorage.getItem("markedSquares"));
+  const savedMarkedSquares = JSON.parse(localStorage.getItem('markedSquares'));
 
   const [markedSquares, setMarkedSquares] = useState(
     savedMarkedSquares ||
       new Array(totalSquares).fill({ isMarked: false, value: 0 })
   );
 
+
   // Función para actualizar las casillas marcadas
   const handleMarkSquare = (item, index) => {
     setMarkedSquares((currentMarks) =>
+   
       currentMarks.map((marked, i) => {
         if (i === index) {
           return {
             isMarked: !marked.isMarked,
-            value: item.carton_value.value,
+            value: item.value  || item.image_url,
           };
         }
         return marked;
@@ -62,12 +67,12 @@ export const RoomPage = () => {
   // una promesa o función asíncrona si setMarkedSquares lo permite.
 
   //extraer el userId de la localStorage
-  const storageUserId = JSON.parse(localStorage.getItem("userId"));
+  const storageUserId = JSON.parse(localStorage.getItem('userId'));
 
   // Función para manejar "Cantar Bingo"
   const handleBingoCall = async () => {
     try {
-      console.log(markedSquares, room._id, storageUserId)
+      console.log('datos enviados:', markedSquares, room._id, storageUserId);
       await bingoRoomService.sangBingo(markedSquares, room._id, storageUserId);
     } catch (error) {
       console.error(error);
@@ -76,12 +81,12 @@ export const RoomPage = () => {
 
   useEffect(() => {
     // Guarda las casillas marcadas en localStorage cada vez que cambian
-    localStorage.setItem("markedSquares", JSON.stringify(markedSquares));
+    localStorage.setItem('markedSquares', JSON.stringify(markedSquares));
   }, [markedSquares]);
 
   useEffect(() => {
     if (bottomSectionRef.current) {
-      bottomSectionRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomSectionRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
@@ -96,7 +101,8 @@ export const RoomPage = () => {
   const getBallotsHistory = async () => {
     try {
       const roomData = await bingoRoomService.getRoomById(
-        "661077c0bfb6c413af382930"
+        // '661077c0bfb6c413af382930'
+        "661c84fba4f025589e4ce1ea"
       );
       setRoom(roomData);
       setBallotsHistory(roomData.history_of_ballots);
@@ -107,15 +113,15 @@ export const RoomPage = () => {
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
-    color: "lightBlue",
-    message: "",
+    color: 'lightBlue',
+    message: '',
   });
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
 
-    socket.on("ballotUpdate", (data) => {
-      console.log("Datos recibidos del servidor:", data);
+    socket.on('ballotUpdate', (data) => {
+      console.log('Datos recibidos del servidor:', data);
 
       // Si los campos actualizados incluyen el historial de balotas,
       // extrae el número de la última balota.
@@ -126,12 +132,12 @@ export const RoomPage = () => {
         // Encuentra la clave que contiene la cadena 'history_of_ballots'
         // y obtén el valor de la última balota actualizada.
         for (const key in updatedFields) {
-          if (key.startsWith("history_of_ballots")) {
+          if (key.startsWith('history_of_ballots')) {
             const lastBallot = updatedFields[key];
             setLastBallot(lastBallot); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
-          if (key.startsWith("bingoFigure")) {
+          if (key.startsWith('bingoFigure')) {
             getBallotsHistory(); // Asumiendo que setLastBallot es tu función de estado
             break; // Rompe el bucle después de encontrar la primera coincidencia
           }
@@ -139,33 +145,33 @@ export const RoomPage = () => {
       }
     });
 
-    socket.on("sangBingo", (data) => {
-      console.log("Datos recibidos del servidor:", data);
+    socket.on('sangBingo', (data) => {
+      console.log('Datos recibidos del servidor:', data);
       // const data={userId:"123", status:"Validando"}
       let message;
       let color;
-      let storageUserId = JSON.parse(localStorage.getItem("userId"));
+      let storageUserId = JSON.parse(localStorage.getItem('userId'));
 
       const { userId, status } = data;
       console.log(userId, storageUserId);
-      if (userId === storageUserId && status == "Validando") {
-        message = "Estamos validando el bingo, ¡espera un momento!";
-        color = "Grey";
+      if (userId === storageUserId && status == 'Validando') {
+        message = 'Estamos validando el bingo, ¡espera un momento!';
+        color = 'Grey';
       } else if (userId === storageUserId && status === true) {
-        message = "Felicidades! Eres el ganador del bingo.";
-        color = "green";
+        message = 'Felicidades! Eres el ganador del bingo.';
+        color = 'green';
       } else if (userId === storageUserId && status === false) {
-        message = "Lo sentimos, no has ganado, revisa las balotas.";
-        color = "red";
-      } else if (status == "Validando") {
-        message = "Alguien ha cantado bingo, ¡espera un momento!";
-        color = "Grey";
+        message = 'Lo sentimos, no has ganado, revisa las balotas.';
+        color = 'red';
+      } else if (status == 'Validando') {
+        message = 'Alguien ha cantado bingo, ¡espera un momento!';
+        color = 'Grey';
       } else if (status === true) {
-        message = "Alguien han cantado bingo y es un ganador.";
-        color = "green"; // o cualquier color de tu elección
+        message = 'Alguien han cantado bingo y es un ganador.';
+        color = 'green'; // o cualquier color de tu elección
       } else if (status === false) {
-        message = "Lo sentimos, no es un ganador esta vez.";
-        color = "red"; // o cualquier color de tu elección
+        message = 'Lo sentimos, no es un ganador esta vez.';
+        color = 'red'; // o cualquier color de tu elección
       }
 
       setAlertData({ color, message });
@@ -178,8 +184,8 @@ export const RoomPage = () => {
     });
 
     return () => {
-      socket.off("ballotUpdate");
-      socket.off("sangBingo");
+      socket.off('ballotUpdate');
+      socket.off('sangBingo');
       socket.disconnect();
     };
   }, []);
@@ -191,12 +197,13 @@ export const RoomPage = () => {
     getBallotsHistory();
   }, [lastBallot]);
 
+
   return (
     <>
       <DndContext onDragEnd={handleDragEnd}>
         <div
           // className="flex flex-col h-screen w-full overflow-hidden bg-gray-300 p-4"
-          className="flex flex-col lg:h-screen w-full  bg-gray-300 p-1"
+          className="flex flex-col w-full  bg-gray-300 p-2"
           ref={bottomSectionRef}
         >
           {showAlert && (
@@ -228,31 +235,39 @@ export const RoomPage = () => {
           </section>
 
           {/* Contenido principal dividido en dos */}
-          <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+          {/* <div className="flex flex-1 min-h-0 flex-col md:flex-row"> */}
+          <div className="p-1 flex gap-3 flex-col md:flex-row">
             {/* Sección del cartón de bingo */}
-            <div className="flex flex-col md:hidden">
-              <Card className="flex-none">
-                <CardBody>
-                  {/* Balotas y controles */}
-                  <DataGame
+            <div className="h-32 flex justify-around md:hidden">
+              {/* <div className="flex flex-col md:hidden"> */}
+              {/* <Card className="flex-none">
+                <CardBody> */}
+              {/* Balotas y controles */}
+              {/* <DataGame
                     lastBallot={lastBallot}
                     ballotsHistory={ballotsHistory}
                     room={room}
                   />
                 </CardBody>
+              </Card> */}
+              <Card className="w-2/5">
+                <BallsDrawn lastBallot={lastBallot} />
+              </Card>
+              <Card className="w-2/5">
+                <Figure room={room} />
               </Card>
             </div>
 
             <div className="flex flex-col flex-1 mb-4 md:mb-0 md:mr-2">
               <Card className="flex flex-col flex-1 overflow-y-auto">
                 <div className="shadow-lg p-2 flex justify-evenly items-center">
-                  <Button size="sm" color="green" onClick={handleBingoCall}>
+                  <Button size="sm" className='px-2 md:px-4' color="green" onClick={handleBingoCall}>
                     Cantar Bingo
                   </Button>
-                  <Button size="sm" color="blue">
+                  <Button size="sm" className='px-2 md:px-4' color="blue">
                     Limpiar Cartón
                   </Button>
-                  <Button size="sm" color="gray">
+                  <Button size="sm" className='px-2 md:px-4' color="gray">
                     Chat
                   </Button>
                 </div>
@@ -268,27 +283,38 @@ export const RoomPage = () => {
             <DraggableLiveStream position={liveStreamPosition} />
 
             {/* Sección de transmisión y balotas */}
+            {/* <div className="hidden md:flex flex-col flex-1"> */}
             <div className="hidden md:flex flex-col flex-1">
               {/* <Card className="mb-4 md:mb-2 flex-1">
               <CardBody className="overflow-auto"> */}
-              <Card className="h-full mb-4 md:mb-2 flex-1">
+              <Card className="h-2/4 w-full mb-4 md:m-auto flex-1">
                 <CardBody className="relative h-full">
                   {/* Contenido de la transmisión */}
                   <LiveStream />
                 </CardBody>
               </Card>
-              <Card className="flex-none">
+              {/* <Card className="flex-none">
                 <DataGame
                   lastBallot={lastBallot}
                   ballotsHistory={ballotsHistory}
                   room={room}
                 />
-              </Card>
+              </Card> */}
+              <div className="flex-1 gap-2 flex justify-around items-center">
+                <Card className="h-5/6 flex-1">
+                  <BallsDrawn lastBallot={lastBallot} />
+                </Card>
+                <Card className="h-5/6 flex-1">
+                  <Figure room={room} />
+                </Card>
+              </div>
             </div>
           </div>
         </div>
       </DndContext>
       <MessageDialog />
+      {/* CAMBIO */}
+      <History ballotsHistory={ballotsHistory} />
     </>
   );
 };
@@ -296,12 +322,12 @@ export const RoomPage = () => {
 // componente de ingreso del nombre del jugador
 export function MessageDialog() {
   const [open, setOpen] = React.useState(false);
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState('');
   const [hasUserEntered, setHasUserEntered] = useState(false);
 
   useEffect(() => {
     // Verificar si el usuario ya ha ingresado
-    const storedUserId = localStorage.getItem("userId");
+    const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
       setHasUserEntered(true);
     } else {
@@ -312,15 +338,14 @@ export function MessageDialog() {
 
   const handleButtonSendUser = (e) => {
     e.preventDefault();
-    console.log("Enviando", userId);
-    localStorage.setItem("userId", JSON.stringify(userId));
+    console.log('Enviando', userId);
+    localStorage.setItem('userId', JSON.stringify(userId));
     setOpen(false);
     setHasUserEntered(true); // Marcar que el usuario ha ingresado
   };
 
   const handleCancel = () => {
     setOpen(false);
-    // Puedes agregar lógica adicional aquí si es necesario
   };
 
   // Si el usuario ya ha ingresado, no renderizar el componente
@@ -330,11 +355,7 @@ export function MessageDialog() {
 
   return (
     <>
-      <Dialog
-        open={open}
-        size="xs"
-        /*  handler={handleClose} */
-      >
+      <Dialog open={open} size="xs">
         <div className="flex items-center justify-between"></div>
         <DialogBody>
           <form onSubmit={handleButtonSendUser}>
@@ -385,15 +406,18 @@ const LiveStream = () => {
 const BallsDrawn = ({ lastBallot }) => {
   // Componente para mostrar las balotas que salen
   return (
-    <div>
-      <Typography>
+    <div className="p-2">
+      <Typography variant="h6" className="text-center">
+        Balota
+      </Typography>
+      <Typography className="text-center">
         {lastBallot
-          ? "¡El bingo ha iniciado!"
-          : "¡El bingo aún no ha iniciado!"}
+          ? '¡El bingo ha iniciado!'
+          : '¡El bingo aún no ha iniciado!'}
       </Typography>
       {lastBallot && (
         <Typography variant="h5">
-          Última balota sacada:{" "}
+          Última balota sacada:{' '}
           <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
             {lastBallot}
           </Typography>
@@ -404,10 +428,44 @@ const BallsDrawn = ({ lastBallot }) => {
   );
 };
 
+// const History = ({ ballotsHistory }) => {
+//   return (
+//     <div className="w-full md:max-w-xs lg:max-w-md xl:max-w-2xl overflow-hidden">
+//       <div className="w-full flex overflow-x-auto ">
+//         {ballotsHistory.map((ballot, index) => (
+//           <Typography
+//             key={index}
+//             className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 m-1"
+//           >
+//             {ballot}
+//           </Typography>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// const Figure = ({ room }) => {
+//   return (
+//     <div>
+//       <img
+//         src={room?.bingoFigure?.image}
+//         alt="Figura de Bingo"
+//         width={'140'}
+//         height={'100'}
+//         className="m-auto mt-2"
+//       />
+//     </div>
+//   );
+// };
+
 const History = ({ ballotsHistory }) => {
   return (
-    <div className="w-full md:max-w-xs lg:max-w-md xl:max-w-2xl overflow-hidden">
-      <div className="w-full flex overflow-x-auto ">
+    <div className="m-3 p-2  bg-gray-300 rounded-xl">
+      <Typography variant="h6" className="text-center text-gray-700 my-1">
+        Historial de Balotas
+      </Typography>
+      <div className=" flex flex-wrap justify-center items-center gap-2 ">
         {ballotsHistory.map((ballot, index) => (
           <Typography
             key={index}
@@ -423,35 +481,40 @@ const History = ({ ballotsHistory }) => {
 
 const Figure = ({ room }) => {
   return (
-    <div>
-      <img
-        src={room?.bingoFigure?.image}
-        alt="Figura de Bingo"
-        width={"140"}
-        height={"100"}
-        className="m-auto mt-2"
-      />
+    <div className="h-full p-2">
+      <Typography variant="h6" className="text-center m-0">
+        Figura
+      </Typography>
+      <div className="h-5/6 flex justify-center items-center">
+        <img
+          src={room?.bingoFigure?.image}
+          alt="Figura de Bingo"
+          // width={'140'}
+          // height={'100'}
+          className=" w-auto h-full"
+        />
+      </div>
     </div>
   );
 };
 
 const DataGame = ({ lastBallot, ballotsHistory, room }) => {
   const dataTabs = [
-    {
-      label: "Balotas",
-      value: "balls",
-      content: <BallsDrawn lastBallot={lastBallot} />,
-    },
-    {
-      label: "Historial de balotas",
-      value: "HistoryBalls",
-      content: <History ballotsHistory={ballotsHistory} />,
-    },
-    {
-      label: "Figura",
-      value: "Figure",
-      content: <Figure room={room} />,
-    },
+    // {
+    //   label: 'Balotas',
+    //   value: 'balls',
+    //   content: <BallsDrawn lastBallot={lastBallot} />,
+    // },
+    // {
+    //   label: "Historial de balotas",
+    //   value: "HistoryBalls",
+    //   content: <History ballotsHistory={ballotsHistory} />,
+    // },
+    // {
+    //   label: 'Figura',
+    //   value: 'Figure',
+    //   content: <Figure room={room} />,
+    // },
   ];
 
   return (
@@ -495,12 +558,12 @@ const Accordion = ({ title, children }) => {
 
 const DraggableLiveStream = ({ position }) => {
   const { attributes, listeners, setNodeRef } = useDraggable({
-    id: "draggable-live-stream",
+    id: 'draggable-live-stream',
   });
 
   const style = {
     transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-    transition: "transform 0.2s",
+    transition: 'transform 0.2s',
   };
 
   return (

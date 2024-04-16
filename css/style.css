@@ -1,0 +1,23 @@
+#bingo-board {
+    display: grid;
+    grid-template-columns: repeat(5, 50px);
+    grid-template-rows: repeat(5, 50px);
+}
+
+.square {
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.marked {
+    background-color: lightblue;
+}
+
+
+#draw-ball {
+    margin-top: 20px;
+    font-size: 24px;
+}
