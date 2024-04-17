@@ -21,6 +21,21 @@ const bingoRoomService = {
     }
   },
 
+  // Buscar una sala por un campo específico
+  findRoomByField: async (field, value) => {
+    try {
+      const response = await apiBingoRoom.get(
+        `/search?field=${encodeURIComponent(
+          field
+        )}&value=${encodeURIComponent(value)}`
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Añadir una balota al historial de una sala
   addBallotToHistory: async (roomId, ballot) => {
     try {
@@ -88,7 +103,7 @@ const bingoRoomService = {
   },
 
   sangBingo: async (markedSquares, roomId, userId) => {
-    console.log(markedSquares,roomId,userId)
+    console.log(markedSquares, roomId, userId);
     try {
       const response = await apiBingoRoom.post(`/sangBingo`, {
         markedSquares,

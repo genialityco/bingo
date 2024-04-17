@@ -18,6 +18,7 @@ import {
   Textarea,
 } from "@material-tailwind/react";
 import { DndContext, useDraggable } from "@dnd-kit/core";
+import { useLocation } from "react-router-dom";
 import BingoCardStatic from "../../components/BingoCard";
 import io from "socket.io-client";
 import bingoRoomService from "../../services/bingoRoomService";
@@ -37,11 +38,12 @@ export const RoomPage = () => {
       : ""
   );
 
+  const location = useLocation();
+  const { roomId, bingoId } = location.state || {};
+
   useEffect(() => {
     const getBingo = async () => {
-      const response = await bingoService.getBingoById(
-        "661d9afc9764e77b40d11bd7"
-      );
+      const response = await bingoService.getBingoById(bingoId);
       setBingoConfig(response);
     };
     getBingo();
@@ -170,9 +172,7 @@ export const RoomPage = () => {
   };
 
   const getBallotsHistory = async () => {
-    const roomData = await bingoRoomService.getRoomById(
-      "661c84fba4f025589e4ce1ea"
-    );
+    const roomData = await bingoRoomService.getRoomById(roomId);
     setRoom(roomData);
     setBallotsHistory(roomData.history_of_ballots);
   };

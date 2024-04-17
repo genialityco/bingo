@@ -26,6 +26,33 @@ class BingoRoomController {
     }
   }
 
+  // GET /rooms/search - Buscar una sala por un campo específico
+  async findRoomByField(req, res) {
+    try {
+      const { field, value } = req.query;
+      if (!field || !value) {
+        return sendResponse(
+          res,
+          400,
+          null,
+          "Missing field or value in query parameters."
+        );
+      }
+      const room = await BingoRoomServices.findRoomByField(field, value);
+      if (!room) {
+        return sendResponse(
+          res,
+          404,
+          null,
+          `Room not found with ${field}: ${value}`
+        );
+      }
+      sendResponse(res, 200, room, "Room found successfully");
+    } catch (error) {
+      sendResponse(res, 500, null, error.message);
+    }
+  }
+
   // PUT /rooms/:id/ballots - Añadir balota al historial
   async addBallotToHistory(req, res) {
     try {

@@ -1,10 +1,14 @@
 import express from "express";
 import BingoRoomController from "../controllers/bingoRoomController";
+import bingoRoomController from "../controllers/bingoRoomController";
 
 const router = express.Router();
 
 // Ruta para crear una nueva sala de bingo
 router.post("/rooms", BingoRoomController.createRoom);
+
+// Ruta para obtener una sala por cualquier campo
+router.get("/rooms/search", bingoRoomController.findRoomByField);
 
 // Ruta para obtener una sala de bingo por su ID
 router.get("/rooms/:id", BingoRoomController.getRoomById);
