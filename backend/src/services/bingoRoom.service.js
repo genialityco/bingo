@@ -22,6 +22,21 @@ class BingoRoomServices {
     }
   }
 
+  async findRoomByField(fieldName, value) {
+    try {
+      const query = {};
+      query[fieldName] = value;
+      const room = await BingoRoom.findOne(query);
+      if (!room) {
+        throw new Error(`Room not found with ${fieldName}: ${value}`);
+      }
+      return room;
+    } catch (error) {
+      console.error(`Error finding room by ${fieldName}:`, error);
+      throw error;
+    }
+  }
+
   async addBallotToHistory(roomId, ballot) {
     try {
       const room = await this._findRoomById(roomId);

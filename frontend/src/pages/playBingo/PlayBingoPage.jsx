@@ -10,12 +10,10 @@ import {
 } from "@material-tailwind/react";
 import templatesBingoService from "../../services/templatesBingoService";
 import bingoRoomService from "../../services/bingoRoomService";
-import bingoConfigJson from "../room/bingoConfig.json";
+import bingoService from "../../services/bingoService";
 import io from "socket.io-client";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
-
-const bingoConfig = bingoConfigJson;
 
 export const PlayBingoPage = () => {
   const [currentBallot, setCurrentBallot] = useState(null);
@@ -24,8 +22,8 @@ export const PlayBingoPage = () => {
   const [bingoTemplates, setBingoTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [bingoRequests, setBingoRequests] = useState([]);
- 
- 
+  const [bingoConfig, setBingoConfig] = useState({});
+
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
   const STATUS_VALIDATING = "Validando";
@@ -118,6 +116,16 @@ export const PlayBingoPage = () => {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const getBingo = async () => {
+      const response = await bingoService.getBingoById(
+        "661d9afc9764e77b40d11bd7"
+      );
+      setBingoConfig(response);
+    };
+    getBingo();
+  }, []);
+
   //Jugador que ha cantado bingo
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
@@ -138,18 +146,18 @@ export const PlayBingoPage = () => {
 
   // Función para sacar una balota al azar
   const drawBallot = async () => {
-    const remainingBallots = bingoConfig.bingo_values.filter(
-      (ballot) => !announcedBallots.includes(ballot.ballot_value.value)
+    const remainingBallots = bingoConfig.bingoValues.filter(
+      (ballot) => !announcedBallots.includes(ballot.value)
     );
     if (remainingBallots.length > 0) {
       const randomIndex = Math.floor(Math.random() * remainingBallots.length);
       const selectedBallot = remainingBallots[randomIndex];
-      setCurrentBallot(selectedBallot.ballot_value.value);
+      setCurrentBallot(selectedBallot.value);
       setAnnouncedBallots([
         ...announcedBallots,
-        selectedBallot.ballot_value.value,
+        selectedBallot.value,
       ]);
-      await handleAddBallotToHistory(selectedBallot.ballot_value.value);
+      await handleAddBallotToHistory(selectedBallot.value);
     } else {
       alert("Todas las balotas han sido anunciadas.");
     }
@@ -183,11 +191,7 @@ export const PlayBingoPage = () => {
               <Button onClick={drawBallot}>Sacar Balota</Button>
             </CardBody>
           </Card>
-          
         </div>
-
-      
-
 
         {/* Sección central para la figura del Bingo */}
         <div className="w-full md:w-1/3 flex flex-col items-center mb-4">

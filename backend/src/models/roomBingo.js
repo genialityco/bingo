@@ -8,7 +8,8 @@ const bingoRoomSchema = new Schema({
     required: true,
   },
   bingoId: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: "Bingo",
     required: true,
   },
   capacity: {
