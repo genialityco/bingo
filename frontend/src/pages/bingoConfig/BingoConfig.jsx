@@ -12,7 +12,7 @@ import {
 import DimensionsBingoCard from './components/DimensionsBingoCard';
 import AppearanceCard from './components/AppearanceCard';
 import CardAssigment from './components/CardAssigment';
-import PlayBingo from './components/PlayBingo';
+
 
 const BingoConfig = () => {
   const data = [
