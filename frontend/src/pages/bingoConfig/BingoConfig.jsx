@@ -12,14 +12,44 @@ import {
 import DimensionsBingoCard from './components/DimensionsBingoCard';
 import AppearanceCard from './components/AppearanceCard';
 import CardAssigment from './components/CardAssigment';
-
+import { useState } from 'react';
+import bingoService from '../../services/bingoService';
+import { useNavigate } from 'react-router-dom';
 
 const BingoConfig = () => {
+
+  const [newBingoCreated, setNewBingoCreated] = useState({});
+
+  const navigate = useNavigate()
+
+  const sendBingoCreated = (customBingo) => {
+    setNewBingoCreated(customBingo);
+  };
+
+  //Envia los datos del objeto del carton bingo creado
+  const handleOnClickSendBingoCreated = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await bingoService.createBingo(newBingoCreated);
+      const { status, message } = response;
+      if (status === 'success') {
+        alert(message);
+      }
+      navigate("/");
+    } catch (error) {
+      console.log('Error en el envio de la configuración del bingo', error);
+      alert(
+        'Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente.'
+      );
+    }
+  };
+
+  //Taps de los componentes que renderiza este componente BingoConfig
   const data = [
     {
       label: 'Configurar Bingo',
       value: 'configurar bingo',
-      desc: <DimensionsBingoCard />,
+      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} />,
     },
     {
       label: 'Apariencia del cartón',
@@ -32,8 +62,9 @@ const BingoConfig = () => {
       desc: <CardAssigment />,
     },
   ];
+
   return (
-    <div className='my-5 flex flex-col justify-center items-center'>
+    <div className="my-5 flex flex-col justify-center items-center">
       <Typography variant="h3" color="blue-gray" className=" text-center">
         Personaliza tu sala de juego
       </Typography>
@@ -41,26 +72,30 @@ const BingoConfig = () => {
       <Card className=" w-full shadow-none">
         <CardBody className="flex flex-col justify-between items-center sm:flex-row gap-8">
           <div className="flex items-center justify-center gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-10 h-10"
-          >
-            <path
-              fillRule="evenodd"
-              d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <Typography variant="h6" color="blue-gray" className="mb-2">
-            Administrador Juego
-          </Typography>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-10 h-10"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <Typography variant="h6" color="blue-gray" className="mb-2">
+              Administrador Juego
+            </Typography>
           </div>
           {/* Buttons with icon */}
           <div className="flex items-center gap-5">
-            <Button className="flex items-center gap-3">Guardar</Button>
-
+            <Button
+              className="flex items-center gap-3"
+              onClick={(e) => handleOnClickSendBingoCreated(e)}
+            >
+              Guardar
+            </Button>
             <Button className="flex items-center gap-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
