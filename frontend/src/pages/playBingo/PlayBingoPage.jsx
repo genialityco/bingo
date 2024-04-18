@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardBody,
@@ -23,13 +23,14 @@ export const PlayBingoPage = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [bingoRequests, setBingoRequests] = useState([]);
   const [bingoConfig, setBingoConfig] = useState({});
+  const [isImage, setIsImage] = useState(false);
 
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
   const STATUS_VALIDATING = "Validando";
 
   // Función para agregar una nueva solicitud de bingo al estado o actualizar el estado existente
-  const addBingoRequest = (user, status) => {
+  const addBingoRequest = useCallback((user, status) => {
     setBingoRequests((prevRequests) => {
       const existingRequest = prevRequests.find(
         (request) => request.user === user
@@ -68,10 +69,69 @@ export const PlayBingoPage = () => {
         const updatedRequests = [...prevRequests, newRequest];
 
         localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
-        console.log(bingoRequests);
         return updatedRequests;
       }
     });
+  }, []);
+
+  useEffect(() => {
+    const getBingo = async () => {
+      try {
+        const response = await bingoService.getBingoById(
+          "661d9afc9764e77b40d11bd7"
+        );
+        setBingoConfig(response);
+        setIsImage(response.bingoValues[0].type === "image");
+
+        await fetchRoom(response);
+        await fetchTemplates();
+      } catch (error) {
+        console.error("Error in getBingo:", error);
+      }
+    };
+
+    getBingo();
+  }, []);
+
+  const fetchRoom = async (bingoConfigResponse) => {
+    try {
+      const room = await bingoRoomService.getRoomById(
+        "661c84fba4f025589e4ce1ea"
+      );
+
+      setSelectedTemplate(
+        room.bingoFigure ? String(room.bingoFigure._id) : null
+      );
+      const ballotsToAnnounce = room.history_of_ballots
+        .filter((ballot) =>
+          isImage
+            ? bingoConfigResponse.bingoValues.some(
+                (bv) => bv.value === ballot && bv.imageUrl
+              )
+            : true
+        )
+        .map((ballot) => {
+          const foundValue = bingoConfigResponse.bingoValues.find(
+            (bv) => bv.value === ballot
+          );
+          return foundValue ? foundValue.imageUrl : null;
+        });
+
+      setAnnouncedBallots(ballotsToAnnounce);
+
+      setBingoRoom(room);
+    } catch (error) {
+      console.error("Error fetching room:", error);
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const templates = await templatesBingoService.getAllTemplates();
+      setBingoTemplates(templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
   };
 
   // Cargar el estado inicial de bingoRequests desde localStorage al montar el componente
@@ -82,60 +142,11 @@ export const PlayBingoPage = () => {
     }
   }, []);
 
-  // Cargar los templates al montar el componente
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const templates = await templatesBingoService.getAllTemplates();
-        setBingoTemplates(templates);
-      } catch (error) {
-        console.error("Error fetching templates:", error);
-        // Manejo del error
-      }
-    };
-
-    const fetchRoom = async () => {
-      try {
-        const room = await bingoRoomService.getRoomById(
-          // "661077c0bfb6c413af382930"
-          "661c84fba4f025589e4ce1ea"
-        );
-        if (room.bingoFigure) {
-          setSelectedTemplate(String(room.bingoFigure._id));
-        }
-        if (room.history_of_ballots.length > 0) {
-          setAnnouncedBallots(room.history_of_ballots);
-        }
-        setBingoRoom(room);
-      } catch (error) {
-        console.error("Error fetching room:", error);
-      }
-    };
-
-    fetchRoom();
-    fetchTemplates();
-  }, []);
-
-  useEffect(() => {
-    const getBingo = async () => {
-      const response = await bingoService.getBingoById(
-        "661d9afc9764e77b40d11bd7"
-      );
-      setBingoConfig(response);
-    };
-    getBingo();
-  }, []);
-
   //Jugador que ha cantado bingo
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
-
     socket.on("sangBingo", (data) => {
-      console.log("Datos recibidos del servidor:", data);
-      const { userId, status } = data;
-
-      // Agrega la nueva solicitud de bingo al estado
-      addBingoRequest(userId, status);
+      addBingoRequest(data.userId, data.status);
     });
 
     return () => {
@@ -146,18 +157,46 @@ export const PlayBingoPage = () => {
 
   // Función para sacar una balota al azar
   const drawBallot = async () => {
+    // Primero, determina qué balotas se han anunciado basándote en si es una imagen o no
+    const announcedValues = !isImage
+      ? announcedBallots
+      : announcedBallots
+          .map((ballot) => {
+            // Esto asume que announcedBallots puede contener tanto URLs como valores, dependiendo de si isImage es true o false
+            // Si es una imagen, usamos la URL, si no, solo el valor
+            const foundBallot = bingoConfig.bingoValues.find(
+              (bv) => bv.imageUrl === ballot
+            );
+            return foundBallot ? foundBallot.value : null;
+          })
+          .filter((value) => value !== null); // Filtra valores nulos si no se encontraron coincidencias
+
+    // Filtrar las balotas que aún no se han anunciado
     const remainingBallots = bingoConfig.bingoValues.filter(
-      (ballot) => !announcedBallots.includes(ballot.value)
+      (ballot) => !announcedValues.includes(ballot.value)
     );
+
     if (remainingBallots.length > 0) {
       const randomIndex = Math.floor(Math.random() * remainingBallots.length);
       const selectedBallot = remainingBallots[randomIndex];
-      setCurrentBallot(selectedBallot.value);
-      setAnnouncedBallots([
-        ...announcedBallots,
-        selectedBallot.value,
-      ]);
-      await handleAddBallotToHistory(selectedBallot.value);
+
+      if (selectedBallot.imageUrl) {
+        setCurrentBallot(selectedBallot.imageUrl); // Muestra la imagen de la balota
+        setIsImage(true);
+        setAnnouncedBallots((prevBallots) => [
+          ...prevBallots,
+          selectedBallot.imageUrl,
+        ]); // Añade la URL de la imagen al estado de balotas anunciadas
+      } else {
+        setCurrentBallot(selectedBallot.value); // Muestra el valor de la balota
+        setIsImage(false);
+        setAnnouncedBallots((prevBallots) => [
+          ...prevBallots,
+          selectedBallot.value,
+        ]); // Añade el valor al estado de balotas anunciadas
+      }
+
+      await handleAddBallotToHistory(selectedBallot.value); // Añade la balota al historial en el servidor
     } else {
       alert("Todas las balotas han sido anunciadas.");
     }
@@ -182,12 +221,20 @@ export const PlayBingoPage = () => {
         <div className="w-full md:w-1/4 flex flex-col items-center mb-4">
           <Card className="w-full h-48 mb-4">
             <CardBody className="flex flex-col items-center justify-center">
-              <Typography
-                variant="h5"
-                className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
-              >
-                {currentBallot ? currentBallot : "—"}{" "}
-              </Typography>{" "}
+              {isImage === false ? (
+                <Typography
+                  variant="h5"
+                  className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                >
+                  {currentBallot ? currentBallot : "—"}
+                </Typography>
+              ) : (
+                <img
+                  src={currentBallot}
+                  alt="Marked"
+                  className="rounded-full shadow-xl shadow-blue-500/50 h-16 w-16 animate-mark-in mb-5"
+                />
+              )}
               <Button onClick={drawBallot}>Sacar Balota</Button>
             </CardBody>
           </Card>
@@ -285,14 +332,22 @@ export const PlayBingoPage = () => {
             <Typography variant="h6" className="w-full text-center">
               Balotas anunciadas
             </Typography>
-            {announcedBallots.map((ballot, index) => (
-              <Typography
-                key={index}
-                className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12"
-              >
-                {ballot}
-              </Typography>
-            ))}
+            {announcedBallots.map((ballot, index) =>
+              isImage === false ? (
+                <Typography
+                  variant="h5"
+                  className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                >
+                  {ballot}
+                </Typography>
+              ) : (
+                <img
+                  src={ballot}
+                  alt="Marked"
+                  className="rounded-full shadow-xl shadow-blue-500/50 h-16 w-16 animate-mark-in mb-5"
+                />
+              )
+            )}
           </CardBody>
         </Card>
       </div>

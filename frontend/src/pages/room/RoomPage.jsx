@@ -137,7 +137,6 @@ export const RoomPage = () => {
 
   const handleBingoCall = async () => {
     try {
-      console.log(markedSquares, room._id, storageUserId);
       await bingoRoomService.sangBingo(markedSquares, room._id, storageUserId);
     } catch (error) {
       console.error(error);
@@ -257,6 +256,7 @@ export const RoomPage = () => {
               </Card>
               <Card className="flex-none">
                 <DataGame
+                  bingoConfig={bingoConfig}
                   lastBallot={lastBallot}
                   ballotsHistory={ballotsHistory}
                   room={room}
@@ -354,8 +354,17 @@ const LiveStream = () => {
   return <div>Transmisión en vivo aquí</div>;
 };
 
-const BallsDrawn = ({ lastBallot }) => {
-  // Componente para mostrar las balotas que salen
+const BallsDrawn = ({ bingoConfig, lastBallot }) => {
+  let ballotImage;
+  console.log(lastBallot);
+  if (bingoConfig?.bingoValues[0].type === "image" && lastBallot) {
+    const ballotImageFind = bingoConfig.bingoValues.find(
+      (ballot) => ballot.value === lastBallot
+    );
+    ballotImage = ballotImageFind ? ballotImageFind.imageUrl : null;
+    console.log(ballotImage);
+  }
+
   return (
     <div className="p-2">
       <Typography variant="h6" className="text-center">
@@ -367,30 +376,67 @@ const BallsDrawn = ({ lastBallot }) => {
           : "¡El bingo aún no ha iniciado!"}
       </Typography>
       {lastBallot && (
-        <Typography variant="h5">
-          Última balota sacada:{" "}
-          <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
-            {lastBallot}
-          </Typography>
-        </Typography>
+        <>
+          {ballotImage ? (
+            // Mostrar solo la imagen si ballotImage existe
+            <div className="flex justify-center">
+              <img
+                src={ballotImage}
+                alt={`Balota ${lastBallot}`}
+                className="rounded-full shadow-xl shadow-blue-500/50 h-16 w-16 animate-mark-in mb-5"
+              />
+            </div>
+          ) : (
+            // Mostrar el número de balota si no hay imagen
+            <Typography variant="h5" className="text-center">
+              Última balota sacada:{" "}
+              <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
+                {lastBallot}
+              </Typography>
+            </Typography>
+          )}
+        </>
       )}
-      {/* Puedes agregar más lógica aquí para mostrar las balotas como lo necesites */}
     </div>
   );
 };
 
-const History = ({ ballotsHistory }) => {
+const History = ({ bingoConfig, ballotsHistory }) => {
+  // Función para obtener la imagen de la balota, si existe
+  const getBallotImage = (ballot) => {
+    if (bingoConfig?.bingoValues[0].type === "image") {
+      const ballotImageFind = bingoConfig.bingoValues.find(
+        (b) => b.value === ballot
+      );
+      return ballotImageFind ? ballotImageFind.imageUrl : null;
+    }
+    return null;
+  };
+
   return (
     <div className="w-full md:max-w-xs lg:max-w-md xl:max-w-2xl overflow-hidden">
       <div className="w-full flex overflow-x-auto ">
-        {ballotsHistory.map((ballot, index) => (
-          <Typography
-            key={index}
-            className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 m-1"
-          >
-            {ballot}
-          </Typography>
-        ))}
+        {ballotsHistory.map((ballot, index) => {
+          const ballotImage = getBallotImage(ballot);
+          return ballotImage ? (
+            // Mostrar la imagen si está disponible
+            <div key={index} className="flex justify-center items-center m-1">
+              <img
+                src={ballotImage}
+                alt={`Balota ${ballot}`}
+                className="rounded-full shadow-xl shadow-blue-500/50 h-16 w-16 animate-mark-in mb-5"
+              />
+            </div>
+          ) : (
+            // Mostrar el número de balota si no hay imagen
+            <Typography
+              key={index}
+              className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 m-1"
+            >
+              {ballot}
+            </Typography>
+          );
+        })}
       </div>
     </div>
   );
@@ -449,17 +495,20 @@ const Figure = ({ room }) => {
 //   );
 // };
 
-const DataGame = ({ lastBallot, ballotsHistory, room }) => {
+const DataGame = ({ bingoConfig, lastBallot, ballotsHistory, room }) => {
+  console.log(bingoConfig);
   const dataTabs = [
     {
       label: "Balotas",
       value: "balls",
-      content: <BallsDrawn lastBallot={lastBallot} />,
+      content: <BallsDrawn bingoConfig={bingoConfig} lastBallot={lastBallot} />,
     },
     {
       label: "Historial de balotas",
       value: "HistoryBalls",
-      content: <History ballotsHistory={ballotsHistory} />,
+      content: (
+        <History bingoConfig={bingoConfig} ballotsHistory={ballotsHistory} />
+      ),
     },
     {
       label: "Figura",
@@ -470,20 +519,24 @@ const DataGame = ({ lastBallot, ballotsHistory, room }) => {
 
   return (
     <Tabs value="balls">
-      <TabsHeader>
-        {dataTabs.map(({ label, value }) => (
-          <Tab key={value} value={value}>
-            {label}
-          </Tab>
-        ))}
-      </TabsHeader>
-      <TabsBody>
-        {dataTabs.map(({ value, content }) => (
-          <TabPanel key={value} value={value}>
-            {content}
-          </TabPanel>
-        ))}
-      </TabsBody>
+      {bingoConfig && (
+        <TabsHeader>
+          {dataTabs.map(({ label, value }) => (
+            <Tab key={value} value={value}>
+              {label}
+            </Tab>
+          ))}
+        </TabsHeader>
+      )}
+      {bingoConfig && (
+        <TabsBody>
+          {dataTabs.map(({ value, content }) => (
+            <TabPanel key={value} value={value}>
+              {content}
+            </TabPanel>
+          ))}
+        </TabsBody>
+      )}
     </Tabs>
   );
 };
