@@ -19,16 +19,19 @@ const bingoAppearanceSchema = new Schema({
 });
 
 const bingoValueSchema = new Schema({
-  carton_value: {
-    id: { type: Number, required: true },
-    value: { type: String, required: true },
-    type: { type: String, enum: ["default", "text", "image"], required: true },
+  carton_value: { type: String, required: true },
+  carton_type: {
+    type: String,
+    enum: ["default", "text", "image"],
+    required: true,
   },
-  ballot_value: {
-    id: { type: Number, required: true },
-    value: { type: String, required: true },
-    type: { type: String, enum: ["default", "text", "image"], required: true },
+  ballot_value: { type: String, required: true },
+  ballot_type: {
+    type: String,
+    enum: ["default", "text", "image"],
+    required: true,
   },
+  position: { type: Array, required: false }
 });
 
 const bingoSchema = new Schema({
@@ -39,8 +42,9 @@ const bingoSchema = new Schema({
     type: bingoAppearanceSchema,
     default: () => ({}),
   },
+  lottery_mode: { type: Boolean, default: true },
   bingo_values: [bingoValueSchema],
-  dimensions: { type: String, default: "4x4" },
+  dimensions: { type: String, default: "5x5" },
   updated_at: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now },
 });
