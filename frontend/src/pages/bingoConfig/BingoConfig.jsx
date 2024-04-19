@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 const BingoConfig = () => {
 
   const [newBingoCreated, setNewBingoCreated] = useState({});
+  console.log(newBingoCreated)
 
   const navigate = useNavigate()
 

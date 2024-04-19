@@ -38,7 +38,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   const [bingoCard, setBingoCard] = useState({
     title: '',
     rules: '',
-    creatorId: null,
+    creator_id: null,
     bingo_appearance: {},
     bingo_values: [
       {
@@ -57,6 +57,11 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedDimensions, setSelectedDimensions] = useState(null);
 
+  //estados para capturar el tipo de forma independiente en la tabla para editar
+  const [selectedCartonType, setSelectedCartonType] = useState('');
+  console.log(selectedCartonType);
+  const [selectedBallotType, setSelectedBallotType] = useState('');
+
   //setea la cantidad de objetos dentro del array bingoValues y les asigna un id tanto al objeto carton_value como al objeto ballot_value
   const handleNumValuesToPlayChange = (value) => {
     setNumValuesToPlay(value);
@@ -70,7 +75,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
 
     setBingoCard((prevState) => ({
       ...prevState,
-      bingoValues: newBingoValues,
+      bingo_values: newBingoValues,
     }));
     setSelectedNumValues(value);
   };
@@ -78,14 +83,16 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   //maneja el editar cada uno de los valores que es el contenido de cada celda dentro del carton del bingo
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
-      const updatedBingoValues = [...bingoCard.bingoValues];
+      const updatedBingoValues = [...bingoCard.bingo_values];
       const editedItem = updatedBingoValues[editIndex];
       editedItem.carton_value = newCustomValueCarton;
+      editedItem.carton_type = selectedCartonType;
       editedItem.ballot_value = newCustomValueBallot;
+      editedItem.ballot_type = selectedBallotType;
 
       setBingoCard((prevState) => ({
         ...prevState,
-        bingoValues: updatedBingoValues,
+        bingo_values: updatedBingoValues,
       }));
     }
     setOpenTwo(false);
@@ -95,57 +102,28 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   };
 
   //cambia el valor de la propiedad type dentro del array de bingoValues y tambien captura lo que entra por input como el titulo y las reglas
-  // const handleCreateNewBingo = (e, type) => {
-  //   const name = e.target.name;
-  //   const value = e.target.value;
-  //   const updatedBingoValues = bingoCard.bingoValues.map((item) => ({
-  //     ...item,
-  //     // type: type,
-  //     carton_type: type,
-  //     ballot_type: type,
-  //   }));
-
-  //   if (name === 'title' || name === 'rules') {
-  //     setBingoCard((prevState) => ({
-  //       ...prevState,
-  //       [name]: value,
-  //     }));
-  //   } else {
-  //     setBingoCard((prevState) => ({
-  //       ...prevState,
-  //       bingoValues: updatedBingoValues,
-  //     }));
-  //     setSelectedTheme(type);
-  //   }
-  // };
-
   const handleCreateNewBingo = (e, type) => {
     const name = e.target.name;
     const value = e.target.value;
-    const updatedBingoValues = bingoCard.bingoValues.map((item) => ({
+    const updatedBingoValues = bingoCard.bingo_values.map((item) => ({
       ...item,
       carton_type: type,
       ballot_type: type,
     }));
-   
+
     if (name === 'title' || name === 'rules') {
       setBingoCard((prevState) => ({
         ...prevState,
         [name]: value,
       }));
     } else {
-      // Clonar el array bingoValues antes de actualizar el estado
       setBingoCard((prevState) => ({
         ...prevState,
-        bingoValues: [...updatedBingoValues], // Aquí se clona el array
+        bingo_values: [...updatedBingoValues],
       }));
       setSelectedTheme(type);
     }
   };
-
- 
-  
-  
 
   // maneja la carga de imagenes locales
   const handleImageChange = (e) => {
@@ -165,9 +143,16 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   };
 
   //handle para abrir o cerrar el segundo diaglog cuando se oprime el boton de editar en la tabla que es un icono de "lapiz" o el icono de "x"
+  // const handleOpenTwo = (index) => {
+  //   setEditIndex(index);
+  //   setOpenTwo(!openTwo);
+  // };
   const handleOpenTwo = (index) => {
+    const currentItem = bingoCard.bingo_values[index];
     setEditIndex(index);
     setOpenTwo(!openTwo);
+    setSelectedCartonType(currentItem.carton_type);
+    setSelectedBallotType(currentItem.ballot_type);
   };
 
   //envia la actualizacion del estado bingoCard al componente BingoConfig a traves de la funcion sendBingoCreated que recibe este componente por props
@@ -267,14 +252,26 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               setSelectedDimensions('5x5');
             }}
           >
-            <div className="grid grid-cols-5 grid-rows-5 gap-1 justify-center items-center">
-              {[...Array(25)].map((_, index) => (
+            <div className="grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center">
+              {/* Agregar la primera fila con la palabra "BINGO" */}
+              <div className="col-span-5 flex justify-center items-center">
+                <div className="font-bold text-sm grid grid-cols-5 gap-3">
+                  <div className="col-span-1">B</div>
+                  <div className="col-span-1">I</div>
+                  <div className="col-span-1">N</div>
+                  <div className="col-span-1">G</div>
+                  <div className="col-span-1">O</div>
+                </div>
+              </div>
+
+              {[...Array(30)].map((_, index) => (
                 <div
                   key={index}
                   className="square w-5 h-5 m-auto bg-blue-500"
                 ></div>
               ))}
             </div>
+
             <Typography className="text-center m-0">5x5</Typography>
           </Button>
         </Carousel>
@@ -363,9 +360,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               </tr>
             </thead>
             <tbody>
-              {bingoCard.bingoValues.length === 1
+              {bingoCard.bingo_values.length === 1
                 ? null
-                : bingoCard.bingoValues?.map((item, index) => (
+                : bingoCard.bingo_values?.map((item, index) => (
                     <tr key={item.id} className="even:bg-blue-gray-50/50">
                       {/* tipo valor en carton */}
                       <td className="p-4">
@@ -455,7 +452,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
       </Card>
 
       {/* Dialog para configurar tema de carton y cantidad de valores */}
-      <Dialog open={openOne} size="xl" handler={handleOpenOne}>
+      <Dialog open={openOne} size="xs" handler={handleOpenOne}>
         <div className="flex items-center justify-between">
           <DialogHeader className="flex flex-col items-start">
             Gestionar Valores
@@ -476,8 +473,8 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
           </svg>
         </div>
         <DialogBody>
-          {/* establecer los valores */}
-          <Typography className="mt-5" color="gray" variant="lead">
+          {/* establecer cantidad */}
+          <Typography color="gray" variant="lead">
             Cantidad de valores a jugar
           </Typography>
           <div className="w-1/4  flex justify-around">
@@ -507,56 +504,48 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             </button>
             <button
               className={`w-10 border-2 ${
-                selectedNumValues === 20 ? 'bg-blue-500' : 'bg-violet-500'
+                selectedNumValues === 75 ? 'bg-blue-500' : 'bg-violet-500'
               } hover:bg-violet-600  focus:ring-violet-300`}
-              onClick={() => handleNumValuesToPlayChange(20)}
+              onClick={() => handleNumValuesToPlayChange(75)}
             >
-              20
+              75
             </button>
           </div>
+          {/* establecer el tema */}
           <Typography className="mb-3 " color="gray" variant="lead">
             Tema del Cartón
           </Typography>
           <div className="grid grid-cols-3 gap-3">
             {/* Numeros */}
-            <Card
-              className={`bg-gray-200 cursor-pointer ${
+            <Button
+              className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
                 selectedTheme === 'default' ? 'bg-blue-500 text-white' : ''
               }`}
               name="default"
               onClick={(e) => handleCreateNewBingo(e, 'default')}
             >
-              <CardBody className="text-center">
-                <h6>Numeros</h6>
-              </CardBody>
-            </Card>
+              <h6>Numeros</h6>
+            </Button>
             {/* Texto */}
-            <Card
-              className={`bg-gray-200 cursor-pointer ${
+            <Button
+              className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
                 selectedTheme === 'text' ? 'bg-blue-500 text-white' : ''
               }`}
               name="text"
               onClick={(e) => handleCreateNewBingo(e, 'text')}
-              value={bingoCard.bingoValues.map((item) => {
-                item.type;
-              })}
             >
-              <CardBody className="text-center">
-                <h6>Texto</h6>
-              </CardBody>
-            </Card>
+              <h6>Texto</h6>
+            </Button>
             {/* Imagenes */}
-            <Card
-              className={`bg-gray-200 cursor-pointer ${
+            <Button
+              className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
                 selectedTheme === 'image' ? 'bg-blue-500 text-white' : ''
               }`}
               name="image"
               onClick={(e) => handleCreateNewBingo(e, 'image')}
             >
-              <CardBody className="text-center">
-                <h6>Imagenes</h6>
-              </CardBody>
-            </Card>
+              <h6>Imagenes</h6>
+            </Button>
           </div>
         </DialogBody>
       </Dialog>
@@ -584,50 +573,147 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
           </svg>
         </div>
         <DialogBody>
-          {selectedTheme === 'image' ? (
-            <>
-              <Typography className="mb-10 -mt-7 " color="gray" variant="lead">
-                Elige una Imagen
-              </Typography>
-              <div className="grid gap-6">
-                <Input
-                  label="Selecciona un archivo"
-                  type="file"
-                  placeholder="Selecciona un archivo de imagen"
-                  onChange={handleImageChange}
-                />
-                <Input
-                  label="Ingresar valor"
-                  placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomValue(e.target.value)}
-                  value={newCustomValue}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex flex-col gap-2">
-                <Typography className="mb-1 " color="gray" variant="h6">
-                  Ingresar Valor del Cartón
+          <div className="flex flex-col gap-2">
+            <Typography color="gray" variant="h6">
+              Ingresar Valor en el Cartón
+            </Typography>
+            {selectedCartonType === 'image' ? (
+              <>
+                <Typography className="mb-1" color="gray" variant="lead">
+                  Elige una Imagen
                 </Typography>
-                <Input
-                  label="Ingresar valor"
-                  placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomValueCarton(e.target.value)}
-                  value={newCustomValueCarton}
-                />
-                <Typography className="mb-1 " color="gray" variant="h6">
-                  Ingresar Valor en la Balota
+                <div className="grid gap-2">
+                  <Input
+                    label="Selecciona un archivo"
+                    type="file"
+                    placeholder="Selecciona un archivo de imagen"
+                    onChange={handleImageChange}
+                  />
+                  <Input
+                    label="Ingresar valor"
+                    placeholder="Ingresar valor"
+                    onChange={(e) => setNewCustomValue(e.target.value)}
+                    value={newCustomValue}
+                  />
+                </div>
+              </>
+            ) : (
+              <Input
+                label="Ingresar valor"
+                placeholder="Ingresar valor"
+                onChange={(e) => setNewCustomValueCarton(e.target.value)}
+                value={newCustomValueCarton}
+              />
+            )}
+
+            {/* Cambiar de tipo */}
+            <Typography color="gray" variant="h6">
+              Cambiar el tipo
+            </Typography>
+            <div className="grid grid-cols-3 gap-3">
+              {/* Numeros */}
+              <Button
+                className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
+                  selectedCartonType === 'default'
+                    ? 'bg-blue-500 text-white'
+                    : ''
+                }`}
+                name="default"
+                onClick={() => setSelectedCartonType('default')}
+              >
+                <h6>Numeros</h6>
+              </Button>
+              {/* Texto */}
+              <Button
+                className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
+                  selectedCartonType === 'text' ? 'bg-blue-500 text-white' : ''
+                }`}
+                name="text"
+                onClick={() => setSelectedCartonType('text')}
+              >
+                <h6>Texto</h6>
+              </Button>
+              {/* Imagenes */}
+              <Button
+                className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
+                  selectedCartonType === 'image' ? 'bg-blue-500 text-white' : ''
+                }`}
+                name="image"
+                onClick={() => setSelectedCartonType('image')}
+              >
+                <h6>Imagenes</h6>
+              </Button>
+            </div>
+            <Typography color="gray" variant="h6">
+              Ingresar Valor en la Balota
+            </Typography>
+            {selectedBallotType === 'image' ? (
+              <>
+                <Typography className="mb-1" color="gray" variant="lead">
+                  Elige una Imagen
                 </Typography>
-                <Input
-                  label="Ingresar valor"
-                  placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomValueBallot(e.target.value)}
-                  value={newCustomValueBallot}
-                />
-              </div>
-            </>
-          )}
+                <div className="grid gap-2">
+                  <Input
+                    label="Selecciona un archivo"
+                    type="file"
+                    placeholder="Selecciona un archivo de imagen"
+                    onChange={handleImageChange}
+                  />
+                  <Input
+                    label="Ingresar valor"
+                    placeholder="Ingresar valor"
+                    onChange={(e) => setNewCustomValue(e.target.value)}
+                    value={newCustomValue}
+                  />
+                </div>
+              </>
+            ) : (
+              <Input
+                label="Ingresar valor"
+                placeholder="Ingresar valor"
+                onChange={(e) => setNewCustomValueBallot(e.target.value)}
+                value={newCustomValueBallot}
+              />
+            )}
+            {/* cambiar de tipo */}
+            <Typography color="gray" variant="h6">
+              Cambiar el tipo
+            </Typography>
+            <div className="grid grid-cols-3 gap-3">
+              {/* Numeros */}
+              <Button
+                className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
+                  selectedBallotType === 'default'
+                    ? 'bg-blue-500 text-white'
+                    : ''
+                }`}
+                name="default"
+                onClick={() => setSelectedBallotType('default')}
+              >
+                <h6>Numeros</h6>
+              </Button>
+              {/* Texto */}
+              <Button
+                className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
+                  selectedBallotType === 'text' ? 'bg-blue-500 text-white' : ''
+                }`}
+                name="text"
+                onClick={() => setSelectedBallotType('text')}
+              >
+                <h6>Texto</h6>
+              </Button>
+              {/* Imagenes */}
+              <Button
+                className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
+                  selectedBallotType === 'image' ? 'bg-blue-500 text-white' : ''
+                }`}
+                name="image"
+                onClick={() => setSelectedBallotType('image')}
+              >
+                <h6>Imagenes</h6>
+              </Button>
+            </div>
+          </div>
         </DialogBody>
         <DialogFooter className="space-x-2">
           <Button variant="text" color="gray" onClick={() => setOpenTwo(false)}>
