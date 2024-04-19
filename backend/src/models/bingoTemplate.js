@@ -19,6 +19,7 @@ const bingoAppearanceSchema = new Schema({
 });
 
 const bingoValueSchema = new Schema({
+  _id: { type: Schema.Types.ObjectId, default: () => new Types.ObjectId() },
   carton_value: { type: String, required: true },
   carton_type: {
     type: String,
@@ -31,10 +32,10 @@ const bingoValueSchema = new Schema({
     enum: ["default", "text", "image"],
     required: true,
   },
-  position: { type: Array, required: false }
+  position: { type: Array, required: false },
 });
 
-const bingoSchema = new Schema({
+const bingoTemplateSchema = new Schema({
   title: { type: String, required: true },
   rules: { type: String, required: false },
   creator_id: { type: Schema.Types.ObjectId, required: false },
@@ -42,13 +43,12 @@ const bingoSchema = new Schema({
     type: bingoAppearanceSchema,
     default: () => ({}),
   },
-  lottery_mode: { type: Boolean, default: true },
   bingo_values: [bingoValueSchema],
   dimensions: { type: String, default: "5x5" },
   updated_at: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now },
 });
 
-const Bingo = mongoose.model("Bingo", bingoSchema);
+const BingoTemplate = mongoose.model("BingoTemplate", bingoTemplateSchema);
 
-export default Bingo;
+export default BingoTemplate;

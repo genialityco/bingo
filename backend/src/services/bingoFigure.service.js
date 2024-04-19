@@ -1,9 +1,9 @@
-import TemplatesBingo from "../models/templatesBingo";
+import BingoFigure from "../models/bingoFigure";
 
-class TemplatesBingoServices {
+class BingoFigureServices {
   async createTemplate(templateData) {
     try {
-      const template = new TemplatesBingo(templateData);
+      const template = new BingoFigure(templateData);
       await template.save();
       return template;
     } catch (error) {
@@ -14,7 +14,7 @@ class TemplatesBingoServices {
 
   async getTemplate(id) {
     try {
-      const template = await TemplatesBingo.findById(id);
+      const template = await BingoFigure.findById(id);
       return template;
     } catch (error) {
       console.error("Error finding template:", error);
@@ -24,7 +24,7 @@ class TemplatesBingoServices {
 
   async getAllTemplates() {
     try {
-      const templates = await TemplatesBingo.find({});
+      const templates = await BingoFigure.find({});
       return templates;
     } catch (error) {
       console.error("Error getting all templates:", error);
@@ -34,7 +34,7 @@ class TemplatesBingoServices {
 
   async updateTemplate(id, updateData) {
     try {
-      const updatedTemplate = await TemplatesBingo.findByIdAndUpdate(
+      const updatedTemplate = await BingoFigure.findByIdAndUpdate(
         id,
         updateData,
         { new: true }
@@ -48,7 +48,7 @@ class TemplatesBingoServices {
 
   async deleteTemplate(id) {
     try {
-      const result = await TemplatesBingo.findByIdAndDelete(id);
+      const result = await BingoFigure.findByIdAndDelete(id);
       return result;
     } catch (error) {
       console.error("Error deleting template:", error);
@@ -57,4 +57,4 @@ class TemplatesBingoServices {
   }
 }
 
-export default new TemplatesBingoServices();
+export default new BingoFigureServices();

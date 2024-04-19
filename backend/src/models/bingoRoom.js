@@ -39,7 +39,6 @@ const bingoRoomSchema = new Schema({
   winners: [
     {
       type: Schema.Types.ObjectId,
-      // ref: 'Player', // Asegúrate de que 'Player' sea tu modelo de jugador
     },
   ],
   history_of_ballots: [String],

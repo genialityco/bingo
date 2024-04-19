@@ -1,10 +1,10 @@
-import templatesBingoServices from "../services/templatesBingo.service";
+import BingoFigureServices from "../services/bingoFigure.service";
 import sendResponse from "../utils/sendResponse";
 
-class TemplatesBingoController {
+class BingoFigureController {
   async createTemplate(req, res) {
     try {
-      const template = await templatesBingoServices.createTemplate(req.body);
+      const template = await BingoFigureServices.createTemplate(req.body);
       sendResponse(res, 201, template, "Template created successfully");
     } catch (error) {
       sendResponse(res, 400, null, error.message);
@@ -13,7 +13,7 @@ class TemplatesBingoController {
 
   async getTemplate(req, res) {
     try {
-      const template = await templatesBingoServices.getTemplate(req.params.id);
+      const template = await BingoFigureServices.getTemplate(req.params.id);
       if (!template) {
         return sendResponse(res, 404, null, "Template not found");
       }
@@ -25,7 +25,7 @@ class TemplatesBingoController {
 
   async getAllTemplates(req, res) {
     try {
-      const templates = await templatesBingoServices.getAllTemplates();
+      const templates = await BingoFigureServices.getAllTemplates();
       sendResponse(res, 200, templates, "Templates retrieved successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
@@ -34,7 +34,7 @@ class TemplatesBingoController {
 
   async updateTemplate(req, res) {
     try {
-      const updatedTemplate = await templatesBingoServices.updateTemplate(
+      const updatedTemplate = await BingoFigureServices.updateTemplate(
         req.params.id,
         req.body
       );
@@ -49,7 +49,7 @@ class TemplatesBingoController {
 
   async deleteTemplate(req, res) {
     try {
-      const result = await templatesBingoServices.deleteTemplate(req.params.id);
+      const result = await BingoFigureServices.deleteTemplate(req.params.id);
       if (!result) {
         return sendResponse(res, 404, null, "Template not found");
       }
@@ -60,4 +60,4 @@ class TemplatesBingoController {
   }
 }
 
-export default new TemplatesBingoController();
+export default new BingoFigureController();

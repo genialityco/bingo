@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const templatesBingoSchema = new mongoose.Schema({
+const bingoFigureSchema = new mongoose.Schema({
   title: { type: String, required: true },
   format: { type: String, required: true },
   image: { type: String, required: true },
@@ -10,6 +10,6 @@ const templatesBingoSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
 });
 
-const TemplatesBingo = mongoose.model("TemplatesBingo", templatesBingoSchema);
+const BingoFigure = mongoose.model("BingoFigure", bingoFigureSchema);
 
-export default TemplatesBingo;
+export default BingoFigure;

@@ -1,4 +1,4 @@
-import BingoRoom from "../models/roomBingo";
+import BingoRoom from "../models/bingoRoom";
 
 class BingoRoomServices {
   async createRoom(roomData) {

@@ -1,9 +1,9 @@
-import Bingo from "../models/bingo";
+import BingoTemplate from "../models/bingoTemplate";
 
-class BingoServices {
+class BingoTemplateServices {
   async createBingo(bingoData) {
     try {
-      const bingo = new Bingo(bingoData);
+      const bingo = new BingoTemplate(bingoData);
       await bingo.save();
       return bingo;
     } catch (error) {
@@ -14,7 +14,7 @@ class BingoServices {
 
   async getBingoById(id) {
     try {
-      const bingo = await Bingo.findById(id).populate("creatorId");
+      const bingo = await BingoTemplate.findById(id).populate("creatorId");
       if (!bingo) {
         throw new Error("Bingo not found");
       }
@@ -27,7 +27,7 @@ class BingoServices {
 
   async updateBingo(id, updateData) {
     try {
-      const bingo = await Bingo.findByIdAndUpdate(id, updateData, {
+      const bingo = await BingoTemplate.findByIdAndUpdate(id, updateData, {
         new: true,
       });
       if (!bingo) {
@@ -42,7 +42,7 @@ class BingoServices {
 
   async deleteBingo(id) {
     try {
-      const result = await Bingo.findByIdAndDelete(id);
+      const result = await BingoTemplate.findByIdAndDelete(id);
       if (!result) {
         throw new Error("Bingo not found");
       }
@@ -55,7 +55,7 @@ class BingoServices {
 
   async listAllBingos() {
     try {
-      const bingos = await Bingo.find({});
+      const bingos = await BingoTemplate.find({});
       return bingos;
     } catch (error) {
       console.error("Error listing all bingos:", error);
@@ -64,4 +64,4 @@ class BingoServices {
   }
 }
 
-export default new BingoServices();
+export default new BingoTemplateServices();
