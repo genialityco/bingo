@@ -15,9 +15,10 @@ import {
 } from '@material-tailwind/react';
 
 const TABLE_HEAD = [
-  'Tipo de Cartón',
-  'Cantidad Valores',
-  'Valor de la Balota',
+  'Tipo valor en Cartón',
+  'Valor en el Cartón',
+  'Tipo Balota',
+  'Valor en la Balota',
   'Opciones',
 ];
 
@@ -28,6 +29,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   //estados para editar cada objeto dentro del array bingoValues
   const [editIndex, setEditIndex] = useState(null);
   const [newCustomValue, setNewCustomValue] = useState('');
+  //estado para personalizar el valor del carton y de la balota
+  const [newCustomValueCarton, setNewCustomValueCarton] = useState('');
+  const [newCustomValueBallot, setNewCustomValueBallot] = useState('');
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
 
   //estado creación de un objeto del carton del bingo personalizado
@@ -35,13 +39,14 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     title: '',
     rules: '',
     creatorId: null,
-    bingoAppearance: {},
-    bingoValues: [
+    bingo_appearance: {},
+    bingo_values: [
       {
-        id: '',
-        value: '',
-        type: '',
-        imageUrl: '',
+        carton_value: '',
+        carton_type: '',
+        ballot_value: '',
+        ballot_type: '',
+        position: [],
       },
     ],
     dimensions: '',
@@ -52,14 +57,15 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedDimensions, setSelectedDimensions] = useState(null);
 
-  //setea la cantidad de objetos dentro del array bingoValues y les asigna un id
+  //setea la cantidad de objetos dentro del array bingoValues y les asigna un id tanto al objeto carton_value como al objeto ballot_value
   const handleNumValuesToPlayChange = (value) => {
     setNumValuesToPlay(value);
     const newBingoValues = Array.from({ length: value }, (_, index) => ({
-      id: index + 1,
-      value: '',
-      type: selectedTheme,
-      imageUrl: '',
+      carton_value: '',
+      carton_type: '',
+      ballot_value: '',
+      ballot_type: '',
+      position: [],
     }));
 
     setBingoCard((prevState) => ({
@@ -74,43 +80,72 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     if (editIndex !== null) {
       const updatedBingoValues = [...bingoCard.bingoValues];
       const editedItem = updatedBingoValues[editIndex];
-      if (editedItem.type === 'image') {
-        editedItem.imageUrl = newCustomValue;
-      } else {
-        editedItem.value = newCustomValue;
-      }
+      editedItem.carton_value = newCustomValueCarton;
+      editedItem.ballot_value = newCustomValueBallot;
+
       setBingoCard((prevState) => ({
         ...prevState,
         bingoValues: updatedBingoValues,
       }));
     }
     setOpenTwo(false);
-    setNewCustomValue('');
+    setNewCustomValueCarton('');
+    setNewCustomValueBallot('');
     setEditIndex(null);
   };
 
   //cambia el valor de la propiedad type dentro del array de bingoValues y tambien captura lo que entra por input como el titulo y las reglas
+  // const handleCreateNewBingo = (e, type) => {
+  //   const name = e.target.name;
+  //   const value = e.target.value;
+  //   const updatedBingoValues = bingoCard.bingoValues.map((item) => ({
+  //     ...item,
+  //     // type: type,
+  //     carton_type: type,
+  //     ballot_type: type,
+  //   }));
+
+  //   if (name === 'title' || name === 'rules') {
+  //     setBingoCard((prevState) => ({
+  //       ...prevState,
+  //       [name]: value,
+  //     }));
+  //   } else {
+  //     setBingoCard((prevState) => ({
+  //       ...prevState,
+  //       bingoValues: updatedBingoValues,
+  //     }));
+  //     setSelectedTheme(type);
+  //   }
+  // };
+
   const handleCreateNewBingo = (e, type) => {
     const name = e.target.name;
     const value = e.target.value;
     const updatedBingoValues = bingoCard.bingoValues.map((item) => ({
       ...item,
-      type: type,
+      carton_type: type,
+      ballot_type: type,
     }));
-
+   
     if (name === 'title' || name === 'rules') {
       setBingoCard((prevState) => ({
         ...prevState,
         [name]: value,
       }));
     } else {
+      // Clonar el array bingoValues antes de actualizar el estado
       setBingoCard((prevState) => ({
         ...prevState,
-        bingoValues: updatedBingoValues,
+        bingoValues: [...updatedBingoValues], // Aquí se clona el array
       }));
       setSelectedTheme(type);
     }
   };
+
+ 
+  
+  
 
   // maneja la carga de imagenes locales
   const handleImageChange = (e) => {
@@ -144,7 +179,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     <div className=" flex flex-col lg:flex-row gap-3 ">
       {/* 1st Card: Tittle,  Dimentions and Rules */}
       <Card className="w-2/5 bg-white p-5 flex justify-center items-center gap-3 border-gray-50 border-2 text-center">
-        <Typography variant="h5" className="text-center">
+        <Typography variant="h5" className="self-start">
           Titulo
         </Typography>
         <div className="w-72">
@@ -161,6 +196,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             value={bingoCard.title}
           />
         </div>
+        <Typography variant="h5" className="self-start">
+          Tamaño del Cartón
+        </Typography>
         <Carousel
           className="rounded-xl h-full w-full bg-blue-gray-50"
           navigation={({ setActiveIndex, activeIndex, length }) => (
@@ -242,6 +280,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
         </Carousel>
 
         <div className="w-80">
+          <Typography variant="h5" className="text-left my-2">
+            Reglamento
+          </Typography>
           <Textarea
             label="Escribe las reglas del juego"
             name="rules"
@@ -279,6 +320,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             className="flex items-center gap-3"
             onClick={handleOpenOne}
           >
+            Generar Balotas
+          </Button>
+          <Button variant="gradient" className="flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -293,7 +337,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 d="M12 4.5v15m7.5-7.5h-15"
               />
             </svg>
-            Agregar
+            Agregar Balotas
           </Button>
         </div>
 
@@ -305,7 +349,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 {TABLE_HEAD.map((head) => (
                   <th
                     key={head}
-                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                    className="w-24 border-b border-blue-gray-100 bg-blue-gray-50 p-4"
                   >
                     <Typography
                       variant="small"
@@ -323,48 +367,62 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 ? null
                 : bingoCard.bingoValues?.map((item, index) => (
                     <tr key={item.id} className="even:bg-blue-gray-50/50">
+                      {/* tipo valor en carton */}
                       <td className="p-4">
                         {' '}
                         <Chip
-                          color={item.type === 'text' ? 'blue' : 'green'}
-                          value={item.type}
+                          color={item.carton_type === 'text' ? 'blue' : 'green'}
+                          value={item.carton_type}
                         />
                       </td>
+                      {/* valor carton */}
                       <td className="p-4">
-                        {' '}
-                        <Typography
-                          variant="small"
-                          color="blue-gray"
-                          className="font-normal"
-                        >
-                          {item.id}
-                        </Typography>{' '}
-                      </td>
-
-                      <td className="p-4">
-                        {item.type === 'image' ? (
-                          item.imageUrl ? (
-                            <img
-                              className="m-auto"
-                              src={item.imageUrl}
-                              alt="Imagen"
-                              height={50}
-                              width={50}
-                              key={item.imageUrl}
-                            />
-                          ) : (
-                            '-'
-                          )
+                        {item.carton_type === 'image' ? (
+                          <img
+                            className="m-auto"
+                            src={item.carton_value}
+                            alt="Imagen"
+                            height={50}
+                            width={50}
+                          />
                         ) : (
                           <Typography
                             variant="small"
                             color="blue-gray"
                             className="font-normal"
                           >
-                            {!item.value ? '-' : item.value}
+                            {!item.carton_value ? '-' : item.carton_value}
                           </Typography>
                         )}
                       </td>
+                      {/* tipo de balota */}
+                      <td className="p-4">
+                        <Chip
+                          color={item.ballot_type === 'text' ? 'blue' : 'green'}
+                          value={item.ballot_type}
+                        />
+                      </td>
+                      {/* valor balota */}
+                      <td className="p-4">
+                        {item.carton_type === 'image' ? (
+                          <img
+                            className="m-auto"
+                            src={item.ballot_value}
+                            alt="Imagen"
+                            height={50}
+                            width={50}
+                          />
+                        ) : (
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="font-normal"
+                          >
+                            {!item.ballot_value ? '-' : item.ballot_value}
+                          </Typography>
+                        )}
+                      </td>
+                      {/* iconos editar y eliminar */}
                       <td className="p-4 flex flex-col items-center justify-center ">
                         <button
                           className="relative align-middle select-none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-5 max-w-[40px] h-5 max-h-[40px] text-xs text-gray-900 hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full"
@@ -548,15 +606,24 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             </>
           ) : (
             <>
-              <Typography className="mb-10 -mt-7 " color="gray" variant="lead">
-                Ingresar Valores
-              </Typography>
-              <div className="grid gap-6">
+              <div className="flex flex-col gap-2">
+                <Typography className="mb-1 " color="gray" variant="h6">
+                  Ingresar Valor del Cartón
+                </Typography>
                 <Input
                   label="Ingresar valor"
                   placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomValue(e.target.value)}
-                  value={newCustomValue}
+                  onChange={(e) => setNewCustomValueCarton(e.target.value)}
+                  value={newCustomValueCarton}
+                />
+                <Typography className="mb-1 " color="gray" variant="h6">
+                  Ingresar Valor en la Balota
+                </Typography>
+                <Input
+                  label="Ingresar valor"
+                  placeholder="Ingresar valor"
+                  onChange={(e) => setNewCustomValueBallot(e.target.value)}
+                  value={newCustomValueBallot}
                 />
               </div>
             </>
