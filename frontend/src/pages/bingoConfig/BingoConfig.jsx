@@ -17,11 +17,9 @@ import bingoService from '../../services/bingoService';
 import { useNavigate } from 'react-router-dom';
 
 const BingoConfig = () => {
-
   const [newBingoCreated, setNewBingoCreated] = useState({});
-  console.log(newBingoCreated)
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const sendBingoCreated = (customBingo) => {
     setNewBingoCreated(customBingo);
@@ -36,7 +34,7 @@ const BingoConfig = () => {
       if (status === 'success') {
         alert(message);
       }
-      navigate("/");
+      navigate('/list-bingos');
     } catch (error) {
       console.log('Error en el envio de la configuración del bingo', error);
       alert(
