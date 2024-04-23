@@ -11,16 +11,16 @@ import {
   DialogBody,
   DialogFooter,
   Chip,
-  CardBody,
 } from '@material-tailwind/react';
+import TemplatesBingos from './TemplateBingos';
 
 const TABLE_HEAD = [
-  '-',
   'Tipo valor en Cartón',
   'Valor en el Cartón',
   'Tipo Balota',
   'Valor en la Balota',
   'Opciones',
+  '-',
 ];
 
 const DimensionsBingoCard = ({ sendBingoCreated }) => {
@@ -60,7 +60,13 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
         carton_type: '',
         ballot_value: '',
         ballot_type: '',
-        position: [],
+        positions: [],
+      },
+    ],
+    positions_disabled: [
+      {
+        position: 0,
+        default_image: '',
       },
     ],
     dimensions: '',
@@ -71,36 +77,36 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
 
   // estados para marcar el color de estilo de la opcion seleccionada como el tema, cantidad de valores y dimensiones (posicions en el bingo Tradional)
   const [selectedTheme, setSelectedTheme] = useState(null);
-  console.log('tema global:', selectedTheme);
   const [selectedDimensions, setSelectedDimensions] = useState(null);
-  const [selectedPosition, setSelectedPosition] = useState(null);
-  console.log('posicion', selectedPosition);
+
+  const [selectedPositions, setSelectedPositions] = useState([]);
+  const[disabledPositions, setDisabledPositions]=useState([])
+  
 
   //estados para capturar el tipo de forma independiente en la tabla para editar
   const [selectedCartonType, setSelectedCartonType] = useState('');
-  console.log('tema carton', selectedCartonType);
+ 
   const [selectedBallotType, setSelectedBallotType] = useState('');
-  console.log('tema balota', selectedBallotType);
+  
 
   // Función para manejar el cambio de tipo
+  // const handleTypeChange = (type) => {
+  //   // Obtener el valor actual del input
+  //   const currentValue = newCustomValue;
 
-  const handleTypeChange = (type) => {
-    // Obtener el valor actual del input
-    const currentValue = newCustomValue;
+  //   // Limpiar el valor del input si el tipo cambia y no es 'image'
+  //   if (type !== selectedType && selectedType !== 'image') {
+  //     setNewCustomValue('');
+  //   }
 
-    // Limpiar el valor del input si el tipo cambia y no es 'image'
-    if (type !== selectedType && selectedType !== 'image') {
-      setNewCustomValue('');
-    }
+  //   // Actualizar el tipo seleccionado
+  //   setSelectedType(type);
 
-    // Actualizar el tipo seleccionado
-    setSelectedType(type);
-
-    // Restaurar el valor del input si el tipo cambia de 'image' a otro tipo
-    if (type !== 'image' && currentValue !== '') {
-      setNewCustomValue(currentValue);
-    }
-  };
+  //   // Restaurar el valor del input si el tipo cambia de 'image' a otro tipo
+  //   if (type !== 'image' && currentValue !== '') {
+  //     setNewCustomValue(currentValue);
+  //   }
+  // };
 
   //setea la cantidad de objetos dentro del array bingoValues
   const handleNumValuesToPlayChange = (value) => {
@@ -110,7 +116,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
       carton_type: '',
       ballot_value: '',
       ballot_type: '',
-      position: [],
+      positions: [],
     }));
 
     setBingoCard((prevState) => ({
@@ -127,7 +133,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
       carton_type: '',
       ballot_value: '',
       ballot_type: '',
-      position: [],
+      positions: [],
     };
 
     setBingoCard((prevState) => ({
@@ -230,26 +236,84 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     setNewCustomValueBallot(currentItem.ballot_value);
     setNewCustomValueCartonImage(currentItem.carton_value);
     setNewCustomValueBallotImage(currentItem.ballot_value);
+    setSelectedPositions(currentItem.positions);
   };
 
   //guarda en el array de position dentro del estado bingoCard los index
   const handleSelectedPosition = (index) => {
-    setSelectedPosition(index);
-  
+    // Verificar si el índice ya está en selectedPositions
+    const isSelected = selectedPositions.includes(index);
+
+    // Si está seleccionado, lo removemos; de lo contrario, lo agregamos
+    const newSelectedPositions = isSelected
+      ? selectedPositions.filter((pos) => pos !== index)
+      : [...selectedPositions, index];
+
+    // Actualizamos el estado selectedPositions
+    setSelectedPositions(newSelectedPositions);
+
+    // Actualizamos el estado bingoCard con las nuevas posiciones
     setBingoCard((prevBingoCard) => {
       const newBingoCard = { ...prevBingoCard };
-  
-      newBingoCard.bingo_values = newBingoCard.bingo_values.map((value, idx) => {
-        if (idx === editIndex && !value.position.includes(index)) {
-          // Verificar si el índice ya está presente en el arreglo position
-          value.position.push(index);
+
+      // Actualizamos las posiciones del valor actual
+      newBingoCard.bingo_values = newBingoCard.bingo_values.map(
+        (value, idx) => {
+          if (idx === editIndex) {
+            // Asignamos las nuevas posiciones
+            value.positions = newSelectedPositions;
+          }
+          return value;
         }
-        return value;
-      });
+      );
+
+      return newBingoCard;
+    });
+  };
+
+  //desabilitar posiciones cuando selecciono un tamaño
+  const handleDisabledPosition = (index) => {
+    console.log("tamaña desabilitar", index)
+    // Verificar si el índice ya está en disabledPositions
+    const isSelected = disabledPositions.includes(index);
+  
+    // Si está seleccionado, lo removemos; de lo contrario, lo agregamos
+    const newDisabledPositions = isSelected
+      ? disabledPositions.filter((pos) => pos !== index)
+      : [...disabledPositions, index];
+  
+    // Actualizamos el estado disabledPositions
+    setDisabledPositions(newDisabledPositions);
+  
+    // Actualizamos el estado bingoCard con las nuevas posiciones deshabilitadas
+    setBingoCard((prevState) => {
+      const newBingoCard = { ...prevState };
+  
+      // Verificar si el índice ya está en positions_disabled
+      const existingIndex = newBingoCard.positions_disabled.findIndex(
+        (item) => item.position === index
+      );
+  
+      if (isSelected) {
+        // Si el índice ya está seleccionado, lo eliminamos de positions_disabled
+        if (existingIndex !== -1) {
+          newBingoCard.positions_disabled.splice(existingIndex, 1);
+        }
+      } else {
+        // Si el índice no está seleccionado, lo agregamos a positions_disabled
+        if (existingIndex === -1) {
+          newBingoCard.positions_disabled.push({
+            position: index,
+            default_image: '', // Puedes agregar la imagen predeterminada si es necesario
+          });
+        }
+      }
   
       return newBingoCard;
     });
   };
+  
+  
 
   //envia la actualizacion del estado bingoCard al componente BingoConfig a traves de la funcion sendBingoCreated que recibe este componente por props
   useEffect(() => {
@@ -258,7 +322,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
   useEffect(() => {
-    handleNumValuesToPlayChange(75);
+    handleNumValuesToPlayChange(5);
   }, []);
 
   return (
@@ -282,8 +346,8 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             value={bingoCard.title}
           />
         </div>
-        <Typography variant="h5" className="self-start">
-          Template del Cartón
+        <Typography variant="h5" className="text-center">
+          Tamaño del Cartón y desabilitar posiciones
         </Typography>
         <Carousel
           className="rounded-xl h-full w-full bg-blue-gray-50"
@@ -303,6 +367,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
         >
           <Button
             color="white"
+            
             className={`m-8  ${
               selectedDimensions === '3x3' ? 'bg-yellow-300' : 'bg-white'
             }`}
@@ -315,7 +380,8 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               {[...Array(9)].map((_, index) => (
                 <div
                   key={index}
-                  className="square w-6 h-6 m-auto bg-blue-500"
+                  className={`square w-6 h-6 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
+                  onClick={()=>handleDisabledPosition(index)}
                 ></div>
               ))}
             </div>
@@ -336,16 +402,14 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               {[...Array(16)].map((_, index) => (
                 <div
                   key={index}
-                  className="square w-6 h-6 m-auto bg-blue-500"
+                  className={`square w-6 h-6 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
+                  onClick={()=>handleDisabledPosition(index)}
                 ></div>
               ))}
             </div>
             <Typography className="text-center">4x4</Typography>
           </Button>
           <div>
-            <Typography variant="h6" className="text-center mt-3">
-              Bingo Tradicional
-            </Typography>
             <Button
               color="white"
               className={`m-8  ${
@@ -357,21 +421,11 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               }}
             >
               <div className="grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center">
-                {/* Agregar la primera fila con la palabra "BINGO" */}
-                <div className="col-span-5 flex justify-center items-center">
-                  <div className="font-bold text-sm grid grid-cols-5 gap-3">
-                    <div className="col-span-1">B</div>
-                    <div className="col-span-1">I</div>
-                    <div className="col-span-1">N</div>
-                    <div className="col-span-1">G</div>
-                    <div className="col-span-1">O</div>
-                  </div>
-                </div>
-
                 {[...Array(25)].map((_, index) => (
                   <div
                     key={index}
-                    className="square w-5 h-5 m-auto bg-blue-500"
+                    className={`square w-5 h-5 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
+                  onClick={()=>handleDisabledPosition(index)}
                   ></div>
                 ))}
               </div>
@@ -380,8 +434,10 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
           </div>
         </Carousel>
 
+        <TemplatesBingos />
+
         <div className="w-80">
-          <Typography variant="h5" className="text-left my-2">
+          <Typography variant="h5" className="text-left mt-6">
             Reglamento
           </Typography>
           <Textarea
@@ -442,13 +498,13 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 d="M12 4.5v15m7.5-7.5h-15"
               />
             </svg>
-            Agregar Balotas
+            Agregar Balota
           </Button>
         </div>
 
         {/* Table del contenido del bingo*/}
-        <Card className="m-auto h-96 w-11/12 overflow-scroll overflow-y-auto">
-          <table className="w-full min-w-max table-auto text-center">
+        <Card className="m-auto h-[600px] w-11/12 overflow-scroll overflow-y-auto">
+          <table className="w-full min-w-max  table-auto text-center">
             <thead>
               <tr>
                 {TABLE_HEAD.map((head) => (
@@ -470,9 +526,6 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             <tbody>
               {bingoCard.bingo_values?.map((item, index) => (
                 <tr key={item.id} className="even:bg-blue-gray-50/50">
-                  <td className="p-4">
-                    <Typography>{index + 1}</Typography>
-                  </td>
                   {/* tipo valor en carton */}
                   <td className="p-4">
                     {' '}
@@ -600,6 +653,9 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                         />
                       </svg>
                     </button>
+                  </td>
+                  <td className="p-4">
+                    <Typography>{index + 1}</Typography>
                   </td>
                 </tr>
               ))}
@@ -767,37 +823,58 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 value={newCustomValueCarton}
               />
             )}
-            {bingoCard.dimensions === '5x5' ? (
+            <Typography color="gray" variant="h6">
+              Posiciones
+            </Typography>{' '}
+            {bingoCard.dimensions === '5x5' && (
               <>
                 {' '}
-                <Typography color="gray" variant="h6">
-                  Posiciones
-                </Typography>{' '}
                 <div className=" w-[166px] m-auto p-3 grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center bg-blue-gray-900">
                   {/* Agregar la primera fila con la palabra "BINGO" */}
-                  <div className="col-span-5 flex justify-center items-center">
-                    <div className="font-bold text-sm grid grid-cols-5 gap-5">
-                      <div className="col-span-1">B</div>
-                      <div className="col-span-1">I</div>
-                      <div className="col-span-1">N</div>
-                      <div className="col-span-1">G</div>
-                      <div className="col-span-1">O</div>
-                    </div>
-                  </div>
                   {[...Array(25)].map((_, index) => (
                     <div
                       key={index}
-                      /*  className="square w-5 h-5 m-auto selectedPosition  bg-blue-500 cursor-pointer" */
                       className={`square w-5 h-5 m-auto ${
-                        selectedPosition === index && 'bg-yellow-600'
-                      } bg-blue-500 cursor-pointer`}
+                        selectedPositions.includes(index)
+                          ? 'bg-yellow-600'
+                          : 'bg-blue-500'
+                      } ${disabledPositions.includes(index) ? "bg-red-600 cursor-not-allowed": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
                       onClick={() => handleSelectedPosition(index)}
                     ></div>
                   ))}
                 </div>{' '}
               </>
-            ) : null}
-
+            )}
+            {bingoCard.dimensions === '3x3' && (
+              <div className="w-[166px] m-auto p-3  grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center bg-blue-gray-900">
+                {[...Array(9)].map((_, index) => (
+                  <div
+                    key={index}
+                    className={`square w-5 h-5 m-auto ${
+                      selectedPositions.includes(index)
+                        ? 'bg-yellow-600'
+                        : 'bg-blue-500'
+                    } ${disabledPositions.includes(index) ? "bg-red-600": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
+                    onClick={() => handleSelectedPosition(index)}
+                  ></div>
+                ))}
+              </div>
+            )}
+            {bingoCard.dimensions === '4x4' && (
+              <div className="w-[166px] m-auto p-3  grid grid-cols-4 grid-cols-auto grid-rows-4 gap-1 justify-center items-center bg-blue-gray-900">
+                {[...Array(16)].map((_, index) => (
+                  <div
+                    key={index}
+                    className={`square w-5 h-5 m-auto ${
+                      selectedPositions.includes(index)
+                        ? 'bg-yellow-600'
+                        : 'bg-blue-500'
+                    } ${disabledPositions.includes(index) ? "bg-red-600": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
+                    onClick={() => handleSelectedPosition(index)}
+                  ></div>
+                ))}
+              </div>
+            )}
             {/* Cambiar de tipo */}
             <Typography color="gray" variant="h6">
               Cambiar el tipo

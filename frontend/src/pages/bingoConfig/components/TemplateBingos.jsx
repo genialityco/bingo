@@ -2,9 +2,9 @@ import { Carousel, Typography, Button } from '@material-tailwind/react';
 
 const TemplateBingos = () => {
   return (
-    <div>
-      <Typography variant="h5" className="text-left my-2">
-        Template Bingo
+    <div className="w-full h-60">
+      <Typography variant="h5" className="text-left">
+      Plantilla del Cartón
       </Typography>
       <Carousel
         className="rounded-xl h-full w-full bg-blue-gray-50"
