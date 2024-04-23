@@ -69,10 +69,12 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   //establecer el nuevo valor de objetos que tendra el array bingoValues
   const [selectedNumValues, setSelectedNumValues] = useState(null);
 
-  // estados para marcar el color de estilo de la opcion seleccionada como el tema, cantidad de valores y dimensiones
+  // estados para marcar el color de estilo de la opcion seleccionada como el tema, cantidad de valores y dimensiones (posicions en el bingo Tradional)
   const [selectedTheme, setSelectedTheme] = useState(null);
   console.log('tema global:', selectedTheme);
   const [selectedDimensions, setSelectedDimensions] = useState(null);
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  console.log('posicion', selectedPosition);
 
   //estados para capturar el tipo de forma independiente en la tabla para editar
   const [selectedCartonType, setSelectedCartonType] = useState('');
@@ -145,7 +147,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     }));
   };
 
-  //maneja el editar cada uno de los valores que es el contenido de cada celda dentro del carton del bingo
+  // edita cada uno de los objetos de manera independiente dentro del array "bingo_values"
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
       const updatedBingoValues = [...bingoCard.bingo_values];
@@ -230,12 +232,31 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     setNewCustomValueBallotImage(currentItem.ballot_value);
   };
 
+  //guarda en el array de position dentro del estado bingoCard los index
+  const handleSelectedPosition = (index) => {
+    setSelectedPosition(index);
+  
+    setBingoCard((prevBingoCard) => {
+      const newBingoCard = { ...prevBingoCard };
+  
+      newBingoCard.bingo_values = newBingoCard.bingo_values.map((value, idx) => {
+        if (idx === editIndex && !value.position.includes(index)) {
+          // Verificar si el índice ya está presente en el arreglo position
+          value.position.push(index);
+        }
+        return value;
+      });
+  
+      return newBingoCard;
+    });
+  };
+
   //envia la actualizacion del estado bingoCard al componente BingoConfig a traves de la funcion sendBingoCreated que recibe este componente por props
   useEffect(() => {
     sendBingoCreated(bingoCard);
   }, [bingoCard]);
 
-  //inicialmente aparezcan 75 filas en la tabla para persolizar
+  //inicialmente aparezcan 75 filas en la tabla para personalizar
   useEffect(() => {
     handleNumValuesToPlayChange(75);
   }, []);
@@ -347,7 +368,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                   </div>
                 </div>
 
-                {[...Array(30)].map((_, index) => (
+                {[...Array(25)].map((_, index) => (
                   <div
                     key={index}
                     className="square w-5 h-5 m-auto bg-blue-500"
@@ -686,7 +707,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
         </DialogBody>
       </Dialog>
 
-      {/* Dialog */}
+      {/* Dialog para personalizar valor de carton y balota */}
       <Dialog
         open={openTwo}
         size="xs"
@@ -746,6 +767,36 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 value={newCustomValueCarton}
               />
             )}
+            {bingoCard.dimensions === '5x5' ? (
+              <>
+                {' '}
+                <Typography color="gray" variant="h6">
+                  Posiciones
+                </Typography>{' '}
+                <div className=" w-[166px] m-auto p-3 grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center bg-blue-gray-900">
+                  {/* Agregar la primera fila con la palabra "BINGO" */}
+                  <div className="col-span-5 flex justify-center items-center">
+                    <div className="font-bold text-sm grid grid-cols-5 gap-5">
+                      <div className="col-span-1">B</div>
+                      <div className="col-span-1">I</div>
+                      <div className="col-span-1">N</div>
+                      <div className="col-span-1">G</div>
+                      <div className="col-span-1">O</div>
+                    </div>
+                  </div>
+                  {[...Array(25)].map((_, index) => (
+                    <div
+                      key={index}
+                      /*  className="square w-5 h-5 m-auto selectedPosition  bg-blue-500 cursor-pointer" */
+                      className={`square w-5 h-5 m-auto ${
+                        selectedPosition === index && 'bg-yellow-600'
+                      } bg-blue-500 cursor-pointer`}
+                      onClick={() => handleSelectedPosition(index)}
+                    ></div>
+                  ))}
+                </div>{' '}
+              </>
+            ) : null}
 
             {/* Cambiar de tipo */}
             <Typography color="gray" variant="h6">
