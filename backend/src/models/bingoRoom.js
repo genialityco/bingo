@@ -9,7 +9,7 @@ const bingoRoomSchema = new Schema({
   },
   bingoId: {
     type: Schema.Types.ObjectId,
-    ref: "Bingo",
+    ref: "BingoTemplate",
     required: true,
   },
   capacity: {
@@ -18,7 +18,7 @@ const bingoRoomSchema = new Schema({
   },
   bingoFigure: {
     type: Schema.Types.ObjectId,
-    ref: "TemplatesBingo",
+    ref: "BingoFigure",
     required: false,
   },
   roomCode: {

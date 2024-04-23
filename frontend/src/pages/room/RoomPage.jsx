@@ -44,7 +44,7 @@ export const RoomPage = () => {
   useEffect(() => {
     const getBingo = async () => {
       const response = await bingoService.getBingoById(bingoId);
-      setBingoConfig(response);
+      setBingoConfig(response.data);
     };
     getBingo();
   }, []);

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
 const bingoAppearanceSchema = new Schema({
   background_color: { type: String, default: "#00bcd4" },
@@ -32,7 +32,18 @@ const bingoValueSchema = new Schema({
     enum: ["default", "text", "image"],
     required: true,
   },
-  position: { type: Array, required: false },
+  positions: { type: Array, required: false },
+});
+
+const bingoPositionsDisabledSchema = new Schema({
+  position: {
+    type: Number,
+    required: false,
+  },
+  default_image: {
+    type: String,
+    required: false,
+  },
 });
 
 const bingoTemplateSchema = new Schema({
@@ -44,6 +55,7 @@ const bingoTemplateSchema = new Schema({
     default: () => ({}),
   },
   bingo_values: [bingoValueSchema],
+  positions_disabled: [bingoPositionsDisabledSchema],
   dimensions: { type: String, default: "5x5" },
   updated_at: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now },

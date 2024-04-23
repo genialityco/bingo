@@ -1,10 +1,10 @@
-import { apiTemplatesBingo } from "./index";
+import { apiBingoFigures } from "./index";
 
 const templatesBingoService = {
   // Método para crear un nuevo template
   createTemplate: async (templateData) => {
     try {
-      const response = await apiTemplatesBingo.post("/", templateData);
+      const response = await apiBingoFigures.post("/", templateData);
       return response.data;
     } catch (error) {
       // Manejo de error adecuado
@@ -16,7 +16,7 @@ const templatesBingoService = {
   // Método para obtener un template por su ID
   getTemplateById: async (id) => {
     try {
-      const response = await apiTemplatesBingo.get(`/${id}`);
+      const response = await apiBingoFigures.get(`/${id}`);
       return response.data.data;
     } catch (error) {
       console.error("Error getting template:", error);
@@ -27,7 +27,7 @@ const templatesBingoService = {
   // Método para obtener todos los templates
   getAllTemplates: async () => {
     try {
-      const response = await apiTemplatesBingo.get("/");
+      const response = await apiBingoFigures.get("/");
       return response.data.data;
     } catch (error) {
       console.error("Error getting all templates:", error);
@@ -38,7 +38,7 @@ const templatesBingoService = {
   // Método para actualizar un template
   updateTemplate: async (id, updateData) => {
     try {
-      const response = await apiTemplatesBingo.put(`/${id}`, updateData);
+      const response = await apiBingoFigures.put(`/${id}`, updateData);
       return response.data;
     } catch (error) {
       console.error("Error updating template:", error);
@@ -49,7 +49,7 @@ const templatesBingoService = {
   // Método para eliminar un template
   deleteTemplate: async (id) => {
     try {
-      const response = await apiTemplatesBingo.delete(`/${id}`);
+      const response = await apiBingoFigures.delete(`/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting template:", error);

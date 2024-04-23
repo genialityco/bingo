@@ -14,7 +14,7 @@ class BingoTemplateServices {
 
   async getBingoById(id) {
     try {
-      const bingo = await BingoTemplate.findById(id).populate("creatorId");
+      const bingo = await BingoTemplate.findById(id); //.populate("creatorId");
       if (!bingo) {
         throw new Error("Bingo not found");
       }
