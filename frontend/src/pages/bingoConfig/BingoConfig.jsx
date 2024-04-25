@@ -9,7 +9,7 @@ import {
   Typography,
   Button,
 } from '@material-tailwind/react';
-import DimensionsBingoCard from './components/DimensionsBingoCard';
+import DimensionsBingoCard from './components/DimensionsBingoCard/DimensionsBingoCard';
 import AppearanceCard from './components/AppearanceCard';
 import CardAssigment from './components/CardAssigment';
 import { useState } from 'react';
