@@ -24,7 +24,7 @@ const TABLE_HEAD = [
 
 const DimensionsBingoCard = ({sendBingoCreated}) => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  console.log(bingoCard)
+  
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -38,8 +38,9 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
 
   //estados para editar cada objeto dentro del array bingoValues
   const [editIndex, setEditIndex] = useState(null);
-  //guardar el array de posiciones desabilitadas
+  //guardar el array de posiciones desabilitadas y dimension
   const [positionsDisabled, setPostionDisabled] = useState([]);
+  const[dimension, setDimension]=useState(null)
 
   //captura  el titulo y las reglas
   const handleCreateNewBingo = (e) => {
@@ -100,18 +101,16 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
     }));
   };
 
-  const handleOpenDialogGenerateBallots = () => {
-    setOpenDialogGenerateBallots(!openOne);
-  };
 
   //obtener las posiciones desabilitadas:
-  const getPositionsDisables = (disables) => {
+  const getPositionsDisablesAndDimension = (disables, getDimension) => {
     setPostionDisabled(disables);
+    setDimension(getDimension)
   };
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
   useEffect(() => {
-    handleNumValuesToPlayChange(2);
+    handleNumValuesToPlayChange(75);
   }, []);
 
   //mantener actualizado el estado bingoCard con la config y enviarlo al padre "BingoConfig"
@@ -148,11 +147,8 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
             value={bingoCard.title}
           />
         </div>
-        {/* <Typography variant="h5" className="text-center">
-          Tamaño del Cartón y desabilitar posiciones
-        </Typography> */}
-
-        <SizeBingoCard getPositionsDisables={getPositionsDisables} />
+      
+        <SizeBingoCard getPositionsDisablesAndDimension={getPositionsDisablesAndDimension} />
 
         <TemplateBingos/>
 
@@ -394,6 +390,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
         editIndex={editIndex}
         setEditIndex={setEditIndex}
         positionsDisabled={positionsDisabled}
+        dimension={dimension}
       />
     </div>
   );

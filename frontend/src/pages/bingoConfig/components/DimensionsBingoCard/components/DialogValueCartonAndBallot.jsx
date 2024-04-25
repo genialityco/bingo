@@ -16,8 +16,11 @@ const DialogValueCartonAndBallot = ({
   editIndex,
   setEditIndex,
   positionsDisabled,
+  dimension
 }) => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+ 
+
 
   //guarda el valor de carton y balota del objeto que se esta editando
   const [selectedItem, setSelectedItem] = useState(null);
@@ -42,6 +45,10 @@ const DialogValueCartonAndBallot = ({
 
   //seleccionar posiciones para el valor del carton
   const [selectedPositions, setSelectedPositions] = useState([]);
+  
+
+
+  
 
   // UseEffect para actualizar los valores cuando el índice de edición cambie
   useEffect(() => {
@@ -61,6 +68,53 @@ const DialogValueCartonAndBallot = ({
     }
   }, [selectedItem]);
 
+  useEffect(() => {
+    // Limpiar los estados cuando se cambie el tipo de cartón
+    setNewCustomValueCarton('');
+    setNewCustomImageCartonUrl('');
+  
+    // Limpiar los estados cuando se cambie el tipo de balota
+    setNewCustomValueBallot('');
+    setNewCustomImageBallotUrl('');
+  }, [selectedCartonType, selectedBallotType]);
+
+    // UseEffect para actualizar los valores cada vez que el índice de edición cambie
+    useEffect(() => {
+      if (editIndex !== null) {
+        const currentItem = bingoCard.bingo_values[editIndex];
+        setNewCustomValueCarton(currentItem.carton_value || '');
+        setNewCustomValueBallot(currentItem.ballot_value || '');
+      }
+    }, [editIndex]);
+
+  // const handleSaveCustomValue = () => {
+  //   if (editIndex !== null) {
+  //     const updatedBingoValues = [...bingoCard.bingo_values];
+  //     const editedItem = updatedBingoValues[editIndex];
+  //     editedItem.carton_value = newCustomValueCarton;
+  //     editedItem.carton_type = selectedCartonType;
+  //     editedItem.ballot_value = newCustomValueBallot;
+  //     editedItem.ballot_type = selectedBallotType;
+  //     if (editedItem.carton_type === 'image' && newCustomValueCartonImage) {
+  //       editedItem.carton_value = newCustomValueCartonImage || newCustomImageCartonUrl;
+        
+  //     } 
+  //     if (editedItem.ballot_type === 'image' && newCustomValueBallotImage) {
+  //       editedItem.ballot_value = newCustomValueBallotImage || newCustomImageBallotUrl;
+  //     }
+
+  //     updateBingoCard((prevState) => ({
+  //       ...prevState,
+  //       bingo_values: updatedBingoValues,
+  //     }));
+  //   }
+
+  //   // setNewCustomValueCarton('');
+  //   // setNewCustomValueBallot('');
+  //   setEditIndex(null);
+  //   setOpenDialogValueCartonAndBallot(false);
+  // };
+
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
       const updatedBingoValues = [...bingoCard.bingo_values];
@@ -69,27 +123,51 @@ const DialogValueCartonAndBallot = ({
       editedItem.carton_type = selectedCartonType;
       editedItem.ballot_value = newCustomValueBallot;
       editedItem.ballot_type = selectedBallotType;
-      if (editedItem.carton_type ==="image" && newCustomValueCartonImage) {
-        editedItem.carton_value = newCustomValueCartonImage;
+      
+      // Verificar si la imagen de cartón es una URL o una imagen cargada desde un archivo local
+      if (editedItem.carton_type === 'image') {
+        editedItem.carton_value = newCustomValueCartonImage 
       }
-      if (editedItem.ballot_type ==="image" && newCustomValueBallotImage) {
-        editedItem.ballot_value = newCustomValueBallotImage;
+  
+      // Verificar si la imagen de la balota es una URL o una imagen cargada desde un archivo local
+      if (editedItem.ballot_type === 'image') {
+        editedItem.ballot_value = newCustomValueBallotImage
       }
-
+  
       updateBingoCard((prevState) => ({
         ...prevState,
         bingo_values: updatedBingoValues,
       }));
     }
-
-    setNewCustomValueCarton('');
-    setNewCustomValueBallot('');
+  
+    // Limpiar los estados
     setEditIndex(null);
     setOpenDialogValueCartonAndBallot(false);
   };
+  
+
+  
 
   // Función para manejar el cambio de imagen desde un archivo local
-  const handleImageChange = (e, type) => {
+  // const handleImageChange = (e, type) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       if (type === 'carton') {
+  //         setNewCustomValueCartonImage(reader.result);
+  //       } else if (type === 'balota') {
+  //         setNewCustomValueBallotImage(reader.result);
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // Modifica la función handleImageChange para manejar las imágenes desde archivo local o URL
+const handleImageChange = (e, type) => {
+  if (e.target.files && e.target.files.length > 0) {
+    // Manejar imágenes desde archivo local
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -102,7 +180,17 @@ const DialogValueCartonAndBallot = ({
       };
       reader.readAsDataURL(file);
     }
-  };
+  } else {
+    // Manejar imágenes desde URL
+    const imageUrl = e.target.value;
+    if (type === 'carton') {
+      setNewCustomImageCartonUrl(imageUrl);
+    } else if (type === 'balota') {
+      setNewCustomImageBallotUrl(imageUrl);
+    }
+  }
+};
+
 
   //guarda en el array de position dentro del estado bingoCard los index
   const handleSelectedPosition = (index) => {
@@ -136,14 +224,7 @@ const DialogValueCartonAndBallot = ({
     });
   };
 
-  // UseEffect para actualizar los valores cada vez que el índice de edición cambie
-  useEffect(() => {
-    if (editIndex !== null) {
-      const currentItem = bingoCard.bingo_values[editIndex];
-      setNewCustomValueCarton(currentItem.carton_value || '');
-      setNewCustomValueBallot(currentItem.ballot_value || '');
-    }
-  }, [editIndex]);
+
 
   return (
     <Dialog
@@ -192,7 +273,8 @@ const DialogValueCartonAndBallot = ({
                 <Input
                   label="Ingresar valor"
                   placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomImageCartonUrl(e.target.value)}
+                  // onChange={(e) => setNewCustomImageCartonUrl(e.target.value)}
+                  onChange={(e) => handleImageChange(e, 'carton')}
                   value={newCustomImageCartonUrl}
                 />
               </div>
@@ -208,13 +290,54 @@ const DialogValueCartonAndBallot = ({
           <Typography color="gray" variant="h6">
             Posiciones
           </Typography>{' '}
-          {bingoCard.dimensions === '5x5' && (
+          {dimension === '3x3' && (
+            <div className="w-[166px] m-auto p-3  grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center bg-blue-gray-900">
+              {[...Array(9)].map((_, index) => (
+                <button
+                  key={index}
+                  className={`square w-5 h-5 m-auto ${
+                    selectedPositions.includes(index)
+                      ? 'bg-yellow-600'
+                      : 'bg-blue-500'
+                  } ${
+                    positionsDisabled.includes(index)
+                      ? 'bg-red-600 cursor-not-allowed'
+                      : 'bg-blue-500 '
+                  }
+                      bg-blue-500 `}
+                  onClick={() => handleSelectedPosition(index)}
+                  disabled={positionsDisabled.includes(index)}
+                ></button>
+              ))}
+            </div>
+          )}
+          {dimension === '4x4' && (
+            <div className="w-[166px] m-auto p-3  grid grid-cols-4 grid-cols-auto grid-rows-4 gap-1 justify-center items-center bg-blue-gray-900">
+              {[...Array(16)].map((_, index) => (
+                <button
+                  key={index}
+                  className={`square w-5 h-5 m-auto ${
+                    selectedPositions.includes(index)
+                      ? 'bg-yellow-600'
+                      : 'bg-blue-500'
+                  } ${
+                    positionsDisabled.includes(index)
+                      ? 'bg-red-600 cursor-not-allowed'
+                      : 'bg-blue-500 '
+                  }
+                      bg-blue-500 `}
+                  onClick={() => handleSelectedPosition(index)}
+                  disabled={positionsDisabled.includes(index)}
+                ></button>
+              ))}
+            </div>
+          )}
+          {dimension === '5x5' && (
             <>
               {' '}
               <div className=" w-[166px] m-auto p-3 grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center bg-blue-gray-900">
-                {/* Agregar la primera fila con la palabra "BINGO" */}
                 {[...Array(25)].map((_, index) => (
-                  <div
+                  <button
                     key={index}
                     className={`square w-5 h-5 m-auto ${
                       selectedPositions.includes(index)
@@ -226,50 +349,11 @@ const DialogValueCartonAndBallot = ({
                         : 'bg-blue-500 '
                     } bg-blue-500 `}
                     onClick={() => handleSelectedPosition(index)}
-                  ></div>
+                    disabled={positionsDisabled.includes(index)}
+                  ></button>
                 ))}
               </div>{' '}
             </>
-          )}
-          {bingoCard.dimensions === '3x3' && (
-            <div className="w-[166px] m-auto p-3  grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center bg-blue-gray-900">
-              {[...Array(9)].map((_, index) => (
-                <div
-                  key={index}
-                  className={`square w-5 h-5 m-auto ${
-                    selectedPositions.includes(index)
-                      ? 'bg-yellow-600'
-                      : 'bg-blue-500'
-                  } ${
-                    positionsDisabled.includes(index)
-                      ? 'bg-red-600 cursor-not-allowed'
-                      : 'bg-blue-500 '
-                  }
-                      bg-blue-500 `}
-                  onClick={() => handleSelectedPosition(index)}
-                ></div>
-              ))}
-            </div>
-          )}
-          {bingoCard.dimensions === '4x4' && (
-            <div className="w-[166px] m-auto p-3  grid grid-cols-4 grid-cols-auto grid-rows-4 gap-1 justify-center items-center bg-blue-gray-900">
-              {[...Array(16)].map((_, index) => (
-                <div
-                  key={index}
-                  className={`square w-5 h-5 m-auto ${
-                    selectedPositions.includes(index)
-                      ? 'bg-yellow-600'
-                      : 'bg-blue-500'
-                  } ${
-                    positionsDisabled.includes(index)
-                      ? 'bg-red-600 cursor-not-allowed'
-                      : 'bg-blue-500 '
-                  }
-                      bg-blue-500 `}
-                  onClick={() => handleSelectedPosition(index)}
-                ></div>
-              ))}
-            </div>
           )}
           {/* Cambiar de tipo */}
           <Typography color="gray" variant="h6">
@@ -281,10 +365,10 @@ const DialogValueCartonAndBallot = ({
               className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
                 selectedCartonType === 'default' ? 'bg-blue-500 text-white' : ''
               }`}
-              name="default"
+              
               onClick={() => {
                 setSelectedCartonType('default');
-                setNewCustomValueCarton('');
+                // setNewCustomValueCarton('');
               }}
             >
               <h6>Numeros</h6>
@@ -294,7 +378,7 @@ const DialogValueCartonAndBallot = ({
               className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
                 selectedCartonType === 'text' ? 'bg-blue-500 text-white' : ''
               }`}
-              name="text"
+             
               onClick={() => setSelectedCartonType('text')}
             >
               <h6>Texto</h6>
@@ -304,7 +388,7 @@ const DialogValueCartonAndBallot = ({
               className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
                 selectedCartonType === 'image' ? 'bg-blue-500 text-white' : ''
               }`}
-              name="image"
+              
               onClick={() => setSelectedCartonType('image')}
             >
               <h6>Imagenes</h6>
@@ -328,7 +412,8 @@ const DialogValueCartonAndBallot = ({
                 <Input
                   label="Ingresar valor"
                   placeholder="Ingresar valor"
-                  onChange={(e) => setNewCustomImageBallotUrl(e.target.value)}
+                  // onChange={(e) => setNewCustomImageBallotUrl(e.target.value)}
+                  onChange={(e) => handleImageChange(e, 'balota')}
                   value={newCustomImageBallotUrl}
                 />
               </div>
