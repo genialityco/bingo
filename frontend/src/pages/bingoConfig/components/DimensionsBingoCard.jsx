@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   Card,
   Carousel,
@@ -80,14 +80,15 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
   const [selectedDimensions, setSelectedDimensions] = useState(null);
 
   const [selectedPositions, setSelectedPositions] = useState([]);
-  const[disabledPositions, setDisabledPositions]=useState([])
-  
+  console.log(selectedPositions);
+  const [disabledPositions, setDisabledPositions] = useState([]);
+  const [sizeChangeCount, setSizeChangeCount] = useState(0);
+  const isFirstSizeChange = useRef(true);
 
   //estados para capturar el tipo de forma independiente en la tabla para editar
   const [selectedCartonType, setSelectedCartonType] = useState('');
- 
+
   const [selectedBallotType, setSelectedBallotType] = useState('');
-  
 
   // Función para manejar el cambio de tipo
   // const handleTypeChange = (type) => {
@@ -273,27 +274,27 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
 
   //desabilitar posiciones cuando selecciono un tamaño
   const handleDisabledPosition = (index) => {
-    console.log("tamaña desabilitar", index)
+    console.log('tamaña desabilitar', index);
     // Verificar si el índice ya está en disabledPositions
     const isSelected = disabledPositions.includes(index);
-  
+
     // Si está seleccionado, lo removemos; de lo contrario, lo agregamos
     const newDisabledPositions = isSelected
       ? disabledPositions.filter((pos) => pos !== index)
       : [...disabledPositions, index];
-  
+
     // Actualizamos el estado disabledPositions
     setDisabledPositions(newDisabledPositions);
-  
+
     // Actualizamos el estado bingoCard con las nuevas posiciones deshabilitadas
     setBingoCard((prevState) => {
       const newBingoCard = { ...prevState };
-  
+
       // Verificar si el índice ya está en positions_disabled
       const existingIndex = newBingoCard.positions_disabled.findIndex(
         (item) => item.position === index
       );
-  
+
       if (isSelected) {
         // Si el índice ya está seleccionado, lo eliminamos de positions_disabled
         if (existingIndex !== -1) {
@@ -308,21 +309,131 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
           });
         }
       }
-  
+
       return newBingoCard;
     });
   };
-  
-  
 
   //envia la actualizacion del estado bingoCard al componente BingoConfig a traves de la funcion sendBingoCreated que recibe este componente por props
+
+  // const handleSizeChange = (newSize) => {
+  //   if (firstTimeSizeChange) {
+  //     // Si es la primera vez, simplemente cambia el tamaño sin preguntar
+  //     setFirstTimeSizeChange(false);
+  //     setBingoCard((prevBingoCard) => ({
+  //       ...prevBingoCard,
+  //       dimensions: newSize,
+  //     }));
+  //   } else {
+  //     // Si no es la primera vez, muestra la ventana de confirmación
+  //     const confirmChange = window.confirm("¿Estás seguro de querer cambiar el tamaño del cartón? Esto borrará las selecciones y deshabilitaciones actuales.");
+  //     if (confirmChange) {
+  //       // Limpiar los estados
+  //       setSelectedPositions([]);
+  //       setDisabledPositions([]);
+  //       // Actualizar el estado de bingoCard con el nuevo tamaño
+  //       setBingoCard((prevBingoCard) => ({
+  //         ...prevBingoCard,
+  //         dimensions: newSize,
+  //       }));
+  //     }
+  //   }
+  // };
+
+  // const handleSizeChange = (newSize) => {
+  //   if (firstTimeSizeChange) {
+  //     // Si es la primera vez, simplemente cambia el tamaño sin preguntar
+  //     setFirstTimeSizeChange(false);
+  //     setBingoCard((prevBingoCard) => ({
+  //       ...prevBingoCard,
+  //       dimensions: newSize,
+  //     }));
+  //   } else {
+  //     // Si no es la primera vez, muestra la ventana de confirmación
+  //     const confirmChange = window.confirm("¿Estás seguro de querer cambiar el tamaño del cartón? Esto borrará las selecciones y deshabilitaciones actuales.");
+  //     if (confirmChange) {
+  //       // Limpiar los estados
+  //       setSelectedPositions([]);
+  //       setDisabledPositions([]);
+  //       console.log(selectedPositions)
+  //       // Actualizar el estado de bingoCard con el nuevo tamaño
+  //       setBingoCard((prevBingoCard) => ({
+  //         ...prevBingoCard,
+  //         dimensions: newSize,
+  //       }));
+  //     }
+  //   }
+  // };
+
+  // const handleSizeChange = (newDimension) => {
+  //   const currentDimension = bingoCard.dimensions;
+
+  //   // Verificar si el tamaño actual es diferente al nuevo tamaño seleccionado
+  //   if (currentDimension !== newDimension) {
+  //     // Mostrar mensaje de confirmación
+  //     if (!firstTimeSizeChange.current) {
+  //       if (!window.confirm('¿Estás seguro de cambiar el tamaño del cartón?')) {
+  //         return; // Cancelar si el usuario no confirma
+  //       }
+  //     } else {
+  //       firstTimeSizeChange.current = false;
+  //     }
+
+  //     // Limpiar los estados
+  //     setSelectedPositions([]);
+  //     setDisabledPositions([]);
+  //     console.log(selectedPositions)
+
+  //     // Actualizar el estado de bingoCard con el nuevo tamaño
+  //     setBingoCard((prevBingoCard) => ({
+  //       ...prevBingoCard,
+  //       dimensions: newDimension,
+  //       bingo_values: prevBingoCard.bingo_values.map((value) => ({
+  //         ...value,
+  //         positions: [],
+  //       })),
+  //     }));
+  //   }
+  // };
+
+  const handleSizeChange = (newDimension) => {
+    const currentDimension = bingoCard.dimensions;
+
+    // Verificar si el tamaño actual es diferente al nuevo tamaño seleccionado
+    if (currentDimension !== newDimension) {
+      // Incrementar el contador de cambios de tamaño
+      setSizeChangeCount((prevCount) => prevCount + 1);
+
+      // Mostrar mensaje de confirmación a partir del segundo cambio de tamaño
+      if (sizeChangeCount > 0) {
+        if (!window.confirm('¿Estás seguro de cambiar el tamaño del cartón?')) {
+          return; // Cancelar si el usuario no confirma
+        }
+      }
+
+      // Limpiar los estados
+      setSelectedPositions([]);
+      setDisabledPositions([]);
+
+      // Actualizar el estado de bingoCard con el nuevo tamaño
+      setBingoCard((prevBingoCard) => ({
+        ...prevBingoCard,
+        dimensions: newDimension,
+        bingo_values: prevBingoCard.bingo_values.map((value) => ({
+          ...value,
+          positions: [],
+        })),
+      }));
+    }
+  };
+
   useEffect(() => {
     sendBingoCreated(bingoCard);
   }, [bingoCard]);
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
   useEffect(() => {
-    handleNumValuesToPlayChange(5);
+    handleNumValuesToPlayChange(10);
   }, []);
 
   return (
@@ -367,25 +478,38 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
         >
           <Button
             color="white"
-            
             className={`m-8  ${
               selectedDimensions === '3x3' ? 'bg-yellow-300' : 'bg-white'
             }`}
-            onClick={() => {
-              setBingoCard({ ...bingoCard, dimensions: '3x3' });
-              setSelectedDimensions('3x3');
-            }}
+            // onClick={() => {
+            //   setBingoCard({ ...bingoCard, dimensions: '3x3' });
+            //   setSelectedDimensions('3x3');
+            //   handleSizeChange('3x3')
+            // }}
           >
             <div className=" grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center">
               {[...Array(9)].map((_, index) => (
                 <div
                   key={index}
-                  className={`square w-6 h-6 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
-                  onClick={()=>handleDisabledPosition(index)}
+                  className={`square w-6 h-6 m-auto ${
+                    disabledPositions.includes(index)
+                      ? 'bg-red-500'
+                      : 'bg-blue-500 cursor-pointer'
+                  } bg-blue-500 cursor-pointer`}
+                  onClick={() => handleDisabledPosition(index)}
                 ></div>
               ))}
             </div>
-            <Typography className="text-center">3x3</Typography>
+            <Typography
+              className="text-center"
+              onClick={() => {
+                setBingoCard({ ...bingoCard, dimensions: '3x3' });
+                setSelectedDimensions('3x3');
+                handleSizeChange('3x3');
+              }}
+            >
+              3x3
+            </Typography>
           </Button>
 
           <Button
@@ -393,21 +517,35 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
             className={`m-8  ${
               selectedDimensions === '4x4' ? 'bg-yellow-300' : 'bg-white'
             }`}
-            onClick={() => {
-              setBingoCard({ ...bingoCard, dimensions: '4x4' });
-              setSelectedDimensions('4x4');
-            }}
+            // onClick={() => {
+            //   setBingoCard({ ...bingoCard, dimensions: '4x4' });
+            //   setSelectedDimensions('4x4');
+            //   handleSizeChange('4x4')
+            // }}
           >
             <div className="grid grid-cols-4 grid-cols-auto grid-rows-4 gap-1 justify-center items-center">
               {[...Array(16)].map((_, index) => (
                 <div
                   key={index}
-                  className={`square w-6 h-6 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
-                  onClick={()=>handleDisabledPosition(index)}
+                  className={`square w-6 h-6 m-auto ${
+                    disabledPositions.includes(index)
+                      ? 'bg-red-500'
+                      : 'bg-blue-500 cursor-pointer'
+                  } bg-blue-500 cursor-pointer`}
+                  onClick={() => handleDisabledPosition(index)}
                 ></div>
               ))}
             </div>
-            <Typography className="text-center">4x4</Typography>
+            <Typography
+              className="text-center"
+              onClick={() => {
+                setBingoCard({ ...bingoCard, dimensions: '4x4' });
+                setSelectedDimensions('4x4');
+                handleSizeChange('4x4');
+              }}
+            >
+              4x4
+            </Typography>
           </Button>
           <div>
             <Button
@@ -415,21 +553,35 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
               className={`m-8  ${
                 selectedDimensions === '5x5' ? 'bg-yellow-300' : 'bg-white'
               }`}
-              onClick={() => {
-                setBingoCard({ ...bingoCard, dimensions: '5x5' });
-                setSelectedDimensions('5x5');
-              }}
+              // onClick={() => {
+              //   setBingoCard({ ...bingoCard, dimensions: '5x5' });
+              //   setSelectedDimensions('5x5');
+              //   handleSizeChange('5x5')
+              // }}
             >
               <div className="grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center">
                 {[...Array(25)].map((_, index) => (
                   <div
                     key={index}
-                    className={`square w-5 h-5 m-auto ${disabledPositions.includes(index) ? "bg-red-500": "bg-blue-500 cursor-pointer"} bg-blue-500 cursor-pointer`}
-                  onClick={()=>handleDisabledPosition(index)}
+                    className={`square w-5 h-5 m-auto ${
+                      disabledPositions.includes(index)
+                        ? 'bg-red-500'
+                        : 'bg-blue-500 cursor-pointer'
+                    } bg-blue-500 cursor-pointer`}
+                    onClick={() => handleDisabledPosition(index)}
                   ></div>
                 ))}
               </div>
-              <Typography className="text-center m-0">5x5</Typography>
+              <Typography
+                className="text-center m-0"
+                onClick={() => {
+                  setBingoCard({ ...bingoCard, dimensions: '5x5' });
+                  setSelectedDimensions('5x5');
+                  handleSizeChange('5x5');
+                }}
+              >
+                5x5
+              </Typography>
             </Button>
           </div>
         </Carousel>
@@ -838,7 +990,11 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                         selectedPositions.includes(index)
                           ? 'bg-yellow-600'
                           : 'bg-blue-500'
-                      } ${disabledPositions.includes(index) ? "bg-red-600 cursor-not-allowed": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
+                      } ${
+                        disabledPositions.includes(index)
+                          ? 'bg-red-600 cursor-not-allowed'
+                          : 'bg-blue-500 '
+                      } bg-blue-500 `}
                       onClick={() => handleSelectedPosition(index)}
                     ></div>
                   ))}
@@ -854,7 +1010,11 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                       selectedPositions.includes(index)
                         ? 'bg-yellow-600'
                         : 'bg-blue-500'
-                    } ${disabledPositions.includes(index) ? "bg-red-600": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
+                    } ${
+                      disabledPositions.includes(index)
+                        ? 'bg-red-600 cursor-not-allowed'
+                        : 'bg-blue-500 '
+                    } bg-blue-500 `}
                     onClick={() => handleSelectedPosition(index)}
                   ></div>
                 ))}
@@ -869,7 +1029,11 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                       selectedPositions.includes(index)
                         ? 'bg-yellow-600'
                         : 'bg-blue-500'
-                    } ${disabledPositions.includes(index) ? "bg-red-600": "bg-blue-500 "} bg-blue-500 cursor-pointer`}
+                    } ${
+                      disabledPositions.includes(index)
+                        ? 'bg-red-600 cursor-not-allowed'
+                        : 'bg-blue-500 '
+                    } bg-blue-500 `}
                     onClick={() => handleSelectedPosition(index)}
                   ></div>
                 ))}
