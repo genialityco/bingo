@@ -102,10 +102,10 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
   };
 
 
-  //obtener las posiciones desabilitadas:
-  const getPositionsDisablesAndDimension = (disables, getDimension) => {
+  //obtener las posiciones desabilitadas y el tamaño seleccionado:
+  const getPositionsDisablesAndDimension = (disables, sizeCarton) => {
     setPostionDisabled(disables);
-    setDimension(getDimension)
+    setDimension(sizeCarton)
   };
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
@@ -117,6 +117,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
   useEffect(() => {
     sendBingoCreated(bingoCard);
   }, [bingoCard]);
+  
 
   useEffect(() => {
     updateBingoCard((prevState) => ({
@@ -191,7 +192,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
           <Button
             variant="gradient"
             className="flex items-center gap-3"
-            onClick={setOpenDialogGenerateBallots}
+            // onClick={setOpenDialogGenerateBallots}
           >
             Generar Balotas
           </Button>
@@ -241,7 +242,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
             </thead>
             <tbody>
               {bingoCard.bingo_values?.map((item, index) => (
-                <tr key={item.id} className="even:bg-blue-gray-50/50">
+                <tr key={index} className="even:bg-blue-gray-50/50">
                   {/* tipo valor en carton */}
                   <td className="p-4">
                     {' '}

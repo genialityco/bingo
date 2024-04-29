@@ -36,7 +36,7 @@ const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateB
       <DialogBody>
         {/* establecer cantidad */}
         <Typography color="gray" variant="lead">
-          Cantidad de valores a jugar
+          Cantidad a generar
         </Typography>
         <div className="w-1/4  flex justify-around">
           <button

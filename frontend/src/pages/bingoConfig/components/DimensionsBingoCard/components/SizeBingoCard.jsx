@@ -11,8 +11,7 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
 
   const [sizeChangeCount, setSizeChangeCount] = useState(0);
   const isFirstSizeChange = useRef(true);
-  const [selectedDivs, setSelectedDivs] = useState([]);
-  const [confirmChange, setConfirmChange] = useState(false);
+  
 
   //desabilitar posiciones cuando selecciono un tamaño
   const handleDisabledPosition = (index) => {
@@ -55,187 +54,47 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
   };
 
   //limpiar estados de disabledPositions y selectedPositions cuando cambio de tamaño del carton
-  // const handleSizeChange = (newDimension) => {
-  //   const currentDimension = bingoCard.dimensions;
-
-  //   // Verificar si el tamaño actual es diferente al nuevo tamaño seleccionado
-  //   if (currentDimension !== newDimension) {
-  //     // Incrementar el contador de cambios de tamaño
-  //     setSizeChangeCount((prevCount) => prevCount + 1);
-
-  //     // Mostrar mensaje de confirmación a partir del segundo cambio de tamaño
-  //     if (sizeChangeCount > 0) {
-  //       if (!window.confirm('¿Estás seguro de cambiar el tamaño del cartón?')) {
-  //         return; // Cancelar si el usuario no confirma
-  //       }
-  //     }
-     
-     
-
-  //     // Actualizar el estado de bingoCard con el nuevo tamaño
-  //     updateBingoCard((prevBingoCard) => ({
-  //       ...prevBingoCard,
-  //       dimensions: newDimension,
-  //       bingo_values: prevBingoCard.bingo_values.map((value) => ({
-  //         ...value,
-  //         positions: [],
-  //       })),
-  //     }));
-  //   }
-  // };
-
-  // const handleSizeChange = (newDimension) => {
-  // console.log(newDimension)
-  //   const currentDimension = bingoCard.dimensions;
-  //   console.log(currentDimension)
+ const handleSizeChange = (newDimension) => {
+  //  console.log("newDimension", newDimension)
+    const currentDimension = bingoCard.dimensions;
+    // console.log("current dimension", currentDimension)
   
-  //   // Verify if the size is different
-  //   if (currentDimension !== newDimension) {
-  //     // Increase size change count
-  //     setSizeChangeCount((prevCount) => prevCount + 1);
-  
-  //     // Show confirmation message from the second change onwards
-  //     if (sizeChangeCount > 0 || currentDimension !== newDimension) {
-  //       const confirmChange = window.confirm('¿Estás seguro de cambiar el tamaño del cartón?');
-  //       setConfirmChange(confirmChange); // Store confirmation choice in state
-  
-  //       // Update state only if user confirms
-  //       if (confirmChange) {
-  //         // Update bingoCard state with new dimension
-  //         updateBingoCard((prevBingoCard) => ({
-  //           ...prevBingoCard,
-  //           dimensions: newDimension,
-  //           bingo_values: prevBingoCard.bingo_values.map((value) => ({
-  //             ...value,
-              
-  //           })),
-  //         }));
-  
-  //         // Update selected dimension state with yellow background
-  //         setSelectedDimensions(newDimension);
-  //       } else {
-  //         // Reset selected dimension state to prevent yellow background
-  //         setSelectedDimensions(currentDimension); // Revert to previous dimension
-  //       }
-  //     } else {
-  //       // Update state directly on first change (no confirmation needed)
-  //       updateBingoCard((prevBingoCard) => ({
-  //         ...prevBingoCard,
-  //         dimensions: newDimension,
-  //         bingo_values: prevBingoCard.bingo_values.map((value) => ({
-  //           ...value,
-            
-  //         })),
-  //       }));
-  
-  //       setSelectedDimensions(newDimension);
-  //     }
-  //   }
-  // };
-
-/* const handleSizeChange = (newDimension) => {
-  console.log(newDimension);
-  const currentDimension = bingoCard.dimensions;
-  console.log(currentDimension);
-
-  // Verify if the size is different
-  if (currentDimension !== newDimension) {
-    // Increase size change count
-    setSizeChangeCount((prevCount) => prevCount + 1);
-
-    // Show confirmation message from the second change onwards,
-    // but only if the new size is different
-    if (sizeChangeCount > 0  && currentDimension !== newDimension) {
-      const confirmChange = window.confirm('¿Estás seguro de cambiar el tamaño del cartón?');
-      setConfirmChange(confirmChange); // Store confirmation choice in state
-
-      // Update state only if user confirms and size is different
-      if (confirmChange) {
-        updateBingoCard((prevBingoCard) => ({
-          ...prevBingoCard,
-          dimensions: newDimension,
-          bingo_values: prevBingoCard.bingo_values.map((value) => ({
-            ...value,
-            positions: [],
-          })),
-        }));
-
-        setSelectedDimensions(newDimension);
-      } else {
-        // Reset selected dimension state and prevent yellow background
-        // if confirmation is cancelled or size is the same
-        setSelectedDimensions(currentDimension);
+    // Show confirmation message from the second change onwards
+    if (sizeChangeCount > 0 && currentDimension !== newDimension ) {
+      const confirmChange = window.confirm(
+        "¿Estás seguro de cambiar el tamaño del cartón?"
+      );
+      
+        // Update state only if user confirms and size is different
+        if (confirmChange && currentDimension !== newDimension) {
+          updateBingoCard((prevBingoCard) => ({
+            ...prevBingoCard,
+            dimensions: newDimension,
+            bingo_values: prevBingoCard.bingo_values.map((value) => ({
+              ...value,
+              positions: [],
+            })),
+          }));
+          setSelectedDimensions(newDimension);
+        
       }
-    } else {
+    } else if (currentDimension !== newDimension) {
       // Update state directly on first change (no confirmation needed)
       updateBingoCard((prevBingoCard) => ({
         ...prevBingoCard,
         dimensions: newDimension,
-        bingo_values: prevBingoCard.bingo_values.map((value) => ({
+        bingo_values: prevBingoCard?.bingo_values?.map((value) => ({
           ...value,
           positions: [],
         })),
       }));
-
       setSelectedDimensions(newDimension);
     }
-  }
-}; */
-
-const handleSizeChange = (newDimension) => {
-  console.log("newDimension: ",newDimension);
-  const currentDimension = bingoCard.dimensions;
-  console.log("currentDimension ",currentDimension);
-
-  // Verify if the size is different
-  if (currentDimension !== newDimension) {
-    // Increase size change count
+    // Increment sizeChangeCount after each change
     setSizeChangeCount((prevCount) => prevCount + 1);
-
-    // Show confirmation message from the second change onwards,
-    // but only if the new size is different
-    if (sizeChangeCount > 0) {
-      const confirmChange = window.confirm('¿Estás seguro de cambiar el tamaño del cartón?');
-      setConfirmChange(confirmChange); // Store confirmation choice in state
-
-      // Update state only if user confirms and size is different
-      if (confirmChange && (currentDimension !== newDimension)) {
-        updateBingoCard((prevBingoCard) => ({
-          ...prevBingoCard,
-          dimensions: newDimension,
-          bingo_values: prevBingoCard.bingo_values.map((value) => ({
-            ...value,
-            positions: [],
-          })),
-        }));
-
-        setSelectedDimensions(newDimension);
-        console.log(selectedDimensions)
-      } else {
-        // **Do not update currentDimension if confirmation is cancelled**
-        setSelectedDimensions(currentDimension);
-      }
-    } else {
-      // Update state directly on first change (no confirmation needed)
-      updateBingoCard((prevBingoCard) => ({
-        ...prevBingoCard,
-        dimensions: newDimension,
-        bingo_values: prevBingoCard.bingo_values.map((value) => ({
-          ...value,
-          positions: [],
-        })),
-      }));
-
-      setSelectedDimensions(newDimension);
-    }
-  }
-};
-
+  };
   
 
-
-  
-  
 
   useEffect(() => {
     getPositionsDisablesAndDimension(disabledPositions,selectedDimensions);
@@ -289,8 +148,8 @@ const handleSizeChange = (newDimension) => {
           className="text-center"
           size="sm"
           onClick={() => {
-            updateBingoCard({ ...bingoCard, dimensions: '3x3' });
-            setSelectedDimensions('3x3');
+            // updateBingoCard({ ...bingoCard, dimensions: '3x3' });
+            // setSelectedDimensions('3x3');
             handleSizeChange('3x3');
           }}
         >
@@ -329,8 +188,8 @@ const handleSizeChange = (newDimension) => {
           className="text-center"
           size="sm"
           onClick={() => {
-            updateBingoCard({ ...bingoCard, dimensions: '4x4' });
-            setSelectedDimensions('4x4');
+            // updateBingoCard({ ...bingoCard, dimensions: '4x4' });
+            // setSelectedDimensions('4x4');
             handleSizeChange('4x4');
           }}
         >
@@ -369,8 +228,8 @@ const handleSizeChange = (newDimension) => {
           className="text-center"
           size="sm"
           onClick={() => {
-            updateBingoCard({ ...bingoCard, dimensions: '5x5' });
-            setSelectedDimensions('5x5');
+            // updateBingoCard({ ...bingoCard, dimensions: '5x5' });
+            // setSelectedDimensions('5x5');
             handleSizeChange('5x5');
           }}
         >

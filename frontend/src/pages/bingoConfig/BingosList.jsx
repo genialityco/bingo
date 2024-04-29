@@ -8,10 +8,8 @@ const BingosList = () => {
   console.log(bingos);
 
   useEffect(() => {
-    console.log('se ejecuta');
     const getBingos = async () => {
       const response = await bingoService.listAllBingos();
-      console.log(response);
       setBingos(response.data);
     };
     getBingos();
