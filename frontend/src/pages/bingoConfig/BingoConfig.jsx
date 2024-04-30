@@ -21,7 +21,7 @@ const BingoConfig = () => {
 
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
    
-  const [newBingoCreated, setNewBingoCreated] = useState({});
+  const [newBingoCreated, setNewBingoCreated] = useState(null);
   console.log(newBingoCreated)
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
   console.log(modifiedBingoTemplate);
@@ -33,14 +33,31 @@ const BingoConfig = () => {
 
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const getTemplateByIdToEdit = async () => {
+  //     const response = await bingoService.getBingoById(templateid);
+  //     console.log(response)
+  //     updateBingoCard(response);
+  //     setModifiedBingoTemplate(response);
+  //   };
+  //   getTemplateByIdToEdit();
+  // }, [templateid]);
+
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
       const response = await bingoService.getBingoById(templateid);
-      console.log(response)
+      console.log(response);
       updateBingoCard(response);
       setModifiedBingoTemplate(response);
+      // Aquí también podrías inicializar newBingoCreated si lo necesitas
+      // setNewBingoCreated(response);
     };
-    getTemplateByIdToEdit();
+    if (templateid) {
+      getTemplateByIdToEdit();
+    } else {
+      // Si no se selecciona un template existente, inicializa newBingoCreated con un objeto vacío
+      setNewBingoCreated({});
+    }
   }, [templateid]);
 
   const sendBingoCreated = (customBingo) => {
