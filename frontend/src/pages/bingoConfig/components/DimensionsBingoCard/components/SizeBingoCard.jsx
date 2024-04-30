@@ -6,12 +6,11 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
 
   const [selectedDimensions, setSelectedDimensions] = useState(null);
-
   const [disabledPositions, setDisabledPositions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const [sizeChangeCount, setSizeChangeCount] = useState(0);
   const isFirstSizeChange = useRef(true);
-  
 
   //desabilitar posiciones cuando selecciono un tamaño
   const handleDisabledPosition = (index) => {
@@ -54,32 +53,28 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
   };
 
   //limpiar estados de disabledPositions y selectedPositions cuando cambio de tamaño del carton
- const handleSizeChange = (newDimension) => {
-  //  console.log("newDimension", newDimension)
+  const handleSizeChange = (newDimension) => {
+    //  console.log("newDimension", newDimension)
     const currentDimension = bingoCard.dimensions;
     // console.log("current dimension", currentDimension)
-  
-    // Show confirmation message from the second change onwards
-    if (sizeChangeCount > 0 && currentDimension !== newDimension ) {
+
+    if (sizeChangeCount > 0 && currentDimension !== newDimension) {
       const confirmChange = window.confirm(
-        "¿Estás seguro de cambiar el tamaño del cartón?"
+        '¿Estás seguro de cambiar el tamaño del cartón?'
       );
-      
-        // Update state only if user confirms and size is different
-        if (confirmChange && currentDimension !== newDimension) {
-          updateBingoCard((prevBingoCard) => ({
-            ...prevBingoCard,
-            dimensions: newDimension,
-            bingo_values: prevBingoCard.bingo_values.map((value) => ({
-              ...value,
-              positions: [],
-            })),
-          }));
-          setSelectedDimensions(newDimension);
-        
+
+      if (confirmChange && currentDimension !== newDimension) {
+        updateBingoCard((prevBingoCard) => ({
+          ...prevBingoCard,
+          dimensions: newDimension,
+          bingo_values: prevBingoCard.bingo_values.map((value) => ({
+            ...value,
+            positions: [],
+          })),
+        }));
+        setSelectedDimensions(newDimension);
       }
     } else if (currentDimension !== newDimension) {
-      // Update state directly on first change (no confirmation needed)
       updateBingoCard((prevBingoCard) => ({
         ...prevBingoCard,
         dimensions: newDimension,
@@ -90,15 +85,32 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
       }));
       setSelectedDimensions(newDimension);
     }
-    // Increment sizeChangeCount after each change
+
     setSizeChangeCount((prevCount) => prevCount + 1);
   };
-  
 
+  // Actualizar el índice activo del carrusel según las dimensiones seleccionadas
+  useEffect(() => {
+    if (bingoCard.dimensions === '3x3') {
+      setActiveIndex(0);
+    } else if (bingoCard.dimensions === '4x4') {
+      setActiveIndex(1);
+    } else if (bingoCard.dimensions === '5x5') {
+      setActiveIndex(2);
+    }
+  }, [bingoCard.dimensions]);
 
   useEffect(() => {
-    getPositionsDisablesAndDimension(disabledPositions,selectedDimensions);
-  }, [disabledPositions, selectedDimensions]);
+    if (bingoCard && bingoCard.dimensions && bingoCard.positions_disabled) {
+      setSelectedDimensions(bingoCard.dimensions);
+
+      setDisabledPositions(
+        bingoCard.positions_disabled.map((item) => item.position)
+      );
+
+      getPositionsDisablesAndDimension(disabledPositions, selectedDimensions);
+    }
+  }, [bingoCard]);
 
   return (
     <Carousel

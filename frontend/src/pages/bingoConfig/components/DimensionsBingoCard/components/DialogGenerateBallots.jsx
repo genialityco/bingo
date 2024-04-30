@@ -10,8 +10,6 @@ const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateB
 
 
 
-
-
   return (
     <Dialog open={openDialogGenerateBallots} size="xs"  handler={setOpenDialogGenerateBallots}>
       <div className="flex items-center justify-between">

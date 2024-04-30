@@ -22,9 +22,14 @@ const TABLE_HEAD = [
   '-',
 ];
 
-const DimensionsBingoCard = ({sendBingoCreated}) => {
+const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigChange}) => {
+
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  
+  console.log(bingoCard)
+
+ const deleteIdBingoModified= modifiedBingoTemplate ? delete modifiedBingoTemplate._id : modifiedBingoTemplate
+ 
+  console.log(modifiedBingoTemplate)
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -46,6 +51,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
   const handleCreateNewBingo = (e) => {
     const { name, value } = e.target;
     updateBingoCard({ ...bingoCard, [name]: value });
+    onConfigChange({ ...modifiedBingoTemplate, [name]: value })
   };
 
   //setea la cantidad de objetos dentro del array bingoValues
@@ -60,6 +66,10 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
     }));
 
     updateBingoCard((prevState) => ({
+      ...prevState,
+      bingo_values: newBingoValues,
+    }));
+    onConfigChange((prevState) => ({
       ...prevState,
       bingo_values: newBingoValues,
     }));
@@ -88,6 +98,10 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
       ...prevState,
       bingo_values: [...prevState.bingo_values, newBalota],
     }));
+    onConfigChange((prevState) => ({
+      ...prevState,
+      bingo_values: [...prevState.bingo_values, newBalota],
+    }))
   };
 
   //elimina un objeto dentro del array bingoValues
@@ -96,6 +110,10 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
       (_, i) => i !== index
     );
     updateBingoCard((prevState) => ({
+      ...prevState,
+      bingo_values: updatedBingoValues,
+    }));
+    onConfigChange((prevState) => ({
       ...prevState,
       bingo_values: updatedBingoValues,
     }));
@@ -192,7 +210,7 @@ const DimensionsBingoCard = ({sendBingoCreated}) => {
           <Button
             variant="gradient"
             className="flex items-center gap-3"
-            // onClick={setOpenDialogGenerateBallots}
+            onClick={setOpenDialogGenerateBallots}
           >
             Generar Balotas
           </Button>

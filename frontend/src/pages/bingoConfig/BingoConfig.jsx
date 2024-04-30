@@ -12,24 +12,49 @@ import {
 import DimensionsBingoCard from './components/DimensionsBingoCard/DimensionsBingoCard';
 import AppearanceCard from './components/AppearanceCard';
 import CardAssigment from './components/CardAssigment';
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import bingoService from '../../services/bingoService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { NewBingoContext } from './context/NewBingoContext';
 
 const BingoConfig = () => {
+
+  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+   
   const [newBingoCreated, setNewBingoCreated] = useState({});
+  console.log(newBingoCreated)
+  const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
+  console.log(modifiedBingoTemplate);
+
+
+  const { search } = useLocation();
+  const templateid = search.substring(4);
+  console.log(templateid)
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getTemplateByIdToEdit = async () => {
+      const response = await bingoService.getBingoById(templateid);
+      console.log(response)
+      updateBingoCard(response);
+      setModifiedBingoTemplate(response);
+    };
+    getTemplateByIdToEdit();
+  }, [templateid]);
 
   const sendBingoCreated = (customBingo) => {
     setNewBingoCreated(customBingo);
   };
 
+  //crear una config de bingo desde cero o modificar sobre un template de bingo
+  const newBingoData= newBingoCreated ? newBingoCreated : modifiedBingoTemplate;
+
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
-      const response = await bingoService.createBingo(newBingoCreated);
+      const response = await bingoService.createBingo(newBingoData);
       const { status, message } = response;
       if (status === 'success') {
         alert(message);
@@ -43,12 +68,17 @@ const BingoConfig = () => {
     }
   };
 
+  // Función para manejar los cambios en la configuración del bingo
+  const handleBingoConfigChange = (updatedConfig) => {
+    setModifiedBingoTemplate(updatedConfig);
+  };
+
   //Taps de los componentes que renderiza este componente BingoConfig
   const data = [
     {
       label: 'Configurar Bingo',
       value: 'configurar bingo',
-      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} />,
+      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} modifiedBingoTemplate={modifiedBingoTemplate}  onConfigChange={handleBingoConfigChange}/>,
     },
     {
       label: 'Apariencia del cartón',
