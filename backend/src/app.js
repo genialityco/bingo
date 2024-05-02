@@ -9,6 +9,7 @@ import cors from "cors";
 import bingoTemplateRoutes from "./routes/bingoTemplate.js";
 import roomBingoRoutes from "./routes/roomBingo.js";
 import bingoFigureRoutes from "./routes/bingoFigure.js";
+import bingoCardboardRoutes from "./routes/bingoCardboard.js";
 
 const customEmitter = require("./utils/eventEmitter.js");
 const http = require("http");
@@ -21,7 +22,7 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
-    credentials: true, 
+    credentials: true,
   },
 });
 
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bingoTemplateRoutes);
 app.use(roomBingoRoutes);
 app.use(bingoFigureRoutes);
+app.use(bingoCardboardRoutes);
 
 app.get("/", (req, res) => {
   res.send("API bingo");
@@ -73,7 +75,7 @@ io.on("connection", (socket) => {
   });
 
   customEmitter.on("sangBingo", (isWinner) => {
-    if (isWinner) {
+    if (isWinner.status) {
       console.log("Tenemos un ganador en sangBingo!");
     } else {
       console.log("No hay ganador esta vez en sangBingo.");
