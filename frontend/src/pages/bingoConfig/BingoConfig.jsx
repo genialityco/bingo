@@ -27,21 +27,14 @@ const BingoConfig = () => {
   console.log(modifiedBingoTemplate);
 
 
+
   const { search } = useLocation();
   const templateid = search.substring(4);
-  console.log(templateid)
+  // console.log(templateid)
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const getTemplateByIdToEdit = async () => {
-  //     const response = await bingoService.getBingoById(templateid);
-  //     console.log(response)
-  //     updateBingoCard(response);
-  //     setModifiedBingoTemplate(response);
-  //   };
-  //   getTemplateByIdToEdit();
-  // }, [templateid]);
+
 
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
@@ -72,7 +65,8 @@ const BingoConfig = () => {
     e.preventDefault();
     try {
       const response = await bingoService.createBingo(newBingoData);
-      const { status, message } = response;
+      const { status, message, data } = response;
+      console.log("data nuevo bingo",data)
       if (status === 'success') {
         alert(message);
       }
