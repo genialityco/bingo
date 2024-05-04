@@ -25,11 +25,11 @@ const TABLE_HEAD = [
 const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigChange}) => {
 
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  console.log(bingoCard)
+  // console.log(bingoCard)
 
  const deleteIdBingoModified= modifiedBingoTemplate ? delete modifiedBingoTemplate._id : modifiedBingoTemplate
  
-  console.log(modifiedBingoTemplate)
+  // console.log(modifiedBingoTemplate)
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues

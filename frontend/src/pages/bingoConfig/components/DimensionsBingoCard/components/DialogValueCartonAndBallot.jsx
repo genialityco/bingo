@@ -9,7 +9,12 @@ import {
 } from '@material-tailwind/react';
 import { useContext, useState, useEffect } from 'react';
 import { NewBingoContext } from '../../../context/NewBingoContext';
-import { validationsEditInputsBallot, validationsEditInputsCarton } from '../../../../../utils/validationsEditInputs';
+import {
+  validationsEditInputsBallot,
+  validationsEditInputsCarton,
+} from '../../../../../utils/validationsEditInputs';
+import { storage } from '../../../../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const DialogValueCartonAndBallot = ({
   openDialogValueCartonAndBallot,
@@ -19,9 +24,7 @@ const DialogValueCartonAndBallot = ({
   positionsDisabled,
   dimension,
 }) => {
-  
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  console.log(dimension)
 
   //estado para editar dependiendo del tipo que eliga el usuario
   const [editInputsCarton, setEditInputsCarton] = useState({
@@ -41,11 +44,11 @@ const DialogValueCartonAndBallot = ({
   const [selectedBallotType, setSelectedBallotType] = useState('');
   //seleccionar posiciones para el valor del carton
   const [selectedPositions, setSelectedPositions] = useState([]);
-  //estado para personalizar la imagen desde un archivo local
+  //estados para personalizar la imagen desde un archivo local
   const [newCustomValueCartonImage, setNewCustomValueCartonImage] =
-    useState('');
+    useState(null);
   const [newCustomValueBallotImage, setNewCustomValueBallotImage] =
-    useState('');
+    useState(null);
   //guarda el valor de carton y balota del objeto que se esta editando
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -54,8 +57,6 @@ const DialogValueCartonAndBallot = ({
 
   //guarda errores en el ingreso de los valores para la balota
   const [errorsInputsBallot, setErrorsInputsBallot] = useState({});
-
- 
 
   // UseEffect para actualizar los valores cuando el índice de edición cambie
   useEffect(() => {
@@ -66,7 +67,6 @@ const DialogValueCartonAndBallot = ({
 
   // UseEffect para establecer los valores iniciales de los campos
   useEffect(() => {
- 
     if (selectedItem) {
       setSelectedCartonType(selectedItem.carton_type || '');
       setSelectedBallotType(selectedItem.ballot_type || '');
@@ -85,20 +85,18 @@ const DialogValueCartonAndBallot = ({
 
       // Establecer los valores iniciales del cartón según el tipo seleccionado
       if (selectedItem.carton_type === 'default') {
-               setEditInputsCarton({
+        setEditInputsCarton({
           number: selectedItem.carton_value || '',
           text: '',
           imageUrl: '',
         });
       } else if (selectedItem.carton_type === 'text') {
-      
         setEditInputsCarton({
           number: '',
           text: selectedItem.carton_value || '',
           imageUrl: '',
         });
       } else if (selectedItem.carton_type === 'image') {
-        
         setEditInputsCarton({
           number: '',
           text: '',
@@ -108,21 +106,18 @@ const DialogValueCartonAndBallot = ({
 
       // Establecer los valores iniciales de la balota según el tipo seleccionado
       if (selectedItem.ballot_type === 'default') {
-      
         setEditInputsBallot({
           number: selectedItem.ballot_value || '',
           text: '',
           imageUrl: '',
         });
       } else if (selectedItem.ballot_type === 'text') {
-        
         setEditInputsBallot({
           number: '',
           text: selectedItem.ballot_value || '',
           imageUrl: '',
         });
       } else if (selectedItem.ballot_type === 'image') {
-        
         setEditInputsBallot({
           number: '',
           text: '',
@@ -192,27 +187,27 @@ const DialogValueCartonAndBallot = ({
     if (selectedBallotType === 'default') {
       return (
         <div>
-        <Input
-          label="Ingresar valor numérico"
-          placeholder="Ingrese un número"
-          name="number"
-          onChange={(e) => handleOnChangeEditInputsBallot(e)}
-          value={editInputsBallot.number}
-        />
-        {errorsInputsBallot.number && <p>{errorsInputsBallot.number}</p>}
+          <Input
+            label="Ingresar valor numérico"
+            placeholder="Ingrese un número"
+            name="number"
+            onChange={(e) => handleOnChangeEditInputsBallot(e)}
+            value={editInputsBallot.number}
+          />
+          {errorsInputsBallot.number && <p>{errorsInputsBallot.number}</p>}
         </div>
       );
     } else if (selectedBallotType === 'text') {
       return (
         <div>
-        <Input
-          label="Ingresar valor de texto"
-          placeholder="Ingrese un texto"
-          name="text"
-          onChange={(e) => handleOnChangeEditInputsBallot(e)}
-          value={editInputsBallot.text}
-        />
-        {errorsInputsBallot.text && <p>{errorsInputsBallot.text}</p>}
+          <Input
+            label="Ingresar valor de texto"
+            placeholder="Ingrese un texto"
+            name="text"
+            onChange={(e) => handleOnChangeEditInputsBallot(e)}
+            value={editInputsBallot.text}
+          />
+          {errorsInputsBallot.text && <p>{errorsInputsBallot.text}</p>}
         </div>
       );
     } else if (selectedBallotType === 'image') {
@@ -243,8 +238,6 @@ const DialogValueCartonAndBallot = ({
       );
     }
   };
-
-
 
   const handleOnChangeEditInputsCarton = (e) => {
     const { name, value } = e.target;
@@ -287,7 +280,6 @@ const DialogValueCartonAndBallot = ({
     }
   };
 
- 
   const handleOnChangeEditInputsBallot = (e) => {
     const { name, value } = e.target;
     if (name === 'text') {
@@ -362,18 +354,52 @@ const DialogValueCartonAndBallot = ({
   };
 
   // Función para manejar el cambio de imagen desde un archivo local
+  // const handleImageChange = (e, type) => {
+  //   const file = e.target.files[0];
+  //   console.log(file)
+  //   if (file) {
+  //     // const reader = new FileReader();
+  //     // reader.onloadend = () => {
+  //       if (type === 'carton') {
+  //         setNewCustomValueCartonImage(file);
+  //       } else if (type === 'balota') {
+  //         setNewCustomValueBallotImage(file);
+  //        }
+  //     // };
+  //     // reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // const handleImageChange = (e, type) => {
+  //   const file = e.target.files[0];
+  //   console.log(file);
+  //   if (file && type === 'carton') {
+  //     setNewCustomValueCartonImage(file)
+  //     const storageRef = ref(storage, `${newCustomValueCartonImage}`);
+  //     // 'file' comes from the Blob or File API
+  //     uploadBytes(storageRef, file).then((snapshot) => {
+  //       console.log('Uploaded a blob or file!');
+  //     });
+  //   }
+  //   if (file && type === 'balota') {
+  //     setNewCustomValueBallotImage(file)
+  //     const storageRef = ref(storage, `${newCustomValueBallotImage}`);
+  //     // 'file' comes from the Blob or File API
+  //     uploadBytes(storageRef, file).then((snapshot) => {
+  //       console.log('Uploaded a blob or file!');
+  //     });
+  //   }
+  // };
+
   const handleImageChange = (e, type) => {
+    // console.log(e.target.files[0].name)
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (type === 'carton') {
-          setNewCustomValueCartonImage(reader.result);
-        } else if (type === 'balota') {
-          setNewCustomValueBallotImage(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      if (type === 'carton') {
+        setNewCustomValueCartonImage(file);
+      } else if (type === 'balota') {
+        setNewCustomValueBallotImage(file);
+      }
     }
   };
 
@@ -392,9 +418,28 @@ const DialogValueCartonAndBallot = ({
       if (selectedCartonType === 'text') {
         editedItem.carton_value = editInputsCarton.text;
       }
-      if (selectedCartonType === 'image') {
-        editedItem.carton_value =
-          editInputsCarton.imageUrl || newCustomValueCartonImage;
+      if (selectedCartonType === 'image' && editInputsCarton.imageUrl) {
+        editedItem.carton_value = editInputsCarton.imageUrl;
+      } else if (selectedCartonType === 'image') {
+        // Obtener una referencia al bucket de almacenamiento de Firebase
+        const storageRef = ref(
+          storage,
+          `images/${newCustomValueCartonImage.name}`
+        );
+
+        // Subir el archivo al bucket de almacenamiento
+        uploadBytes(storageRef, newCustomValueCartonImage)
+          .then((snapshot) => {
+            console.log('Uploaded a blob or file!', snapshot);
+            // Aquí podrías hacer más cosas después de que se complete la carga del archivo, si es necesario
+            getDownloadURL(ref(storageRef)).then((url) => {
+              console.log('retorna url: ', url);
+              editedItem.carton_value = url;
+            });
+          })
+          .catch((error) => {
+            console.error('Error al subir el archivo:', error);
+          });
       }
 
       // Actualizar el valor de la balota según el tipo seleccionado
@@ -404,17 +449,29 @@ const DialogValueCartonAndBallot = ({
       if (selectedBallotType === 'text') {
         editedItem.ballot_value = editInputsBallot.text;
       }
-      if (selectedBallotType === 'image') {
-        editedItem.ballot_value =
-          editInputsBallot.imageUrl || newCustomValueBallotImage;
-      }
+      if (selectedBallotType === 'image' && editInputsBallot.imageUrl) {
+        editedItem.ballot_value = editInputsBallot.imageUrl;
+      } else if (selectedBallotType === 'image') {
+        // Obtener una referencia al bucket de almacenamiento de Firebase
+        const storageRef = ref(
+          storage,
+          `images/${newCustomValueBallotImage.name}`
+        );
 
-      // if (selectedCartonType === 'image') {
-      //   editedItem.carton_value = newCustomValueCartonImage;
-      // }
-      // if (selectedBallotType === 'image') {
-      //   editedItem.ballot_value = newCustomValueBallotImage;
-      // }
+        // Subir el archivo al bucket de almacenamiento
+        uploadBytes(storageRef, newCustomValueBallotImage)
+          .then((snapshot) => {
+            console.log('Uploaded a blob or file!', snapshot);
+            // Aquí podrías hacer más cosas después de que se complete la carga del archivo, si es necesario
+            getDownloadURL(ref(storageRef)).then((url) => {
+              console.log('retorna url: ', url);
+              editedItem.ballot_value = url;
+            });
+          })
+          .catch((error) => {
+            console.error('Error al subir el archivo:', error);
+          });
+      }
 
       // Actualizar el estado con los nuevos valores
       updateBingoCard((prevState) => ({
@@ -614,7 +671,19 @@ const DialogValueCartonAndBallot = ({
         >
           Cancelar
         </Button>
-        <Button variant="gradient" color="gray" onClick={handleSaveCustomValue}disabled={errorsInputsCarton.number || errorsInputsCarton.text || errorsInputsCarton.imageUrl || errorsInputsBallot.number || errorsInputsBallot.text || errorsInputsBallot.imageUrl}>
+        <Button
+          variant="gradient"
+          color="gray"
+          onClick={handleSaveCustomValue}
+          disabled={
+            errorsInputsCarton.number ||
+            errorsInputsCarton.text ||
+            errorsInputsCarton.imageUrl ||
+            errorsInputsBallot.number ||
+            errorsInputsBallot.text ||
+            errorsInputsBallot.imageUrl
+          }
+        >
           Enviar
         </Button>
       </DialogFooter>

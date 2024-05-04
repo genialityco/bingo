@@ -16,17 +16,16 @@ import { useState, useContext, useEffect } from 'react';
 import bingoService from '../../services/bingoService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NewBingoContext } from './context/NewBingoContext';
+import { ref, set } from 'firebase/database';
+import { database } from '../../firebase';
 
 const BingoConfig = () => {
-
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-   
+
   const [newBingoCreated, setNewBingoCreated] = useState(null);
-  console.log(newBingoCreated)
+  // console.log(newBingoCreated);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
   console.log(modifiedBingoTemplate);
-
-
 
   const { search } = useLocation();
   const templateid = search.substring(4);
@@ -34,12 +33,9 @@ const BingoConfig = () => {
 
   const navigate = useNavigate();
 
-
-
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
       const response = await bingoService.getBingoById(templateid);
-      console.log(response);
       updateBingoCard(response);
       setModifiedBingoTemplate(response);
       // Aquí también podrías inicializar newBingoCreated si lo necesitas
@@ -58,15 +54,65 @@ const BingoConfig = () => {
   };
 
   //crear una config de bingo desde cero o modificar sobre un template de bingo
-  const newBingoData= newBingoCreated ? newBingoCreated : modifiedBingoTemplate;
+  const newBingoData = newBingoCreated
+    ? newBingoCreated
+    : modifiedBingoTemplate;
+
+  const filterImages = () => {
+    const valueImages = newBingoData.bingo_values.map((item) => {
+      let itemImages = {};
+      if (item.carton_type === 'image') {
+        (itemImages['carton_value'] = item.carton_value),
+          (itemImages['_id'] = item._id);
+      }
+      if (item.ballot_type === 'image') {
+        itemImages.ballot_value = item.ballot_value;
+        itemImages['_id'] = item._id;
+      }
+
+      return itemImages;
+    });
+
+    const result = valueImages.filter((item) => Object.keys(item).length > 0);
+
+    return result;
+  };
+
+  function writeUserData() {
+    const itemImages = filterImages();
+    console.log(itemImages);
+    // const db = getDatabase();
+    const images = itemImages.map((item) => {
+      if (item.carton_value && item.ballot_value) {
+        set(ref(database, 'valuesImages/' + item._id), {
+          carton_value: item.carton_value,
+          ballot_value: item.ballot_value,
+        });
+      }
+      if (!item.carton_value) {
+        set(ref(database, 'valuesImages/' + item._id), {
+          ballot_value: item.ballot_value,
+        });
+      }
+      if (!item.ballot_value) {
+        set(ref(database, 'valuesImages/' + item._id), {
+          carton_value: item.carton_value,
+        });
+      }
+    });
+  }
 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
+      // const amountImages = filterImages();
+      // if (amountImages.length) {
+      //   writeUserData();
+      // }
       const response = await bingoService.createBingo(newBingoData);
       const { status, message, data } = response;
-      console.log("data nuevo bingo",data)
+      // console.log('data nuevo bingo', data);
       if (status === 'success') {
         alert(message);
       }
@@ -89,7 +135,13 @@ const BingoConfig = () => {
     {
       label: 'Configurar Bingo',
       value: 'configurar bingo',
-      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} modifiedBingoTemplate={modifiedBingoTemplate}  onConfigChange={handleBingoConfigChange}/>,
+      desc: (
+        <DimensionsBingoCard
+          sendBingoCreated={sendBingoCreated}
+          modifiedBingoTemplate={modifiedBingoTemplate}
+          onConfigChange={handleBingoConfigChange}
+        />
+      ),
     },
     {
       label: 'Apariencia del cartón',

@@ -6,6 +6,11 @@ import { Link } from 'react-router-dom';
 const BingosList = () => {
   const [bingos, setBingos] = useState([]);
 
+
+  const handleDeleteBingo = async (bingoId) => {
+   bingos= await bingoService.deleteBingo(bingoId);
+  };
+
   useEffect(() => {
     const getBingos = async () => {
       const response = await bingoService.listAllBingos();
@@ -47,19 +52,21 @@ const BingosList = () => {
         <Card className="flex flex-col md:flex-row md:items-center justify-center  gap-3  text-center ">
           {bingos.map((bingo) => {
             return (
-              <Link key={bingo._id} to={`/bingo-config?id=${bingo._id}`}>
-                <Card className="bg-blue-gray-100">
-                  <CardBody>
-                    <h3>{bingo.title}</h3>
-                    <p>{bingo.dimensions}</p>
-                  </CardBody>
-                  <Link to={'/play-bingo'} className="mb-2">
-                    {' '}
-                    <Button>Jugar</Button>
-                  </Link>
-                  <Button>Editar Template</Button>
-                </Card>
-              </Link>
+              <Card className="bg-blue-gray-100">
+                <button onClick={() => handleDeleteBingo(bingo._id)}>x</button>
+                <CardBody>
+                  <h3>{bingo.title}</h3>
+                  <p>{bingo.dimensions}</p>
+                </CardBody>
+                <Link to={'/play-bingo'} className="mb-2">
+                  {' '}
+                  <Button>Jugar</Button>
+                </Link>
+                <Link key={bingo._id} to={`/bingo-config?id=${bingo._id}`}>
+                  {' '}
+                  <Button>Editar Template</Button>{' '}
+                </Link>
+              </Card>
             );
           })}
         </Card>
