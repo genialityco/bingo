@@ -33,7 +33,7 @@ class BingoRoomServices {
       return room;
     } catch (error) {
       console.error(`Error finding room by ${fieldName}:`, error);
-      throw error;
+      return error;
     }
   }
 

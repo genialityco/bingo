@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  CardBody,
-  Typography,
-  Button,
-  Alert,
-  IconButton,
-} from "@material-tailwind/react";
+import { Card, CardBody, Button, Alert } from "@material-tailwind/react";
 import { DndContext, useDraggable } from "@dnd-kit/core";
 import { useLocation } from "react-router-dom";
 import BingoCardStatic from "../../components/BingoCard";
@@ -16,6 +9,7 @@ import bingoService from "../../services/bingoService";
 import bingoCardboardService from "../../services/bingoCardboardService";
 import { TabsSection } from "./components/TabsSetion";
 import { MessageDialog } from "./components/MessageDialog";
+import { LiveStream } from "./components/LiveStream";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -34,7 +28,6 @@ async function generateRandomAlphanumeric(length) {
       "cardboard_code",
       code
     );
-    console.log(existingCardboards.response.data.status);
     // Si el código ya existe, generar uno nuevo
   } while (existingCardboards.response.data.status === "Success");
   return code;
@@ -112,18 +105,31 @@ export const RoomPageV1 = () => {
 
   const handleBallotUpdate = (data) => {
     const updateDescription = data.updateDescription;
-    if (updateDescription && updateDescription.updatedFields) {
-      Object.keys(updateDescription.updatedFields).forEach((key) => {
-        if (key.startsWith("history_of_ballots")) {
-          if (updateDescription.updatedFields[key] != "") {
-            setLastBallot(updateDescription.updatedFields[key]);
+    if (data.documentKey && data.documentKey._id === roomId) {
+      if (updateDescription && updateDescription.updatedFields) {
+        Object.keys(updateDescription.updatedFields).forEach((key) => {
+          if (key.startsWith("history_of_ballots")) {
+            if (updateDescription.updatedFields[key] != "") {
+              setLastBallot(updateDescription.updatedFields[key]);
+            }
+            if (updateDescription.updatedFields[key].length === 0) {
+              const resetMarkedSquares = markedSquares.map((square) => {
+                if (square.value === "Disabled") {
+                  return square; // No modificar celdas deshabilitadas
+                } else {
+                  return { isMarked: false, value: "" }; // Reiniciar celdas normales
+                }
+              });
+              setMarkedSquares(resetMarkedSquares);
+              updateMarkSquere(resetMarkedSquares);
+            }
+            getBallotsHistory();
           }
-          getBallotsHistory();
-        }
-        if (key.startsWith("bingoFigure")) {
-          getBallotsHistory();
-        }
-      });
+          if (key.startsWith("bingoFigure")) {
+            getBallotsHistory();
+          }
+        });
+      }
     }
   };
 
@@ -317,9 +323,16 @@ export const RoomPageV1 = () => {
   };
 
   const updateMarkSquere = async (updatedMarks) => {
-    await bingoCardboardService.updateCardboard(cardboardId, {
-      game_marked_squares: updatedMarks,
-    });
+    if (cardboardId) {
+      await bingoCardboardService.updateCardboard(cardboardId, {
+        game_marked_squares: updatedMarks,
+      });
+    } else {
+      await getExistingCardboard(cardboardCode);
+      await bingoCardboardService.updateCardboard(cardboardId, {
+        game_marked_squares: updatedMarks,
+      });
+    }
   };
 
   const getBallotsHistory = async () => {
@@ -408,7 +421,7 @@ export const RoomPageV1 = () => {
             <div className="md:flex-auto md:flex md:flex-col md:w-3/4 h-auto mx-1">
               <Card className="h-full mb-4 md:mb-2 flex-1">
                 <CardBody className="relative h-auto">
-                  <SectionLiveStream
+                  <LiveStream
                     bingoConfig={bingoConfig}
                     playerName={storageUserId}
                     cardboardCode={cardboardCode}
@@ -445,37 +458,6 @@ function shuffle(array) {
   return array;
 }
 
-const SectionLiveStream = ({ bingoConfig, playerName, cardboardCode }) => {
-  // Componente para la transmisión en vivo
-  return (
-    <div>
-      <section>
-        {bingoConfig && (
-          <Accordion title={bingoConfig?.title}>
-            <Typography variant="small" className="mb-1">
-              <strong>Código de cartón:</strong> {cardboardCode}
-            </Typography>
-            <Typography variant="small">
-              <strong>Jugador:</strong> {playerName}
-            </Typography>
-          </Accordion>
-        )}
-      </section>
-      <section className="hidden sm:block">
-        <LiveStream />
-      </section>
-    </div>
-  );
-};
-
-const LiveStream = () => {
-  return (
-    <>
-      <Typography variant="h5">Transmisión</Typography>
-    </>
-  );
-};
-
 const DraggableLiveStream = ({ position }) => {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: "draggable-live-stream",
@@ -495,46 +477,6 @@ const DraggableLiveStream = ({ position }) => {
       className="absolute bottom-4 left-4 w-40 h-24 bg-black opacity-90 hover:opacity-100 z-10 md:hidden"
     >
       <LiveStream />
-    </div>
-  );
-};
-
-const Accordion = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="mb-1 bg-black rounded">
-      <div
-        className="flex justify-between cursor-pointer p-4"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <Typography
-          variant="h6"
-          color="white"
-          className="uppercase text-sm md:text-base"
-        >
-          {title}
-        </Typography>
-
-        {!isOpen ? (
-          <Typography
-            variant="h6"
-            color="white"
-            className="text-sm md:text-base"
-          >
-            Ver más...
-          </Typography>
-        ) : (
-          <Typography
-            variant="h6"
-            color="white"
-            className="text-sm md:text-base"
-          >
-            Ocultar
-          </Typography>
-        )}
-      </div>
-      {isOpen && <div className="p-3 text-white">{children}</div>}
     </div>
   );
 };

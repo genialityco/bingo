@@ -17,20 +17,20 @@ const routesConfig = [
     exact: true,
   },
   {
-    path: "/play-bingo",
+    path: "/play-bingo/:roomId",
     component: PlayBingoPage,
     exact: true,
   },
   {
-    path:"/bingo-config",
-    component:BingoConfig,
-    exact:true
+    path: "/bingo-config",
+    component: BingoConfig,
+    exact: true,
   },
   {
-    path:"/list-bingos",
-    component:BingosList,
-    exact:true
-  }
+    path: "/list-bingos",
+    component: BingosList,
+    exact: true,
+  },
 ];
 
 export default routesConfig;

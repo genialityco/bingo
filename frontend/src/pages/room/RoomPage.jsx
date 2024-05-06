@@ -356,13 +356,11 @@ const LiveStream = () => {
 
 const BallsDrawn = ({ bingoConfig, lastBallot }) => {
   let ballotImage;
-  console.log(lastBallot);
   if (bingoConfig?.bingoValues[0].type === "image" && lastBallot) {
     const ballotImageFind = bingoConfig.bingoValues.find(
       (ballot) => ballot.value === lastBallot
     );
     ballotImage = ballotImageFind ? ballotImageFind.imageUrl : null;
-    console.log(ballotImage);
   }
 
   return (
@@ -496,7 +494,6 @@ const Figure = ({ room }) => {
 // };
 
 const DataGame = ({ bingoConfig, lastBallot, ballotsHistory, room }) => {
-  console.log(bingoConfig);
   const dataTabs = [
     {
       label: "Balotas",
