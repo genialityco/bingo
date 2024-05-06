@@ -431,12 +431,17 @@ const DialogValueCartonAndBallot = ({
         uploadBytes(storageRef, newCustomValueCartonImage)
           .then((snapshot) => {
             console.log('Uploaded a blob or file!', snapshot);
-            // Aquí podrías hacer más cosas después de que se complete la carga del archivo, si es necesario
-            getDownloadURL(ref(storageRef)).then((url) => {
-              console.log('retorna url: ', url);
-              editedItem.carton_value = url;
-            });
+            return getDownloadURL(ref(storageRef));
           })
+          .then((url) => {
+            console.log('retorna url: ', url);
+            editedItem.carton_value = url;
+            updateBingoCard((prevState) => ({
+              ...prevState,
+              bingo_values: updatedBingoValues,
+            }));
+          })
+
           .catch((error) => {
             console.error('Error al subir el archivo:', error);
           });
@@ -462,10 +467,16 @@ const DialogValueCartonAndBallot = ({
         uploadBytes(storageRef, newCustomValueBallotImage)
           .then((snapshot) => {
             console.log('Uploaded a blob or file!', snapshot);
-            // Aquí podrías hacer más cosas después de que se complete la carga del archivo, si es necesario
+
             getDownloadURL(ref(storageRef)).then((url) => {
               console.log('retorna url: ', url);
               editedItem.ballot_value = url;
+
+              console.log(editedItem.ballot_value)
+              updateBingoCard((prevState) => ({
+                ...prevState,
+                bingo_values: updatedBingoValues,
+              }));
             });
           })
           .catch((error) => {

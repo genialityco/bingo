@@ -58,58 +58,11 @@ const BingoConfig = () => {
     ? newBingoCreated
     : modifiedBingoTemplate;
 
-  const filterImages = () => {
-    const valueImages = newBingoData.bingo_values.map((item) => {
-      let itemImages = {};
-      if (item.carton_type === 'image') {
-        (itemImages['carton_value'] = item.carton_value),
-          (itemImages['_id'] = item._id);
-      }
-      if (item.ballot_type === 'image') {
-        itemImages.ballot_value = item.ballot_value;
-        itemImages['_id'] = item._id;
-      }
-
-      return itemImages;
-    });
-
-    const result = valueImages.filter((item) => Object.keys(item).length > 0);
-
-    return result;
-  };
-
-  function writeUserData() {
-    const itemImages = filterImages();
-    console.log(itemImages);
-    // const db = getDatabase();
-    const images = itemImages.map((item) => {
-      if (item.carton_value && item.ballot_value) {
-        set(ref(database, 'valuesImages/' + item._id), {
-          carton_value: item.carton_value,
-          ballot_value: item.ballot_value,
-        });
-      }
-      if (!item.carton_value) {
-        set(ref(database, 'valuesImages/' + item._id), {
-          ballot_value: item.ballot_value,
-        });
-      }
-      if (!item.ballot_value) {
-        set(ref(database, 'valuesImages/' + item._id), {
-          carton_value: item.carton_value,
-        });
-      }
-    });
-  }
 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
-      // const amountImages = filterImages();
-      // if (amountImages.length) {
-      //   writeUserData();
-      // }
       const response = await bingoService.createBingo(newBingoData);
       const { status, message, data } = response;
       // console.log('data nuevo bingo', data);
