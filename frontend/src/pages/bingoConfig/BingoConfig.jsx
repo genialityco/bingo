@@ -16,17 +16,16 @@ import { useState, useContext, useEffect } from 'react';
 import bingoService from '../../services/bingoService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NewBingoContext } from './context/NewBingoContext';
+import { ref, set } from 'firebase/database';
+import { database } from '../../firebase';
 
 const BingoConfig = () => {
-
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-   
+
   const [newBingoCreated, setNewBingoCreated] = useState(null);
-  console.log(newBingoCreated)
+  // console.log(newBingoCreated);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
-  console.log(modifiedBingoTemplate);
-
-
+  // console.log(modifiedBingoTemplate);
 
   const { search } = useLocation();
   const templateid = search.substring(4);
@@ -34,12 +33,9 @@ const BingoConfig = () => {
 
   const navigate = useNavigate();
 
-
-
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
       const response = await bingoService.getBingoById(templateid);
-      console.log(response);
       updateBingoCard(response);
       setModifiedBingoTemplate(response);
       // Aquí también podrías inicializar newBingoCreated si lo necesitas
@@ -58,7 +54,10 @@ const BingoConfig = () => {
   };
 
   //crear una config de bingo desde cero o modificar sobre un template de bingo
-  const newBingoData= newBingoCreated ? newBingoCreated : modifiedBingoTemplate;
+  const newBingoData = newBingoCreated
+    ? newBingoCreated
+    : modifiedBingoTemplate;
+
 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
@@ -66,7 +65,7 @@ const BingoConfig = () => {
     try {
       const response = await bingoService.createBingo(newBingoData);
       const { status, message, data } = response;
-      console.log("data nuevo bingo",data)
+      // console.log('data nuevo bingo', data);
       if (status === 'success') {
         alert(message);
       }
@@ -89,7 +88,13 @@ const BingoConfig = () => {
     {
       label: 'Configurar Bingo',
       value: 'configurar bingo',
-      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} modifiedBingoTemplate={modifiedBingoTemplate}  onConfigChange={handleBingoConfigChange}/>,
+      desc: (
+        <DimensionsBingoCard
+          sendBingoCreated={sendBingoCreated}
+          modifiedBingoTemplate={modifiedBingoTemplate}
+          onConfigChange={handleBingoConfigChange}
+        />
+      ),
     },
     {
       label: 'Apariencia del cartón',

@@ -22,14 +22,19 @@ const TABLE_HEAD = [
   '-',
 ];
 
-const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigChange}) => {
-
+const DimensionsBingoCard = ({
+  sendBingoCreated,
+  modifiedBingoTemplate,
+  onConfigChange,
+}) => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  console.log(bingoCard)
+  // console.log(bingoCard)
 
- const deleteIdBingoModified= modifiedBingoTemplate ? delete modifiedBingoTemplate._id : modifiedBingoTemplate
- 
-  console.log(modifiedBingoTemplate)
+  const deleteIdBingoModified = modifiedBingoTemplate
+    ? delete modifiedBingoTemplate._id
+    : modifiedBingoTemplate;
+
+  // console.log(modifiedBingoTemplate)
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -38,20 +43,25 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
   //abrir o cerrar Dialog para configurar valores del carton y de la balota
   const [openDialogValueCartonAndBallot, setOpenDialogValueCartonAndBallot] =
     useState(false);
-     //estados para abrir o cerrar los Dialogs
-  const [openDialogGenerateBallots, setOpenDialogGenerateBallots] = useState(false);
+  //estados para abrir o cerrar los Dialogs
+  const [openDialogGenerateBallots, setOpenDialogGenerateBallots] =
+    useState(false);
 
   //estados para editar cada objeto dentro del array bingoValues
   const [editIndex, setEditIndex] = useState(null);
   //guardar el array de posiciones desabilitadas y dimension
   const [positionsDisabled, setPostionDisabled] = useState([]);
-  const[dimension, setDimension]=useState(null)
+  const [dimension, setDimension] = useState(null);
+
+  //Loading de carga de imagenes
+  const [isLoadingCartonImage, setIsLoadingCartonImage] = useState(false);
+  const [isLoadingBallotImage, setIsLoadingBallotImage] = useState(false);
 
   //captura  el titulo y las reglas
   const handleCreateNewBingo = (e) => {
     const { name, value } = e.target;
     updateBingoCard({ ...bingoCard, [name]: value });
-    onConfigChange({ ...modifiedBingoTemplate, [name]: value })
+    onConfigChange({ ...modifiedBingoTemplate, [name]: value });
   };
 
   //setea la cantidad de objetos dentro del array bingoValues
@@ -76,8 +86,6 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
     setSelectedNumValues(value);
   };
 
-
-
   //maneja cerrar o abrir el Dialog
   const handleOpenDialogValueCartonAndBallot = (index) => {
     setEditIndex(index);
@@ -101,7 +109,7 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
     onConfigChange((prevState) => ({
       ...prevState,
       bingo_values: [...prevState.bingo_values, newBalota],
-    }))
+    }));
   };
 
   //elimina un objeto dentro del array bingoValues
@@ -119,11 +127,10 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
     }));
   };
 
-
   //obtener las posiciones desabilitadas y el tamaño seleccionado:
   const getPositionsDisablesAndDimension = (disables, sizeCarton) => {
     setPostionDisabled(disables);
-    setDimension(sizeCarton)
+    setDimension(sizeCarton);
   };
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
@@ -135,15 +142,13 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
   useEffect(() => {
     sendBingoCreated(bingoCard);
   }, [bingoCard]);
-  
 
   useEffect(() => {
     updateBingoCard((prevState) => ({
       ...prevState,
-      positions_disabled:[]
+      positions_disabled: [],
     }));
-  }, []); 
-
+  }, []);
 
   return (
     <div className=" flex flex-col lg:flex-row gap-3 ">
@@ -166,10 +171,12 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
             value={bingoCard.title}
           />
         </div>
-      
-        <SizeBingoCard getPositionsDisablesAndDimension={getPositionsDisablesAndDimension} />
 
-        <TemplateBingos/>
+        <SizeBingoCard
+          getPositionsDisablesAndDimension={getPositionsDisablesAndDimension}
+        />
+
+        <TemplateBingos />
 
         <div className="w-80">
           <Typography variant="h5" className="text-left my-2">
@@ -327,6 +334,7 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
                   {/* valor balota */}
                   <td className="p-4">
                     {item.ballot_type === 'image' ? (
+                      
                       <img
                         className="m-auto"
                         src={item.ballot_value}
@@ -401,7 +409,11 @@ const DimensionsBingoCard = ({sendBingoCreated, modifiedBingoTemplate,onConfigCh
         </Card>
       </Card>
 
-      <DialogGenerateBallots openDialogGenerateBallots={openDialogGenerateBallots} setOpenDialogGenerateBallots={setOpenDialogGenerateBallots} handleNumValuesToPlayChange={handleNumValuesToPlayChange}/> 
+      <DialogGenerateBallots
+        openDialogGenerateBallots={openDialogGenerateBallots}
+        setOpenDialogGenerateBallots={setOpenDialogGenerateBallots}
+        handleNumValuesToPlayChange={handleNumValuesToPlayChange}
+      />
 
       <DialogValueCartonAndBallot
         openDialogValueCartonAndBallot={openDialogValueCartonAndBallot}

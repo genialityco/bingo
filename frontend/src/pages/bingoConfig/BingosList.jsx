@@ -20,6 +20,25 @@ const BingosList = () => {
     } finally {
       setLoading(false);
     }
+    const handleDeleteBingo = async (bingoId) => {
+      try {
+        await bingoService.deleteBingo(bingoId);
+
+        setBingos((prevBingos) =>
+          prevBingos.filter((bingo) => bingo._id !== bingoId)
+        );
+      } catch (error) {
+        console.error("Error al eliminar el bingo:", error);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const getBingos = async () => {
+      const response = await bingoService.listAllBingos();
+      setBingos(response.data);
+    };
+    getBingos();
   }, []);
 
   useEffect(() => {

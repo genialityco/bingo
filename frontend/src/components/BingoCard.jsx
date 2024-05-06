@@ -12,6 +12,7 @@ const BingoCardStatic = ({
     return <p>Cargando configuración del bingo...</p>;
   }
   const cols = Number.isInteger(rows) && rows > 0 ? rows : 3;
+
   return (
     <div className="flex flex-col flex-1 w-full h-full">
       {bingoAppearance.banner && (
