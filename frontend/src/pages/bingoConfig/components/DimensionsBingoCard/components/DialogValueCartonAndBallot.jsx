@@ -14,7 +14,17 @@ import {
   validationsEditInputsCarton,
 } from '../../../../../utils/validationsEditInputs';
 import { storage } from '../../../../../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  uploadString,
+} from 'firebase/storage';
+import {
+  isBase64Url,
+  uploadBase64ImageToFirebase,
+} from '../../../../../utils/validationImageExternalUrl';
+import { v4 } from 'uuid';
 
 const DialogValueCartonAndBallot = ({
   openDialogValueCartonAndBallot,
@@ -45,9 +55,9 @@ const DialogValueCartonAndBallot = ({
   //seleccionar posiciones para el valor del carton
   const [selectedPositions, setSelectedPositions] = useState([]);
   //estados para personalizar la imagen desde un archivo local
-  const [newCustomValueCartonImage, setNewCustomValueCartonImage] =
+  const [newCustomValueCartonImageFile, setNewCustomValueCartonImageFile] =
     useState(null);
-  const [newCustomValueBallotImage, setNewCustomValueBallotImage] =
+  const [newCustomValueBallotImageFile, setNewCustomValueBallotImageFile] =
     useState(null);
   //guarda el valor de carton y balota del objeto que se esta editando
   const [selectedItem, setSelectedItem] = useState(null);
@@ -354,51 +364,14 @@ const DialogValueCartonAndBallot = ({
   };
 
   // Función para manejar el cambio de imagen desde un archivo local
-  // const handleImageChange = (e, type) => {
-  //   const file = e.target.files[0];
-  //   console.log(file)
-  //   if (file) {
-  //     // const reader = new FileReader();
-  //     // reader.onloadend = () => {
-  //       if (type === 'carton') {
-  //         setNewCustomValueCartonImage(file);
-  //       } else if (type === 'balota') {
-  //         setNewCustomValueBallotImage(file);
-  //        }
-  //     // };
-  //     // reader.readAsDataURL(file);
-  //   }
-  // };
-
-  // const handleImageChange = (e, type) => {
-  //   const file = e.target.files[0];
-  //   console.log(file);
-  //   if (file && type === 'carton') {
-  //     setNewCustomValueCartonImage(file)
-  //     const storageRef = ref(storage, `${newCustomValueCartonImage}`);
-  //     // 'file' comes from the Blob or File API
-  //     uploadBytes(storageRef, file).then((snapshot) => {
-  //       console.log('Uploaded a blob or file!');
-  //     });
-  //   }
-  //   if (file && type === 'balota') {
-  //     setNewCustomValueBallotImage(file)
-  //     const storageRef = ref(storage, `${newCustomValueBallotImage}`);
-  //     // 'file' comes from the Blob or File API
-  //     uploadBytes(storageRef, file).then((snapshot) => {
-  //       console.log('Uploaded a blob or file!');
-  //     });
-  //   }
-  // };
-
   const handleImageChange = (e, type) => {
     // console.log(e.target.files[0].name)
     const file = e.target.files[0];
     if (file) {
       if (type === 'carton') {
-        setNewCustomValueCartonImage(file);
+        setNewCustomValueCartonImageFile(file);
       } else if (type === 'balota') {
-        setNewCustomValueBallotImage(file);
+        setNewCustomValueBallotImageFile(file);
       }
     }
   };
@@ -419,16 +392,31 @@ const DialogValueCartonAndBallot = ({
         editedItem.carton_value = editInputsCarton.text;
       }
       if (selectedCartonType === 'image' && editInputsCarton.imageUrl) {
+        console.log(isBase64Url(editInputsCarton.imageUrl));
+        const validationFormatUrl = isBase64Url(editInputsCarton.imageUrl);
+        if (validationFormatUrl) {
+          uploadBase64ImageToFirebase(editInputsCarton.imageUrl, v4())
+          .then((url) => {
+            editedItem.carton_value = url;
+            updateBingoCard((prevState) => ({
+              ...prevState,
+              bingo_values: updatedBingoValues,
+            }));
+          })
+          .catch((error) => {
+            console.error('Error al subir el archivo:', error);
+          });
+        }
         editedItem.carton_value = editInputsCarton.imageUrl;
       } else if (selectedCartonType === 'image') {
         // Obtener una referencia al bucket de almacenamiento de Firebase
         const storageRef = ref(
           storage,
-          `images/${newCustomValueCartonImage.name}`
+          `images/${newCustomValueCartonImageFile.name}`
         );
 
         // Subir el archivo al bucket de almacenamiento
-        uploadBytes(storageRef, newCustomValueCartonImage)
+        uploadBytes(storageRef, newCustomValueCartonImageFile)
           .then((snapshot) => {
             console.log('Uploaded a blob or file!', snapshot);
             return getDownloadURL(ref(storageRef));
@@ -455,16 +443,32 @@ const DialogValueCartonAndBallot = ({
         editedItem.ballot_value = editInputsBallot.text;
       }
       if (selectedBallotType === 'image' && editInputsBallot.imageUrl) {
+        const validationFormatUrl = isBase64Url(editInputsBallot.imageUrl);
+        if (validationFormatUrl) {
+          uploadBase64ImageToFirebase(editInputsBallot.imageUrl, v4())
+          .then((url) => {
+            editedItem.ballot_value = url;
+            updateBingoCard((prevState) => ({
+              ...prevState,
+              bingo_values: updatedBingoValues,
+            }));
+          })
+          .catch((error) => {
+            console.error('Error al subir el archivo:', error);
+          });
+        }
+
         editedItem.ballot_value = editInputsBallot.imageUrl;
+
       } else if (selectedBallotType === 'image') {
         // Obtener una referencia al bucket de almacenamiento de Firebase
         const storageRef = ref(
           storage,
-          `images/${newCustomValueBallotImage.name}`
+          `images/${newCustomValueBallotImageFile.name}`
         );
 
         // Subir el archivo al bucket de almacenamiento
-        uploadBytes(storageRef, newCustomValueBallotImage)
+        uploadBytes(storageRef, newCustomValueBallotImageFile)
           .then((snapshot) => {
             console.log('Uploaded a blob or file!', snapshot);
 
@@ -472,7 +476,7 @@ const DialogValueCartonAndBallot = ({
               console.log('retorna url: ', url);
               editedItem.ballot_value = url;
 
-              console.log(editedItem.ballot_value)
+              console.log(editedItem.ballot_value);
               updateBingoCard((prevState) => ({
                 ...prevState,
                 bingo_values: updatedBingoValues,
@@ -495,6 +499,8 @@ const DialogValueCartonAndBallot = ({
     setEditIndex(null);
     setOpenDialogValueCartonAndBallot(false);
   };
+
+  
 
   return (
     <Dialog

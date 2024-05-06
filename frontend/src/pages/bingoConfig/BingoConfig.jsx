@@ -25,7 +25,7 @@ const BingoConfig = () => {
   const [newBingoCreated, setNewBingoCreated] = useState(null);
   // console.log(newBingoCreated);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
-  console.log(modifiedBingoTemplate);
+  // console.log(modifiedBingoTemplate);
 
   const { search } = useLocation();
   const templateid = search.substring(4);
