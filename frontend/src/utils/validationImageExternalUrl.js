@@ -3,7 +3,6 @@ import { ref,  getDownloadURL, uploadString } from 'firebase/storage';
 
 // Verifica si la URL comienza con el prefijo "data:image"
 export function isBase64Url(url) {
-  
   if (url.startsWith('data:image')) {
     const type = url.split(';')[0].split(':')[1];
     if (

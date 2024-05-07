@@ -10,18 +10,18 @@ import {
   Button,
 } from '@material-tailwind/react';
 import DimensionsBingoCard from './components/DimensionsBingoCard/DimensionsBingoCard';
-import AppearanceCard from './components/AppearanceCard';
+import AppearanceCard from './components/AppearanceBingo/AppearanceCard';
 import CardAssigment from './components/CardAssigment';
 import { useState, useContext, useEffect } from 'react';
 import bingoService from '../../services/bingoService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NewBingoContext } from './context/NewBingoContext';
-import { ref, set } from 'firebase/database';
-import { database } from '../../firebase';
+import { isBase64Url, uploadBase64ImageToFirebase } from '../../utils/validationImageExternalUrl';
+import { v4 } from 'uuid';
 
 const BingoConfig = () => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-
+  // console.log(bingoCard)
   const [newBingoCreated, setNewBingoCreated] = useState(null);
   // console.log(newBingoCreated);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
@@ -57,15 +57,17 @@ const BingoConfig = () => {
   const newBingoData = newBingoCreated
     ? newBingoCreated
     : modifiedBingoTemplate;
+  console.log(newBingoData);
 
-
+ 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
+      
       const response = await bingoService.createBingo(newBingoData);
       const { status, message, data } = response;
-      // console.log('data nuevo bingo', data);
+    
       if (status === 'success') {
         alert(message);
       }
