@@ -30,9 +30,9 @@ const DimensionsBingoCard = ({
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
   // console.log(bingoCard)
 
-  const deleteIdBingoModified = modifiedBingoTemplate
+ /*  const deleteIdBingoModified = modifiedBingoTemplate
     ? delete modifiedBingoTemplate._id
-    : modifiedBingoTemplate;
+    : modifiedBingoTemplate; */
 
   // console.log(modifiedBingoTemplate)
 
@@ -108,7 +108,7 @@ const DimensionsBingoCard = ({
     }));
     onConfigChange((prevState) => ({
       ...prevState,
-      bingo_values: [newBalota,...prevState.bingo_values, newBalota],
+      bingo_values: [newBalota,...prevState.bingo_values],
     }));
   };
 
@@ -134,9 +134,9 @@ const DimensionsBingoCard = ({
   };
 
   //inicialmente aparezcan 75 filas en la tabla para personalizar
-  useEffect(() => {
+ /*  useEffect(() => {
     handleNumValuesToPlayChange(75);
-  }, []);
+  }, []); */
 
   //mantener actualizado el estado bingoCard con la config y enviarlo al padre "BingoConfig"
   useEffect(() => {
@@ -174,6 +174,7 @@ const DimensionsBingoCard = ({
 
         <SizeBingoCard
           getPositionsDisablesAndDimension={getPositionsDisablesAndDimension}
+          onConfigChange={onConfigChange}
         />
 
        {/*  <TemplateBingos /> */}

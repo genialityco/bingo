@@ -29,7 +29,7 @@ const BingoConfig = () => {
   const [newBingoCreated, setNewBingoCreated] = useState(null);
   // console.log(newBingoCreated);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
-  // console.log(modifiedBingoTemplate);
+  console.log(modifiedBingoTemplate);
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -98,8 +98,10 @@ const BingoConfig = () => {
 
       // Actualizar el estado del contexto con el nuevo objeto bingo
       // setNewBingoCreated(updatedBingoData);
+      
+      // const response = await bingoService.createBingo(newBingoData);
 
-      const response = await bingoService.createBingo(newBingoData);
+      const response = await bingoService.createBingo(newBingoCreated);
       const { status, message, data } = response;
 
       if (status === "success") {
@@ -113,6 +115,23 @@ const BingoConfig = () => {
       );
     }
   };
+
+  //actualizar bingo
+  const handleSendUpdateTemplateBingo= async(e)=>{
+    e.preventDefault();
+    try {
+      const response = await bingoService.updateBingo(modifiedBingoTemplate._id, modifiedBingoTemplate)
+     const{status, message}=response;
+     if(status === "Success"){
+      alert(message)
+     }
+    } catch (error) {
+      console.log('Error en el envio de la configuración del bingo', error);
+      alert(
+        'Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente.'
+      );
+    }
+  }
 
   // Función para manejar los cambios en la configuración del bingo
   const handleBingoConfigChange = (updatedConfig) => {
@@ -178,9 +197,10 @@ const BingoConfig = () => {
             )}
             <Button
               className="flex items-center gap-3"
-              onClick={(e) => handleOnClickSendBingoCreated(e)}
+              // onClick={(e) => handleOnClickSendBingoCreated(e)}
+              onClick={(e)=>handleSendUpdateTemplateBingo(e)}
             >
-              Guardar
+              Actualizar
             </Button>
             <Button className="flex items-center gap-3">
               <svg

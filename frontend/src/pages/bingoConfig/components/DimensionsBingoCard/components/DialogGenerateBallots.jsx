@@ -13,9 +13,8 @@ const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateB
 
 
 const handleNumBallotsToGenerate=(e)=>{
-  setGenerateBallots(e.target.value)
-  const numBallots = generateBallots
-  handleNumValuesToPlayChange(numBallots)
+  setGenerateBallots(e.target.value);
+  handleNumValuesToPlayChange(generateBallots)
 }
 
   return (
@@ -45,7 +44,7 @@ const handleNumBallotsToGenerate=(e)=>{
           Cantidad a generar
         </Typography>
         <div className="w-1/4  flex justify-around">
-          <button
+   {/*        <button
             className={`w-10 border-2  hover:bg-violet-600  focus:ring-violet-300`}
             onClick={() => handleNumValuesToPlayChange(3)}
           >
@@ -68,37 +67,45 @@ const handleNumBallotsToGenerate=(e)=>{
              onClick={() => handleNumValuesToPlayChange(75)}
           >
             75
-          </button>
-          {/* <input type="number" onChange={handleNumBallotsToGenerate}/> */}
+          </button> */}
+         <input type="number" onChange={handleNumBallotsToGenerate}/>
         </div>
         {/* establecer el tema */}
-        <Typography className="mb-3 " color="gray" variant="lead">
+        {/* <Typography className="mb-3 " color="gray" variant="lead">
           Tema del Cartón
-        </Typography>
+        </Typography> */}
         <div className="grid grid-cols-3 gap-3">
           {/* Numeros */}
-          <Button
+          {/* <Button
             className={`bg-gray-200 cursor-pointer text-gray-700  text-center`}
             name="default"
             // onClick={(e) => handleCreateNewBingo(e, 'default')}
           >
             <h6>Numeros</h6>
-          </Button>
+          </Button> */}
           {/* Texto */}
-          <Button
+          {/* <Button
             className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center `}
             name="text"
             // onClick={(e) => handleCreateNewBingo(e, 'text')}
           >
             <h6>Texto</h6>
-          </Button>
+          </Button> */}
           {/* Imagenes */}
-          <Button
+          {/* <Button
             className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center `}
             name="image"
             // onClick={(e) => handleCreateNewBingo(e, 'image')}
           >
             <h6>Imagenes</h6>
+          </Button> */}
+          <Button
+            className={`h-10 mt-3 bg-gray-200 cursor-pointer text-gray-700  text-center `}
+            name="image"
+            // onClick={(e) => handleCreateNewBingo(e, 'image')}
+            onClick={handleNumBallotsToGenerate}
+          >
+            <h6>Enviar</h6>
           </Button>
         </div>
       </DialogBody>
