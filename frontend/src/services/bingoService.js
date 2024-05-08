@@ -5,7 +5,7 @@ const bingoService = {
   createBingo: async (bingoData) => {
     try {
       const response = await apiBingo.post("/", bingoData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       throw error;
     }

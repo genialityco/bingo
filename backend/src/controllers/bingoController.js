@@ -1,34 +1,34 @@
-import BingoRoomServices from "../services/bingoRoom.service";
+import BingoServices from "../services/bingo.service";
 import BingoTemplateServices from "../services/bingoTemplate.service";
 import sendResponse from "../utils/sendResponse";
 const customEmitter = require("../utils/eventEmitter");
 
-class BingoRoomController {
-  // POST /rooms - Crear una nueva sala
-  async createRoom(req, res) {
+class BingoController {
+  // POST /bingos - Crear una nueva sala
+  async createBingo(req, res) {
     try {
-      const room = await BingoRoomServices.createRoom(req.body);
-      sendResponse(res, 201, room, "Room created successfully");
+      const bingo = await BingoServices.createBingo(req.body);
+      sendResponse(res, 201, bingo, "Bingo created successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // GET /rooms/:id - Obtener una sala por ID
-  async getRoomById(req, res) {
+  // GET /bingos/:id - Obtener una sala por ID
+  async getBingoById(req, res) {
     try {
-      const room = await BingoRoomServices.getRoomById(req.params.id);
-      if (!room) {
-        return sendResponse(res, 404, null, "Room not found");
+      const bingo = await BingoServices.getBingoById(req.params.id);
+      if (!bingo) {
+        return sendResponse(res, 404, null, "Bingo not found");
       }
-      sendResponse(res, 200, room, "Room retrieved successfully");
+      sendResponse(res, 200, bingo, "Bingo retrieved successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // GET /rooms/search - Buscar una sala por un campo específico
-  async findRoomByField(req, res) {
+  // GET /bingos/search - Buscar una sala por un campo específico
+  async findBingoByField(req, res) {
     try {
       const { field, value } = req.query;
       if (!field || !value) {
@@ -39,95 +39,95 @@ class BingoRoomController {
           "Missing field or value in query parameters."
         );
       }
-      const room = await BingoRoomServices.findRoomByField(field, value);
-      if (!room) {
+      const bingo = await BingoServices.findBingoByField(field, value);
+      if (!bingo) {
         return sendResponse(
           res,
           404,
           null,
-          `Room not found with ${field}: ${value}`
+          `Bingo not found with ${field}: ${value}`
         );
       }
-      sendResponse(res, 200, room, "Room found successfully");
+      sendResponse(res, 200, bingo, "Bingo found successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // PUT /rooms/:id/ballots - Añadir balota al historial
+  // PUT /bingos/:id/ballots - Añadir balota al historial
   async addBallotToHistory(req, res) {
     try {
-      const room = await BingoRoomServices.addBallotToHistory(
+      const bingo = await BingoServices.addBallotToHistory(
         req.params.id,
         req.body.ballot
       );
-      sendResponse(res, 200, room, "Ballot added to room history successfully");
+      sendResponse(res, 200, bingo, "Ballot added to bingo history successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // POST /rooms/:id/end - Marcar el fin del juego
+  // POST /bingos/:id/end - Marcar el fin del juego
   async markGameEnd(req, res) {
     try {
-      const room = await BingoRoomServices.markGameEnd(
+      const bingo = await BingoServices.markGameEnd(
         req.params.id,
         req.body.winners
       );
-      sendResponse(res, 200, room, "Game ended successfully");
+      sendResponse(res, 200, bingo, "Game ended successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // PUT /rooms/:id/capacity - Actualizar la capacidad de la sala
-  async updateRoomCapacity(req, res) {
+  // PUT /bingos/:id/capacity - Actualizar la capacidad de la sala
+  async updateBingoCapacity(req, res) {
     try {
-      const room = await BingoRoomServices.updateRoomCapacity(
+      const bingo = await BingoServices.updateBingoCapacity(
         req.params.id,
         req.body.capacity
       );
-      sendResponse(res, 200, room, "Room capacity updated successfully");
+      sendResponse(res, 200, bingo, "Bingo capacity updated successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // GET /rooms - Listar todas las salas
-  async getAllRooms(req, res) {
+  // GET /bingos - Listar todas las salas
+  async getAllBingos(req, res) {
     try {
-      const rooms = await BingoRoomServices.getAllBingos();
-      sendResponse(res, 200, rooms, "Rooms retrieved successfully");
+      const bingos = await BingoServices.getAllBingos();
+      sendResponse(res, 200, bingos, "Bingos retrieved successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // PUT /rooms/:id - Actualizar una sala
-  async updateRoom(req, res) {
+  // PUT /bingos/:id - Actualizar una sala
+  async updateBingo(req, res) {
     try {
-      const room = await BingoRoomServices.updateRoom(req.params.id, req.body);
-      sendResponse(res, 200, room, "Room updated successfully");
+      const bingo = await BingoServices.updateBingo(req.params.id, req.body);
+      sendResponse(res, 200, bingo, "Room updated successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
-  // DELETE /rooms/:id - Eliminar una sala
-  async deleteRoom(req, res) {
+  // DELETE /bingos/:id - Eliminar una sala
+  async deleteBingo(req, res) {
     try {
-      const result = await BingoRoomServices.deleteRoom(req.params.id);
-      sendResponse(res, 200, result, "Room deleted successfully");
+      const result = await BingoServices.deleteBingo(req.params.id);
+      sendResponse(res, 200, result, "Bingo deleted successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
   }
 
   async sangBingo(req, res) {
-    const { markedSquares, roomId, userId, cardboardCode } = req.body;
-    const room = await BingoRoomServices.getRoomById(roomId);
-    const figure = room.bingoFigure.index_to_validate;
-    const historyBallots = room.history_of_ballots;
+    const { markedSquares, bingoId, userId, cardboardCode } = req.body;
+    const bingo = await BingoServices.getBingoById(bingoId);
+    const figure = bingo.bingoFigure.index_to_validate;
+    const historyBallots = bingo.history_of_ballots;
 
     customEmitter.emit("sangBingo", { userId: userId, status: "Validando" });
 
@@ -174,4 +174,4 @@ class BingoRoomController {
   }
 }
 
-export default new BingoRoomController();
+export default new BingoController();

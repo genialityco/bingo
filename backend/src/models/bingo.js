@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const bingoRoomSchema = new Schema({
+const bingoSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -44,6 +44,6 @@ const bingoRoomSchema = new Schema({
   history_of_ballots: [String],
 });
 
-const BingoRoom = mongoose.model("BingoRoom", bingoRoomSchema);
+const Bingo = mongoose.model("BingoRooms", bingoSchema);
 
-export default BingoRoom;
+export default Bingo;

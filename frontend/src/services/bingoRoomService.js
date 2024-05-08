@@ -103,7 +103,6 @@ const bingoRoomService = {
   },
 
   sangBingo: async (markedSquares, roomId, userId, cardboardCode) => {
-    console.log(markedSquares, roomId, userId);
     try {
       const response = await apiBingoRoom.post(`/sangBingo`, {
         markedSquares,
