@@ -9,7 +9,13 @@ export const NewBingoContextProvider = (props) => {
     title: '',
     rules: '',
     creator_id: null,
-    bingo_appearance: {},
+    bingo_appearance: {
+      background_color:'',
+      background_image:'',
+      banner:'',
+      footer:'',
+      dial_image:''
+    },
     bingo_values: [
       {
         carton_value: '',

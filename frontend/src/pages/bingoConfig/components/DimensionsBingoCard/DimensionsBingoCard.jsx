@@ -104,11 +104,11 @@ const DimensionsBingoCard = ({
 
     updateBingoCard((prevState) => ({
       ...prevState,
-      bingo_values: [...prevState.bingo_values, newBalota],
+      bingo_values: [newBalota,...prevState.bingo_values],
     }));
     onConfigChange((prevState) => ({
       ...prevState,
-      bingo_values: [...prevState.bingo_values, newBalota],
+      bingo_values: [newBalota,...prevState.bingo_values, newBalota],
     }));
   };
 
@@ -176,7 +176,7 @@ const DimensionsBingoCard = ({
           getPositionsDisablesAndDimension={getPositionsDisablesAndDimension}
         />
 
-        <TemplateBingos />
+       {/*  <TemplateBingos /> */}
 
         <div className="w-80">
           <Typography variant="h5" className="text-left my-2">
@@ -196,8 +196,8 @@ const DimensionsBingoCard = ({
         <Typography variant="h5" className="mb-3">
           Valores del Bingo
         </Typography>
-        <div className="mb-3 flex justify-center gap-2">
-          <Button variant="gradient" className="flex items-center gap-3">
+        <div className="mb-5 flex justify-center gap-3">
+          {/* <Button variant="gradient" className="flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -213,7 +213,7 @@ const DimensionsBingoCard = ({
               />
             </svg>
             Importar valores del Bingo
-          </Button>
+          </Button> */}
           <Button
             variant="gradient"
             className="flex items-center gap-3"

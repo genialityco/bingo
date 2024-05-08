@@ -376,6 +376,7 @@ const DialogValueCartonAndBallot = ({
     }
   };
 
+
   //guarda el valores editados en el estado "bingoCard"
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
@@ -392,7 +393,6 @@ const DialogValueCartonAndBallot = ({
         editedItem.carton_value = editInputsCarton.text;
       }
       if (selectedCartonType === 'image' && editInputsCarton.imageUrl) {
-        console.log(isBase64Url(editInputsCarton.imageUrl));
         const validationFormatUrl = isBase64Url(editInputsCarton.imageUrl);
         if (validationFormatUrl) {
           uploadBase64ImageToFirebase(editInputsCarton.imageUrl, v4())
@@ -476,7 +476,6 @@ const DialogValueCartonAndBallot = ({
               console.log('retorna url: ', url);
               editedItem.ballot_value = url;
 
-              console.log(editedItem.ballot_value);
               updateBingoCard((prevState) => ({
                 ...prevState,
                 bingo_values: updatedBingoValues,
