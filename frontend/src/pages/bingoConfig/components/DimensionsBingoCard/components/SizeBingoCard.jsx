@@ -2,7 +2,10 @@ import { useContext, useState, useRef, useEffect } from 'react';
 import { Carousel, Typography, Button } from '@material-tailwind/react';
 import { NewBingoContext } from '../../../context/NewBingoContext';
 
-const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
+const SizeBingoCard = ({
+  getPositionsDisablesAndDimension,
+  onConfigChange,
+}) => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
 
   const [selectedDimensions, setSelectedDimensions] = useState(null);
@@ -50,6 +53,32 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
 
       return newBingoCard;
     });
+
+    onConfigChange((prevState) => {
+      const newBingoCard = { ...prevState };
+
+      // Verificar si el índice ya está en positions_disabled
+      const existingIndex = newBingoCard.positions_disabled.findIndex(
+        (item) => item.position === index
+      );
+
+      if (isSelected) {
+        // Si el índice ya está seleccionado, lo eliminamos de positions_disabled
+        if (existingIndex !== -1) {
+          newBingoCard.positions_disabled.splice(existingIndex, 1);
+        }
+      } else {
+        // Si el índice no está seleccionado, lo agregamos a positions_disabled
+        if (existingIndex === -1) {
+          newBingoCard.positions_disabled.push({
+            position: index,
+            default_image: '',
+          });
+        }
+      }
+
+      return newBingoCard;
+    });
   };
 
   //limpiar estados de disabledPositions y selectedPositions cuando cambio de tamaño del carton
@@ -72,10 +101,26 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
             positions: [],
           })),
         }));
+        onConfigChange((prevBingoCard) => ({
+          ...prevBingoCard,
+          dimensions: newDimension,
+          bingo_values: prevBingoCard.bingo_values.map((value) => ({
+            ...value,
+            positions: [],
+          })),
+        }));
         setSelectedDimensions(newDimension);
       }
     } else if (currentDimension !== newDimension) {
       updateBingoCard((prevBingoCard) => ({
+        ...prevBingoCard,
+        dimensions: newDimension,
+        bingo_values: prevBingoCard?.bingo_values?.map((value) => ({
+          ...value,
+          positions: [],
+        })),
+      }));
+      onConfigChange((prevBingoCard) => ({
         ...prevBingoCard,
         dimensions: newDimension,
         bingo_values: prevBingoCard?.bingo_values?.map((value) => ({
@@ -98,7 +143,8 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
     } else if (bingoCard.dimensions === '5x5') {
       setActiveIndex(2);
     }
-  }, [bingoCard.dimensions]);
+  }, [bingoCard.dimensions, setActiveIndex]);
+  
 
   useEffect(() => {
     if (bingoCard && bingoCard.dimensions && bingoCard.positions_disabled) {
