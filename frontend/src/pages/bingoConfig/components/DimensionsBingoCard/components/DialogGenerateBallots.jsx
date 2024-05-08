@@ -7,18 +7,23 @@ import {
 } from '@material-tailwind/react';
 import { useState } from 'react';
 
-const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateBallots, handleNumValuesToPlayChange}) => {
+const DialogGenerateBallots = ({
+  openDialogGenerateBallots,
+  setOpenDialogGenerateBallots,
+  handleNumValuesToPlayChange,
+}) => {
+  const [generateBallots, setGenerateBallots] = useState(null);
 
-  const[generateBallots, setGenerateBallots]=useState(null);
-
-
-const handleNumBallotsToGenerate=(e)=>{
-  setGenerateBallots(e.target.value);
-  handleNumValuesToPlayChange(generateBallots)
-}
+  const handleInputChange = (event) => {
+    setGenerateBallots(event.target.value);
+  };
 
   return (
-    <Dialog open={openDialogGenerateBallots} size="xs"  handler={setOpenDialogGenerateBallots}>
+    <Dialog
+      open={openDialogGenerateBallots}
+      size="xs"
+      handler={setOpenDialogGenerateBallots}
+    >
       <div className="flex items-center justify-between">
         <DialogHeader className="flex flex-col items-start">
           Gestionar Valores
@@ -29,7 +34,9 @@ const handleNumBallotsToGenerate=(e)=>{
           viewBox="0 0 24 24"
           fill="currentColor"
           className="mr-3 h-5 w-5"
-          onClick={()=>setOpenDialogGenerateBallots(!openDialogGenerateBallots)}
+          onClick={() =>
+            setOpenDialogGenerateBallots(!openDialogGenerateBallots)
+          }
         >
           <path
             fillRule="evenodd"
@@ -44,31 +51,11 @@ const handleNumBallotsToGenerate=(e)=>{
           Cantidad a generar
         </Typography>
         <div className="w-1/4  flex justify-around">
-   {/*        <button
-            className={`w-10 border-2  hover:bg-violet-600  focus:ring-violet-300`}
-            onClick={() => handleNumValuesToPlayChange(3)}
-          >
-            3
-          </button>
-          <button
-            className={`w-10 border-2 hover:bg-violet-600  focus:ring-violet-300`}
-            onClick={() => handleNumValuesToPlayChange(5)}
-          >
-            5
-          </button>
-          <button
-            className={`w-10 border-2  hover:bg-violet-600  focus:ring-violet-300`}
-            onClick={() => handleNumValuesToPlayChange(10)}
-          >
-            10
-          </button>
-          <button
-            className={`w-10 border-2 hover:bg-violet-600  focus:ring-violet-300`}
-             onClick={() => handleNumValuesToPlayChange(75)}
-          >
-            75
-          </button> */}
-         <input type="number" onChange={handleNumBallotsToGenerate}/>
+          <input
+            type="text"
+            onChange={handleInputChange}
+            value={generateBallots}
+          />
         </div>
         {/* establecer el tema */}
         {/* <Typography className="mb-3 " color="gray" variant="lead">
@@ -100,12 +87,14 @@ const handleNumBallotsToGenerate=(e)=>{
             <h6>Imagenes</h6>
           </Button> */}
           <Button
-            className={`h-10 mt-3 bg-gray-200 cursor-pointer text-gray-700  text-center `}
+            className={`h-10 mt-3  cursor-pointer text-white  text-center `}
             name="image"
-            // onClick={(e) => handleCreateNewBingo(e, 'image')}
-            onClick={handleNumBallotsToGenerate}
+            onClick={() => {
+              handleNumValuesToPlayChange(generateBallots);
+              setOpenDialogGenerateBallots(!openDialogGenerateBallots);
+            }}
           >
-            <h6>Enviar</h6>
+           Enviar
           </Button>
         </div>
       </DialogBody>

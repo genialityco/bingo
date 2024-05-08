@@ -27,6 +27,7 @@ const DimensionsBingoCard = ({
   modifiedBingoTemplate,
   onConfigChange,
 }) => {
+
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
   // console.log(bingoCard)
 
@@ -34,7 +35,7 @@ const DimensionsBingoCard = ({
     ? delete modifiedBingoTemplate._id
     : modifiedBingoTemplate; */
 
-  // console.log(modifiedBingoTemplate)
+ console.log(modifiedBingoTemplate)
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -64,7 +65,6 @@ const DimensionsBingoCard = ({
     onConfigChange({ ...modifiedBingoTemplate, [name]: value });
   };
 
-  //setea la cantidad de objetos dentro del array bingoValues
   const handleNumValuesToPlayChange = (value) => {
     setNumValuesToPlay(value);
     const newBingoValues = Array.from({ length: value }, (_, index) => ({
@@ -77,14 +77,15 @@ const DimensionsBingoCard = ({
 
     updateBingoCard((prevState) => ({
       ...prevState,
-      bingo_values: newBingoValues,
+      bingo_values: [...newBingoValues, ...prevState.bingo_values],
     }));
     onConfigChange((prevState) => ({
       ...prevState,
-      bingo_values: newBingoValues,
+      bingo_values: [...newBingoValues, ...prevState.bingo_values],
     }));
     setSelectedNumValues(value);
   };
+
 
   //maneja cerrar o abrir el Dialog
   const handleOpenDialogValueCartonAndBallot = (index) => {
