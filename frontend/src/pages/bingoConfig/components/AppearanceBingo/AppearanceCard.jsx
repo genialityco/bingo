@@ -3,16 +3,24 @@ import {
   Chip,
 } from '@material-tailwind/react';
 
-import HeaderBingo from './components/HeaderBingo';
+import BannerBingo from './components/BannerBingo';
 import FooterBingo from './components/FooterBingo';
 import BackgroundImage from './components/BackgroundImage';
 import MarkerImage from './components/MarkerImage';
 import { useContext } from 'react';
 import { NewBingoContext } from '../../context/NewBingoContext';
 
+
 const AppearanceCard = () => {
+
+  
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
-  console.log(bingoCard)
+
+
+  const customBingoCard=(customBingo)=>{
+    
+    
+  }
 
   return (
     <div>
@@ -35,16 +43,16 @@ const AppearanceCard = () => {
 
       <div className="p-5 bg-blue-100 mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-center justify-items-center">
         {/* HEADER */}
-        <HeaderBingo />
+        <BannerBingo customBingoCard={customBingoCard} />
 
         {/* Imagen de fondo  */}
-        <BackgroundImage />
+        <BackgroundImage  customBingoCard={customBingoCard} />
 
         {/* Imagen de marcación */}
-        <MarkerImage />
+        <MarkerImage customBingoCard={customBingoCard} />
 
         {/*  Footer*/}
-        <FooterBingo />
+        <FooterBingo customBingoCard={customBingoCard} />
       </div>
     </div>
   );

@@ -1,11 +1,14 @@
 import { Card, CardHeader, CardFooter, Button } from '@material-tailwind/react';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState, useEffect } from 'react';
 import bingoHeader from '../../../../../assets/bingoHeader.png';
+import { NewBingoContext } from '../../../context/NewBingoContext';
 
-const HeaderBingo = () => {
+const BannerBingo = ({customBingoCard}) => {
 
-  const[imageHeader, setImageHeader]=useState(null)
-  console.log(imageHeader)
+  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+
+  const[imageBanner, setImageBanner]=useState(null)
+ 
   const fileInputRef = useRef(null);
 
   const handleHeaderUpload = () => {
@@ -14,9 +17,27 @@ const HeaderBingo = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setImageHeader(file)
-    // Aquí puedes manejar la lógica para subir el archivo a tu servidor o procesarlo de acuerdo a tus necesidades
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const image = reader.result; 
+      setImageBanner(image);
+      
+      // Actualizar el estado del contexto con la URL base64
+      updateBingoCard((prevState) => ({
+        ...prevState,
+        bingo_appearance: { ...prevState.bingo_appearance, banner: image }
+      }));
+    };
+    reader.readAsDataURL(file);
+   
+   
   };
+
+   //mantener actualizado el estado bingoCard con la config y enviarlo al padre "AppearenceBingo"
+   useEffect(() => {
+    customBingoCard(bingoCard);
+  }, [bingoCard]);
+
 
   return (
     <Card className="mt-6 w-60 h-80">
@@ -31,7 +52,7 @@ const HeaderBingo = () => {
         className="relative h-56 flex justify-center items-center bg-blue-gray-100 border-dashed border-3 cursor-pointer"
         onClick={handleHeaderUpload}
       >
-        <img src={bingoHeader} alt="header" />
+        <img src={!imageBanner ?bingoHeader : imageBanner} alt="header" />
       </CardHeader>
       <CardFooter className="pt-10 m-auto">
         <Button className="flex items-center gap-3">
@@ -56,4 +77,4 @@ const HeaderBingo = () => {
   );
 };
 
-export default HeaderBingo;
+export default BannerBingo;

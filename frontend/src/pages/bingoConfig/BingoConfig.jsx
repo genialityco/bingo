@@ -57,13 +57,44 @@ const BingoConfig = () => {
   const newBingoData = newBingoCreated
     ? newBingoCreated
     : modifiedBingoTemplate;
-  console.log(newBingoData);
+  // console.log(newBingoData);
 
  
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
+
+      // const updatedBingoData = { ...newBingoData };
+    
+      // Iterar sobre cada valor de cartón en el array de bingo_values
+      // updatedBingoData.bingo_values.forEach(async (bingo, index) => {
+      //   if (bingo.carton_type === 'image') {
+      //     const firebaseUrl = isBase64Url(bingo.carton_value);
+      //     if (firebaseUrl) {
+      //       try {
+      //         const url = await uploadBase64ImageToFirebase(bingo.carton_value, v4());
+      //         updatedBingoData.bingo_values[index].carton_value = url;
+      //       } catch (error) {
+      //         console.error('Error al cargar la imagen del cartón:', error);
+      //       }
+      //     }
+      //   }
+      //   if (bingo.ballot_type === 'image') {
+      //     const firebaseUrl = isBase64Url(bingo.ballot_value);
+      //     if (firebaseUrl) {
+      //       try {
+      //         const url = await uploadBase64ImageToFirebase(bingo.ballot_value, v4());
+      //         updatedBingoData.bingo_values[index].ballot_value = url;
+      //       } catch (error) {
+      //         console.error('Error al cargar la imagen de la balota:', error);
+      //       }
+      //     }
+      //   }
+      // });
+  
+      // Actualizar el estado del contexto con el nuevo objeto bingo
+      // setNewBingoCreated(updatedBingoData);
       
       const response = await bingoService.createBingo(newBingoData);
       const { status, message, data } = response;

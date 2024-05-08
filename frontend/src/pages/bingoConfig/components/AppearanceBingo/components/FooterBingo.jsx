@@ -1,11 +1,13 @@
 import { Card, CardHeader, CardFooter, Button } from '@material-tailwind/react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import bingoFooter from '../../../../../assets/bingoFooter.png';
+import { NewBingoContext } from '../../../context/NewBingoContext';
 
-const FooterBingo = () => {
+const FooterBingo = ({ customBingoCard }) => {
+  const [imageFooter, setImageFooter] = useState(null);
 
-  const[imageFooter, setImageFooter]=useState(null) ;
-  console.log(imageFooter)
+  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+
   const fileInputRef = useRef(null);
 
   const handleHeaderUpload = () => {
@@ -14,9 +16,28 @@ const FooterBingo = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setImageFooter(file)
-    // Aquí puedes manejar la lógica para subir el archivo a tu servidor o procesarlo de acuerdo a tus necesidades
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const image = reader.result;
+
+      // Establecer la URL base64 en el estado backgroundImage
+      setImageFooter(image);
+
+      // Actualizar el estado del contexto con la URL base64
+      updateBingoCard((prevState) => ({
+        ...prevState,
+        bingo_appearance: { ...prevState.bingo_appearance, footer: image },
+      }));
+    };
+
+    reader.readAsDataURL(file);
   };
+
+  //mantener actualizado el estado bingoCard con la config y enviarlo al padre "AppearenceBingo"
+  useEffect(() => {
+    customBingoCard(bingoCard);
+  }, [bingoCard]);
 
   return (
     <Card className="mt-6 w-60 h-80">
@@ -31,7 +52,10 @@ const FooterBingo = () => {
         className="relative h-56 flex justify-center items-center bg-blue-gray-100 border-dashed border-3 cursor-pointer"
         onClick={handleHeaderUpload}
       >
-        <img src={bingoFooter} alt="footer" />
+        <img
+          src={!imageFooter ? bingoFooter : imageFooter}
+          alt="Imagen del Footer"
+        />
       </CardHeader>
       <CardFooter className="pt-10 m-auto">
         <Button className="flex items-center gap-3">

@@ -5,10 +5,18 @@ import {
   DialogHeader,
   DialogBody,
 } from '@material-tailwind/react';
+import { useState } from 'react';
 
 const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateBallots, handleNumValuesToPlayChange}) => {
 
+  const[generateBallots, setGenerateBallots]=useState(null);
 
+
+const handleNumBallotsToGenerate=(e)=>{
+  setGenerateBallots(e.target.value)
+  const numBallots = generateBallots
+  handleNumValuesToPlayChange(numBallots)
+}
 
   return (
     <Dialog open={openDialogGenerateBallots} size="xs"  handler={setOpenDialogGenerateBallots}>
@@ -61,6 +69,7 @@ const DialogGenerateBallots = ({openDialogGenerateBallots,setOpenDialogGenerateB
           >
             75
           </button>
+          {/* <input type="number" onChange={handleNumBallotsToGenerate}/> */}
         </div>
         {/* establecer el tema */}
         <Typography className="mb-3 " color="gray" variant="lead">
