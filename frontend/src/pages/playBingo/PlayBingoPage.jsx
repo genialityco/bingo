@@ -12,9 +12,8 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
-import templatesBingoService from "../../services/templatesBingoService";
-import bingoRoomService from "../../services/bingoRoomService";
-import bingoService from "../../services/bingoService";
+import bingoServices from "../../services/bingoService";
+import bingoTemplateServices from "../../services/bingoTemplateService";
 import io from "socket.io-client";
 import { SelectFigure } from "./components/SelectFigure";
 import { BallotMachine } from "./components/BallotMachine";
@@ -67,13 +66,13 @@ export const PlayBingoPage = () => {
 
   const fetchInitialData = async () => {
     try {
-      const bingoRoomResponse = await bingoRoomService.getRoomById(roomId);
+      const bingoRoomResponse = await bingoServices.getBingoById(roomId);
       setBingoRoom(bingoRoomResponse);
       setAnnouncedBallots(bingoRoomResponse.history_of_ballots);
       setSelectedTemplate(bingoRoomResponse.bingoFigure?._id || null);
 
       // Obtén el bingoId de la sala
-      const bingoConfigResponse = await bingoService.getBingoById(
+      const bingoConfigResponse = await bingoTemplateServices.getBingoById(
         bingoRoomResponse.bingoId
       );
 
@@ -88,7 +87,7 @@ export const PlayBingoPage = () => {
       );
       setCurrentBallot(lastBallot);
 
-      const templates = await templatesBingoService.getAllTemplates();
+      const templates = await bingoTemplateServices.getAllTemplates();
       setBingoTemplates(templates);
       generateInvitationLink(
         bingoRoomResponse.roomCode,
@@ -133,7 +132,7 @@ export const PlayBingoPage = () => {
   const restartBingo = async () => {
     try {
       const updateData = { history_of_ballots: [] };
-      const response = await bingoRoomService.updateRoom(roomId, updateData);
+      const response = await bingoServices.updateBingo(roomId, updateData);
       fetchInitialData();
     } catch (error) {
       console.error(error);
@@ -155,7 +154,7 @@ export const PlayBingoPage = () => {
     setCurrentBallot(randomBallot);
     setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
     try {
-      await bingoRoomService.addBallotToHistory(roomId, randomBallot._id);
+      await bingoServices.addBallotToHistory(roomId, randomBallot._id);
     } catch (error) {
       console.error("Error adding ballot to history:", error);
     }

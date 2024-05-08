@@ -9,7 +9,7 @@ import {
   Option,
   Typography,
 } from "@material-tailwind/react";
-import bingoRoomService from "../../../services/bingoRoomService";
+import bingoService from "../../../services/bingoService";
 
 export const FormEditRoom = ({ bingoRoom, fetchRoomData }) => {
   const { _id, title, roomCode, capacity } = bingoRoom;
@@ -34,7 +34,7 @@ export const FormEditRoom = ({ bingoRoom, fetchRoomData }) => {
           roomCode: roomCodeForm,
           capacity: roomCapacity,
         };
-        await bingoRoomService.updateRoom(_id, updateData);
+        await bingoService.updateBingo(_id, updateData);
         fetchRoomData();
         toggleDialog();
       } catch (error) {

@@ -5,13 +5,12 @@ import {
   Dialog,
   DialogBody,
   DialogHeader,
-  DialogFooter,
   IconButton,
 } from "@material-tailwind/react";
 import { EyeIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import bingoCardboardService from "../../../services/bingoCardboardService";
 import BingoCardStatic from "../../../components/BingoCard";
-import bingoService from "../../../services/bingoService";
+import bingoTemplateServices from "../../../services/bingoTemplateService";
 
 export const BingoRequestTable = ({
   bingoRequests,
@@ -29,7 +28,7 @@ export const BingoRequestTable = ({
         cardboardCode
       );
 
-      const bingoData = await bingoService.getBingoById(
+      const bingoData = await bingoTemplateServices.getBingoById(
         cardboardDetails.data.bingoId
       );
 

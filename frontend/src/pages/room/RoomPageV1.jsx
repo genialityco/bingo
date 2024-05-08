@@ -5,8 +5,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { shuffle } from "../../utils/AuxiliaryFunctions";
 import io from "socket.io-client";
 import BingoCardStatic from "../../components/BingoCard";
-import bingoRoomService from "../../services/bingoRoomService";
-import bingoService from "../../services/bingoService";
+import bingoServices from "../../services/bingoService";
+import bingoTemplateServices from "../../services/bingoTemplateService";
 import bingoCardboardService from "../../services/bingoCardboardService";
 import { TabsSection } from "./components/TabsSetion";
 import { MessageDialog } from "./components/MessageDialog";
@@ -102,7 +102,7 @@ export const RoomPageV1 = () => {
   useEffect(() => {
     const getBingo = async () => {
       if (bingoId && roomId) {
-        const response = await bingoService.getBingoById(bingoId);
+        const response = await bingoTemplateServices.getBingoById(bingoId);
         setBingoConfig(response);
         if (response) {
           generateBingoCard(
@@ -210,7 +210,7 @@ export const RoomPageV1 = () => {
 
   const handleBingoCall = async () => {
     try {
-      await bingoRoomService.sangBingo(
+      await bingoServices.sangBingo(
         markedSquares,
         room._id,
         storageUserId,
@@ -399,7 +399,7 @@ export const RoomPageV1 = () => {
   };
 
   const getBallotsHistory = async () => {
-    const roomData = await bingoRoomService.getRoomById(roomId);
+    const roomData = await bingoServices.getBingoById(roomId);
     setRoom(roomData);
     setBallotsHistory(roomData.history_of_ballots);
 

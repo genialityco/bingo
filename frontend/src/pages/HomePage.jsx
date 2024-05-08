@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Input } from "@material-tailwind/react";
-import bingoRoomService from "../services/bingoRoomService";
+import bingoServices from "../services/bingoService";
 
 export const HomePage = () => {
   const navigate = useNavigate();
 
-  const getBingoRoom = async (roomCode) => {
+  const getBingo = async (roomCode) => {
     try {
-      const response = await bingoRoomService.findRoomByField(
+      const response = await bingoServices.findBingoByField(
         "roomCode",
         roomCode
       );
@@ -18,10 +18,10 @@ export const HomePage = () => {
     }
   };
 
-  const goToRoom = async (e) => {
+  const goToBingo = async (e) => {
     e.preventDefault();
     const roomCode = e.target.elements.roomCode.value;
-    const bingoRoom = await getBingoRoom(roomCode);
+    const bingoRoom = await getBingo(roomCode);
     if (bingoRoom && bingoRoom.data) {
       // Pasando roomCode como parte de la URL y otros detalles a través de state
       navigate(`/room-game/${roomCode}`, {
@@ -36,7 +36,7 @@ export const HomePage = () => {
     <div className="flex flex-col h-full">
       <section className="flex flex-col justify-end items-center min-h-[340px] bg-[url('https://i.ibb.co/3vMvMkM/DALL-E-2024-04-02-18-56-52-Create-an-engaging-background-image-suitable-for-a-bingo-banner-section-T.webp')] bg-no-repeat bg-cover p-8">
         <div className="w-72 bg-black p-5 rounded-lg shadow-2xl" align="center">
-          <form onSubmit={goToRoom}>
+          <form onSubmit={goToBingo}>
             <Input
               name="roomCode"
               type="text"

@@ -8,7 +8,7 @@ import {
   Card,
   CardBody,
 } from "@material-tailwind/react";
-import bingoRoomService from "../../../services/bingoRoomService";
+import bingoServices from "../../../services/bingoService";
 
 export const SelectFigure = ({
   bingoTemplates,
@@ -21,7 +21,7 @@ export const SelectFigure = ({
 
   const handleChangeFigure = async (figureId) => {
     try {
-      await bingoRoomService.updateRoom(bingoRoom._id, {
+      await bingoServices.updateBingo(bingoRoom._id, {
         bingoFigure: figureId,
       });
       setSelectedTemplate(figureId);

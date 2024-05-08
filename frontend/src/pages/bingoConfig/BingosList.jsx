@@ -13,10 +13,10 @@ import {
 } from "@material-tailwind/react";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import bingoService from "../../services/bingoService";
-import bingoRoomService from "../../services/bingoRoomService";
+import bingoServices from "../../services/bingoService";
+import bingoTemplateServices from "../../services/bingoTemplateService";
 
-const BingiList = () => {
+const BingoList = () => {
   // Estados para listas de bingos y plantillas
   const [bingos, setBingos] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -36,8 +36,8 @@ const BingiList = () => {
   // Función para obtener la lista de bingos
   const fetchBingos = useCallback(async () => {
     try {
-      const { data } = await bingoRoomService.getAllRooms();
-      setBingos(data);
+      const response = await bingoServices.getAllBingos();
+      setBingos(response);
     } catch (err) {
       setErrorBingos("Error al obtener la lista de bingos");
     } finally {
@@ -48,7 +48,7 @@ const BingiList = () => {
   // Función para obtener la lista de plantillas
   const fetchTemplates = useCallback(async () => {
     try {
-      const { data } = await bingoService.listAllBingos();
+      const { data } = await bingoTemplateServices.listAllBingos();
       setTemplates(data);
     } catch (err) {
       setErrorTemplates("Error al obtener la lista de plantillas");
@@ -65,7 +65,7 @@ const BingiList = () => {
   // Funciones para abrir y cerrar el modal y el dialog
   // const openModal = async (bingoId) => {
   //   try {
-  //     const response = await bingoRoomService.findRoomByField(
+  //     const response = await bingoServices.findRoomByField(
   //       "bingoId",
   //       bingoId
   //     );
@@ -78,7 +78,7 @@ const BingiList = () => {
   //         capacity: 100,
   //         roomCode: `ROOM${Math.random().toString(36).substring(2, 8)}`,
   //       };
-  //       const newRoom = await bingoRoomService.createRoom(newRoomData);
+  //       const newRoom = await bingoServices.createRoom(newRoomData);
   //       data = [newRoom.data];
   //     }
 
@@ -117,7 +117,7 @@ const BingiList = () => {
       };
 
       // Obtener el template original
-      const originalTemplate = await bingoService.getBingoById(
+      const originalTemplate = await bingoTemplateServices.getBingoById(
         newBingoData.bingoId
       );
 
@@ -132,7 +132,7 @@ const BingiList = () => {
       copiedTemplate.title = `Copia del Bingo: ${newBingoData.roomCode} - Template: ${originalTemplate.title}`;
 
       // Crear el nuevo template copiado en el sistema
-      const newTemplate = await bingoService.createBingo(copiedTemplate);
+      const newTemplate = await bingoTemplateServices.createBingo(copiedTemplate);
 
       if (!newTemplate || !newTemplate._id) {
         console.error("No se pudo crear el nuevo template");
@@ -143,7 +143,7 @@ const BingiList = () => {
       newBingoData.bingoId = newTemplate._id;
 
       // Crear el nuevo Bingo con el nuevo template
-      const newBingoCreated = await bingoRoomService.createRoom(newBingoData);
+      const newBingoCreated = await bingoServices.createBingo(newBingoData);
 
       if (newBingoCreated) {
         console.log("Nuevo Bingo creado con éxito:", newBingo.title);
@@ -341,4 +341,4 @@ const BingiList = () => {
   );
 };
 
-export default BingiList;
+export default BingoList;

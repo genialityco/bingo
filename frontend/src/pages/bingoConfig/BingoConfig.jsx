@@ -14,7 +14,7 @@ import AppearanceCard from "./components/AppearanceBingo/AppearanceCard";
 import CardAssigment from "./components/CardAssigment";
 import { Link } from "react-router-dom";
 import { useState, useContext, useEffect } from "react";
-import bingoService from "../../services/bingoService";
+import bingoTemplateServices from "../../services/bingoTemplateService";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NewBingoContext } from "./context/NewBingoContext";
 import {
@@ -40,7 +40,7 @@ const BingoConfig = () => {
 
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
-      const response = await bingoService.getBingoById(templateid);
+      const response = await bingoTemplateServices.getBingoById(templateid);
       updateBingoCard(response);
       setModifiedBingoTemplate(response);
       // Aquí también podrías inicializar newBingoCreated si lo necesitas
@@ -99,9 +99,9 @@ const BingoConfig = () => {
       // Actualizar el estado del contexto con el nuevo objeto bingo
       // setNewBingoCreated(updatedBingoData);
       
-      // const response = await bingoService.createBingo(newBingoData);
+      // const response = await bingoTemplateServices.createBingo(newBingoData);
 
-      const response = await bingoService.createBingo(newBingoCreated);
+      const response = await bingoTemplateServices.createBingo(newBingoCreated);
       const { status, message, data } = response;
 
       if (status === "success") {
@@ -120,7 +120,7 @@ const BingoConfig = () => {
   const handleSendUpdateTemplateBingo= async(e)=>{
     e.preventDefault();
     try {
-      const response = await bingoService.updateBingo(modifiedBingoTemplate._id, modifiedBingoTemplate)
+      const response = await bingoTemplateServices.updateBingo(modifiedBingoTemplate._id, modifiedBingoTemplate)
      const{status, message}=response;
      if(status === "Success"){
       alert(message)
