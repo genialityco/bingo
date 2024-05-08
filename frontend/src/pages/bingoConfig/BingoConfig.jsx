@@ -8,16 +8,20 @@ import {
   CardBody,
   Typography,
   Button,
-} from '@material-tailwind/react';
-import DimensionsBingoCard from './components/DimensionsBingoCard/DimensionsBingoCard';
-import AppearanceCard from './components/AppearanceBingo/AppearanceCard';
-import CardAssigment from './components/CardAssigment';
-import { useState, useContext, useEffect } from 'react';
-import bingoService from '../../services/bingoService';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { NewBingoContext } from './context/NewBingoContext';
-import { isBase64Url, uploadBase64ImageToFirebase } from '../../utils/validationImageExternalUrl';
-import { v4 } from 'uuid';
+} from "@material-tailwind/react";
+import DimensionsBingoCard from "./components/DimensionsBingoCard/DimensionsBingoCard";
+import AppearanceCard from "./components/AppearanceBingo/AppearanceCard";
+import CardAssigment from "./components/CardAssigment";
+import { Link } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import bingoService from "../../services/bingoService";
+import { useNavigate, useLocation } from "react-router-dom";
+import { NewBingoContext } from "./context/NewBingoContext";
+import {
+  isBase64Url,
+  uploadBase64ImageToFirebase,
+} from "../../utils/validationImageExternalUrl";
+import { v4 } from "uuid";
 
 const BingoConfig = () => {
   const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
@@ -27,9 +31,10 @@ const BingoConfig = () => {
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
   console.log(modifiedBingoTemplate);
 
-  const { search } = useLocation();
-  const templateid = search.substring(4);
-  // console.log(templateid)
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const templateid = searchParams.get("bingoId");
+  const bingoId = searchParams.get("id");
 
   const navigate = useNavigate();
 
@@ -59,14 +64,12 @@ const BingoConfig = () => {
     : modifiedBingoTemplate;
   // console.log(newBingoData);
 
- 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
-
       // const updatedBingoData = { ...newBingoData };
-    
+
       // Iterar sobre cada valor de cartón en el array de bingo_values
       // updatedBingoData.bingo_values.forEach(async (bingo, index) => {
       //   if (bingo.carton_type === 'image') {
@@ -92,7 +95,7 @@ const BingoConfig = () => {
       //     }
       //   }
       // });
-  
+
       // Actualizar el estado del contexto con el nuevo objeto bingo
       // setNewBingoCreated(updatedBingoData);
       
@@ -100,15 +103,15 @@ const BingoConfig = () => {
 
       const response = await bingoService.createBingo(newBingoCreated);
       const { status, message, data } = response;
-    
-      if (status === 'success') {
+
+      if (status === "success") {
         alert(message);
       }
-      navigate('/list-bingos');
+      navigate("/list-bingos");
     } catch (error) {
-      console.log('Error en el envio de la configuración del bingo', error);
+      console.log("Error en el envio de la configuración del bingo", error);
       alert(
-        'Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente.'
+        "Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente."
       );
     }
   };
@@ -138,8 +141,8 @@ const BingoConfig = () => {
   //Taps de los componentes que renderiza este componente BingoConfig
   const data = [
     {
-      label: 'Configurar Bingo',
-      value: 'configurar bingo',
+      label: "Configurar Bingo",
+      value: "configurar bingo",
       desc: (
         <DimensionsBingoCard
           sendBingoCreated={sendBingoCreated}
@@ -149,13 +152,13 @@ const BingoConfig = () => {
       ),
     },
     {
-      label: 'Apariencia del cartón',
-      value: 'apariencia del cartón',
+      label: "Apariencia del cartón",
+      value: "apariencia del cartón",
       desc: <AppearanceCard />,
     },
     {
-      label: 'Asignación de cartones',
-      value: 'asignación de cartones',
+      label: "Asignación de cartones",
+      value: "asignación de cartones",
       desc: <CardAssigment />,
     },
   ];
@@ -187,12 +190,11 @@ const BingoConfig = () => {
           </div>
           {/* Buttons with icon */}
           <div className="flex items-center gap-5">
-          <Button
-              className="flex items-center gap-3"
-              onClick={(e) => handleOnClickSendBingoCreated(e)}
-            >
-              Jugar Bingo
-            </Button>
+            {bingoId && (
+              <Link to={`/play-bingo/${bingoId}`}>
+                <Button className="flex items-center gap-3">Jugar</Button>
+              </Link>
+            )}
             <Button
               className="flex items-center gap-3"
               // onClick={(e) => handleOnClickSendBingoCreated(e)}
@@ -224,7 +226,7 @@ const BingoConfig = () => {
         <TabsHeader
           className="bg-gray-200 flex justify-center items-center"
           indicatorProps={{
-            className: 'bg-gray-900/10 shadow-none !text-gray-900',
+            className: "bg-gray-900/10 shadow-none !text-gray-900",
           }}
         >
           {data.map(({ label, value }) => (

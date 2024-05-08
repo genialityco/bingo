@@ -14,7 +14,7 @@ const createAxiosInstance = (baseURL) => {
 };
 
 const apiBingo = createAxiosInstance(`${API_BASE_URL}/bingoTemplate`);
-const apiBingoRoom = createAxiosInstance(`${API_BASE_URL}/rooms`);
+const apiBingoRoom = createAxiosInstance(`${API_BASE_URL}/bingos`);
 const apiBingoFigures = createAxiosInstance(`${API_BASE_URL}/figure`);
 const apiBingoCardboard = createAxiosInstance(`${API_BASE_URL}/cardboard`);
 
