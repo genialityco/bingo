@@ -111,7 +111,7 @@ const BingoConfig = () => {
   return (
     <div className="my-5 flex flex-col justify-center items-center">
       <Typography variant="h3" color="blue-gray" className=" text-center">
-        Personaliza tu sala de juego
+        Personaliza tu bingo
       </Typography>
       {/* Info admin */}
       <Card className=" w-full shadow-none">
@@ -135,6 +135,12 @@ const BingoConfig = () => {
           </div>
           {/* Buttons with icon */}
           <div className="flex items-center gap-5">
+          <Button
+              className="flex items-center gap-3"
+              onClick={(e) => handleOnClickSendBingoCreated(e)}
+            >
+              Jugar Bingo
+            </Button>
             <Button
               className="flex items-center gap-3"
               onClick={(e) => handleOnClickSendBingoCreated(e)}

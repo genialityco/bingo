@@ -15,7 +15,7 @@ export const BallotHistory = ({ bingoConfig, ballotsHistory }) => {
   };
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full">
       <div className="w-full flex overflow-x-auto">
         {ballotsHistory.map((ballot, index) => {
           const { value, type } = getBallotValueForDom(ballot);

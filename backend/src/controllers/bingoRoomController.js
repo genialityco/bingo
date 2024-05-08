@@ -124,7 +124,7 @@ class BingoRoomController {
   }
 
   async sangBingo(req, res) {
-    const { markedSquares, roomId, userId } = req.body;
+    const { markedSquares, roomId, userId, cardboardCode } = req.body;
     const room = await BingoRoomServices.getRoomById(roomId);
     const figure = room.bingoFigure.index_to_validate;
     const historyBallots = room.history_of_ballots;
@@ -135,36 +135,39 @@ class BingoRoomController {
     const indicesMarcados = markedSquares
       .map((celda, indice) => celda.isMarked && indice)
       .filter((indice) => indice !== false);
-    console.log(indicesMarcados);
 
     // Verificar si todos los índices de la figura están marcados
     const esFiguraCompleta = figure.every((indiceFigura) =>
       indicesMarcados.includes(indiceFigura)
     );
-    console.log(esFiguraCompleta);
 
     // Verificar si los valores en los índices de la figura que están marcados
     // coinciden con los valores de las balotas que han salido
     const esValido = figure.every((indiceFigura) => {
       const square = markedSquares[indiceFigura];
-      console.log(indiceFigura);
-      console.log(square);
       // Comprueba si el cuadrado está marcado como deshabilitado o si su valor está en el historial de balotas
       return (
         square.value === "Disabled" || historyBallots.includes(square.value)
       );
     });
-    console.log(esValido);
     // Determinar si es ganador
     const esGanador = esFiguraCompleta && esValido;
 
     // Emitir el evento y enviar la respuesta basada en si es ganador o no
     setTimeout(() => {
       if (esGanador) {
-        customEmitter.emit("sangBingo", { userId: userId, status: true });
+        customEmitter.emit("sangBingo", {
+          userId: userId,
+          status: true,
+          cardboardCode,
+        });
         sendResponse(res, 200, esGanador, "¡Ganaste el Bingo!");
       } else {
-        customEmitter.emit("sangBingo", { userId: userId, status: false });
+        customEmitter.emit("sangBingo", {
+          userId: userId,
+          status: false,
+          cardboardCode,
+        });
         sendResponse(res, 400, esGanador, "Todavía no ganas el Bingo.");
       }
     }, "3000");

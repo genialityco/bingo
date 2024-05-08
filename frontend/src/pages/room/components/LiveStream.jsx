@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Typography } from "@material-tailwind/react";
-export const LiveStream = ({ bingoConfig, playerName, cardboardCode }) => {
-  // Componente para la transmisión en vivo
+export const LiveStream = ({
+  bingoConfig,
+  playerName,
+  cardboardCode,
+  logs,
+}) => {
+  console.log(logs);
   return (
     <div>
       <section>
@@ -19,6 +24,22 @@ export const LiveStream = ({ bingoConfig, playerName, cardboardCode }) => {
       <section className="hidden sm:block">
         <SectionLiveStream />
       </section>
+      <section>
+        <div>
+          <Typography variant="h6" className="mb-2">
+            Logs del Juego
+          </Typography>
+          <div className="bg-gray-200 p-3 rounded">
+            {logs &&
+              logs.length > 0 &&
+              logs.map((log, index) => (
+                <Typography key={index} variant="small">
+                  {log}
+                </Typography>
+              ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
@@ -32,14 +53,9 @@ const SectionLiveStream = () => {
 };
 
 const Accordion = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="mb-1 bg-black rounded">
-      <div
-        className="flex justify-between cursor-pointer p-4"
-        onClick={() => setIsOpen(!isOpen)}
-      >
+      {/* <div className="p-4">
         <Typography
           variant="h6"
           color="white"
@@ -47,26 +63,8 @@ const Accordion = ({ title, children }) => {
         >
           {title}
         </Typography>
-
-        {!isOpen ? (
-          <Typography
-            variant="h6"
-            color="white"
-            className="text-sm md:text-base"
-          >
-            Ver más...
-          </Typography>
-        ) : (
-          <Typography
-            variant="h6"
-            color="white"
-            className="text-sm md:text-base"
-          >
-            Ocultar
-          </Typography>
-        )}
-      </div>
-      {isOpen && <div className="p-3 text-white">{children}</div>}
+      </div> */}
+      <div className="p-3 text-white">{children}</div>
     </div>
   );
 };

@@ -25,9 +25,9 @@ const bingoRoomService = {
   findRoomByField: async (field, value) => {
     try {
       const response = await apiBingoRoom.get(
-        `/search?field=${encodeURIComponent(
-          field
-        )}&value=${encodeURIComponent(value)}`
+        `/search?field=${encodeURIComponent(field)}&value=${encodeURIComponent(
+          value
+        )}`
       );
 
       return response.data;
@@ -102,13 +102,14 @@ const bingoRoomService = {
     }
   },
 
-  sangBingo: async (markedSquares, roomId, userId) => {
+  sangBingo: async (markedSquares, roomId, userId, cardboardCode) => {
     console.log(markedSquares, roomId, userId);
     try {
       const response = await apiBingoRoom.post(`/sangBingo`, {
         markedSquares,
         roomId,
         userId,
+        cardboardCode,
       });
       return response.data;
     } catch (error) {

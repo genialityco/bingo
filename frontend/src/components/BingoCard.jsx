@@ -37,7 +37,7 @@ const BingoCardStatic = ({
                 className="aspect-[1/0.6] bg-blue-100 rounded-md shadow-lg cursor-pointer flex justify-center items-center relative"
                 style={{
                   textAlign: "center",
-                  position: "relative", // Asegúrate de que cada celda tenga esta propiedad
+                  position: "relative",
                 }}
                 onClick={() => onMarkSquare(cell, index)}
               >

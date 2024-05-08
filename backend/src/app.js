@@ -28,7 +28,7 @@ const io = new Server(server, {
 
 app.use(cors({ origin: "*" }));
 app.use(morgan("dev"));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
@@ -68,6 +68,13 @@ server.listen(PORT, () => {
 
 io.on("connection", (socket) => {
   console.log("Un cliente se ha conectado");
+
+  socket.on("clientConnected", (data) => {
+    console.log(`${data.playerName} se ha conectado`);
+    socket.broadcast.emit("userConnected", {
+      message: `${data.playerName} se ha conectado`,
+    });
+  });
 
   // Escuchar los eventos emitidos por el EventEmitter personalizado
   customEmitter.on("ballotUpdate", (data) => {

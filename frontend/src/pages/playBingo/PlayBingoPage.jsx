@@ -8,6 +8,9 @@ import {
   ButtonGroup,
   CardFooter,
   Chip,
+  Dialog,
+  DialogBody,
+  DialogFooter,
 } from "@material-tailwind/react";
 import templatesBingoService from "../../services/templatesBingoService";
 import bingoRoomService from "../../services/bingoRoomService";
@@ -15,6 +18,9 @@ import bingoService from "../../services/bingoService";
 import io from "socket.io-client";
 import { SelectFigure } from "./components/SelectFigure";
 import { BallotMachine } from "./components/BallotMachine";
+import InvitePopover from "./components/InvitePopover";
+import { FormEditRoom } from "./components/FormEditRoom";
+import { BingoRequestTable } from "./components/BingoRequestTable";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -28,11 +34,13 @@ export const PlayBingoPage = () => {
   const [bingoRequests, setBingoRequests] = useState([]);
   const [bingoConfig, setBingoConfig] = useState({});
 
+  const [invitationLink, setInvitationLink] = useState("");
+
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
   const STATUS_VALIDATING = "Validando";
 
-  const addBingoRequest = useCallback((user, status) => {
+  const addBingoRequest = useCallback((user, status, cardboardCode) => {
     setBingoRequests((prevRequests) => {
       const existingRequest = prevRequests.find(
         (request) => request.user === user
@@ -47,10 +55,10 @@ export const PlayBingoPage = () => {
       const updatedRequests = existingRequest
         ? prevRequests.map((request) =>
             request.user === user
-              ? { ...request, status: updatedStatus }
+              ? { ...request, status: updatedStatus, cardboardCode }
               : request
           )
-        : [...prevRequests, { user, status: STATUS_VALIDATING }];
+        : [...prevRequests, { user, status: STATUS_VALIDATING, cardboardCode }];
 
       localStorage.setItem("bingoRequests", JSON.stringify(updatedRequests));
       return updatedRequests;
@@ -82,6 +90,11 @@ export const PlayBingoPage = () => {
 
       const templates = await templatesBingoService.getAllTemplates();
       setBingoTemplates(templates);
+      generateInvitationLink(
+        bingoRoomResponse.roomCode,
+        bingoRoomResponse._id,
+        bingoConfigResponse._id
+      );
     } catch (error) {
       console.error("Error:", error);
     }
@@ -102,11 +115,20 @@ export const PlayBingoPage = () => {
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL);
-    socket.on("sangBingo", (data) => addBingoRequest(data.userId, data.status));
+    socket.on("sangBingo", (data) =>
+      addBingoRequest(data.userId, data.status, data.cardboardCode)
+    );
     return () => {
       socket.disconnect();
     };
   }, [addBingoRequest]);
+
+  const generateInvitationLink = (roomCode, roomId, bingoId) => {
+    const baseURL = window.location.origin;
+    const state = JSON.stringify({ roomId, bingoId });
+    const encodedState = encodeURIComponent(state);
+    setInvitationLink(`${baseURL}/room-game/${roomCode}?state=${encodedState}`);
+  };
 
   const restartBingo = async () => {
     try {
@@ -156,9 +178,8 @@ export const PlayBingoPage = () => {
       <section className="mb-1 text-center">
         <Card className="w-full">
           <CardBody className="flex flex-col items-center justify-center">
-            <Typography variant="h3">
-              Panel de control {bingoRoom?.title}
-            </Typography>
+            <Typography variant="h4">Panel de control</Typography>
+            <Typography>{bingoRoom?.title}</Typography>
           </CardBody>
         </Card>
       </section>
@@ -224,56 +245,16 @@ export const PlayBingoPage = () => {
         </div> */}
 
         {/* Sección derecha para solicitudes de Bingo y validador de cartones */}
-        <div className="w-full md:w-1/4 flex flex-col items-center mb-1">
+        <div className="w-full md:w-2/6 flex flex-col items-center mb-1">
           <Card className="w-full h-64">
             <CardBody className="flex flex-col justify-between">
               <Typography variant="h6">Solicitudes de bingo</Typography>
               <div className="overflow-y-auto max-h-40">
-                <table className="w-full min-w-max table-auto text-left">
-                  <thead>
-                    <tr>
-                      <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2">
-                        <Typography
-                          color="blue-gray"
-                          className="font-normal leading-none opacity-70"
-                        >
-                          Jugador
-                        </Typography>
-                      </th>
-                      <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-2">
-                        <Typography
-                          color="blue-gray"
-                          className="font-normal leading-none opacity-70"
-                        >
-                          Estado
-                        </Typography>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bingoRequests.map((request, index) => (
-                      <tr key={index}>
-                        <td className="p-1 border-b border-blue-gray-50">
-                          <Typography>{request.user}</Typography>
-                        </td>
-                        <td className="p-1 border-b border-blue-gray-50">
-                          <Chip
-                            size="md"
-                            value={request.status}
-                            color={
-                              request.status === STATUS_VALIDATING
-                                ? "deep-orange"
-                                : request.status === STATUS_WINNER
-                                ? "green"
-                                : "red"
-                            }
-                            className="text-center p-1"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <BingoRequestTable
+                  bingoRequests={bingoRequests}
+                  STATUS_VALIDATING={STATUS_VALIDATING}
+                  STATUS_WINNER={STATUS_WINNER}
+                />
               </div>
             </CardBody>
           </Card>
@@ -315,11 +296,17 @@ export const PlayBingoPage = () => {
               </CardBody>
               <CardFooter>
                 <ButtonGroup className="flex justify-center">
-                  <Button>Acciones</Button>
+                  <FormEditRoom
+                    bingoRoom={bingoRoom}
+                    fetchRoomData={fetchInitialData}
+                  />
                   <Button onClick={restartBingo}>
                     Reiniciar/Limpiar bingo
                   </Button>
-                  <Button>Invitar</Button>
+                  <InvitePopover
+                    invitationLink={invitationLink}
+                    bingoRoom={bingoRoom}
+                  />
                 </ButtonGroup>
               </CardFooter>
             </Card>

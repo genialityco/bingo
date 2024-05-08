@@ -12,7 +12,7 @@ const routesConfig = [
     exact: true,
   },
   {
-    path: "/room-game",
+    path: "/room-game/:roomCode",
     component: RoomPageV1,
     exact: true,
   },
