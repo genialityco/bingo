@@ -11,6 +11,7 @@ import { EyeIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import bingoCardboardService from "../../../services/bingoCardboardService";
 import BingoCardStatic from "../../../components/BingoCard";
 import bingoTemplateServices from "../../../services/bingoTemplateService";
+import bingoServices from "../../../services/bingoService";
 
 export const BingoRequestTable = ({
   bingoRequests,
@@ -28,7 +29,7 @@ export const BingoRequestTable = ({
         cardboardCode
       );
 
-      const bingoData = await bingoTemplateServices.getBingoById(
+      const bingoData = await bingoServices.getBingoById(
         cardboardDetails.data.bingoId
       );
 

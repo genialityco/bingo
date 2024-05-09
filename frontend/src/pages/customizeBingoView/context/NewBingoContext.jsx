@@ -6,7 +6,7 @@ export const NewBingoContextProvider = (props) => {
 
   //estado creación de un objeto del carton del bingo personalizado
   const [bingoCard, setBingoCard] = useState({
-    title: '',
+    name: '',
     rules: '',
     creator_id: null,
     bingo_appearance: {

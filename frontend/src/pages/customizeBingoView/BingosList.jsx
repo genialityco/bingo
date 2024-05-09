@@ -24,13 +24,11 @@ const BingoList = () => {
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [errorBingos, setErrorBingos] = useState(null);
   const [errorTemplates, setErrorTemplates] = useState(null);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [rooms, setRooms] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newBingo, setNewBingo] = useState({
-    title: "",
-    code: "",
-    bingoId: "",
+    name: "",
+    bingo_code: "",
+    templateId: "",
   });
 
   // Función para obtener la lista de bingos
@@ -62,33 +60,6 @@ const BingoList = () => {
     fetchTemplates();
   }, [fetchBingos, fetchTemplates]);
 
-  // Funciones para abrir y cerrar el modal y el dialog
-  // const openModal = async (bingoId) => {
-  //   try {
-  //     const response = await bingoServices.findRoomByField(
-  //       "bingoId",
-  //       bingoId
-  //     );
-  //     let data = Array.isArray(response.data) ? response.data : [response.data];
-
-  //     if (!data.length || !data[0]._id) {
-  //       const newRoomData = {
-  //         title: `Sala por defecto`,
-  //         bingoId: bingoId,
-  //         capacity: 100,
-  //         roomCode: `ROOM${Math.random().toString(36).substring(2, 8)}`,
-  //       };
-  //       const newRoom = await bingoServices.createRoom(newRoomData);
-  //       data = [newRoom.data];
-  //     }
-
-  //     setRooms(data);
-  //     setIsModalOpen(true);
-  //   } catch (error) {
-  //     console.error("Error fetching rooms:", error);
-  //   }
-  // };
-
   const openDialog = () => {
     setIsDialogOpen(true);
   };
@@ -104,7 +75,7 @@ const BingoList = () => {
   };
 
   const handleTemplateSelect = (value) => {
-    setNewBingo({ ...newBingo, bingoId: value });
+    setNewBingo({ ...newBingo, templateId: value });
   };
 
   const createNewBingo = async () => {
@@ -113,12 +84,12 @@ const BingoList = () => {
       const newBingoData = {
         ...newBingo,
         capacity: 100,
-        roomCode: `ROOM${Math.random().toString(36).substring(2, 8)}`,
+        bingo_code: `ROOM${Math.random().toString(36).substring(2, 8)}`,
       };
 
       // Obtener el template original
       const originalTemplate = await bingoTemplateServices.getBingoById(
-        newBingoData.bingoId
+        newBingoData.templateId
       );
 
       if (!originalTemplate) {
@@ -129,10 +100,12 @@ const BingoList = () => {
       // Hacer una copia del template
       const copiedTemplate = { ...originalTemplate };
       copiedTemplate._id = undefined; // Limpiar el _id para generar uno nuevo al copiar
-      copiedTemplate.title = `Copia del Bingo: ${newBingoData.roomCode} - Template: ${originalTemplate.title}`;
+      copiedTemplate.name = `Copia del Bingo: ${newBingoData.roomCode} - Template: ${originalTemplate.title}`;
 
       // Crear el nuevo template copiado en el sistema
-      const newTemplate = await bingoTemplateServices.createBingo(copiedTemplate);
+      const newTemplate = await bingoTemplateServices.createBingo(
+        copiedTemplate
+      );
 
       if (!newTemplate || !newTemplate._id) {
         console.error("No se pudo crear el nuevo template");
@@ -188,12 +161,12 @@ const BingoList = () => {
             className="bg-blue-gray-100 flex flex-col justify-between h-full"
           >
             <CardBody className="flex-grow">
-              <h3 className="text-xl font-bold">{bingo.title}</h3>
+              <h3 className="text-xl font-bold">{bingo.name}</h3>
             </CardBody>
             <CardFooter>
               <div className="flex gap-2 w-full">
                 <Link
-                  to={`/bingo-config?bingoId=${bingo.bingoId}&id=${bingo._id}`}
+                  to={`/customize-bingo?bingoId=${bingo._id}`}
                   className="w-1/2"
                 >
                   <Button className="w-full">Personalizar</Button>
@@ -223,7 +196,7 @@ const BingoList = () => {
             className="bg-teal-100 flex flex-col justify-between h-full"
           >
             <CardBody className="flex-grow">
-              <h3 className="text-xl font-bold">{template.title}</h3>
+              <h3 className="text-xl font-bold">{template.name}</h3>
             </CardBody>
             <CardFooter>
               <div className="flex w-full">
@@ -270,55 +243,26 @@ const BingoList = () => {
         </div>
       </LoadingOrErrorComponent>
 
-      {/* Modal */}
-      {/* {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-xl font-bold mb-4">Salas disponibles</h3>
-            <ul>
-              {rooms.length > 0 ? (
-                rooms.map((room) => (
-                  <li
-                    key={room._id}
-                    className="flex justify-between items-center mb-4"
-                  >
-                    <span>{room.title || room.name}</span>
-                    <Link to={`/play-bingo/${room._id}`}>
-                      <Button>Ir a la sala</Button>
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <div>No hay salas disponibles.</div>
-              )}
-            </ul>
-            <Button className="mt-4" onClick={closeModal}>
-              Cerrar
-            </Button>
-          </div>
-        </div>
-      )} */}
-
       {/* Dialog */}
       <Dialog open={isDialogOpen} handler={closeDialog}>
         <DialogHeader>Crear Nuevo Bingo</DialogHeader>
         <DialogBody divider>
           <Input
             label="Nombre del Bingo"
-            name="title"
-            value={newBingo.title}
+            name="name"
+            value={newBingo.name}
             onChange={handleBingoChange}
             required
           />
           <Select
-            label="Seleccionar plantilla del sistema"
+            label="Seleccionar plantilla"
             onChange={handleTemplateSelect}
-            value={newBingo.bingoId}
+            value={newBingo.templateId}
             required
           >
             {templates.map((template) => (
               <Option key={template._id} value={template._id}>
-                {template.title}
+                {template.name}
               </Option>
             ))}
           </Select>

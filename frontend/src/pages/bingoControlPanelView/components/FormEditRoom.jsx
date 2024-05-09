@@ -11,34 +11,34 @@ import {
 } from "@material-tailwind/react";
 import bingoService from "../../../services/bingoService";
 
-export const FormEditRoom = ({ bingoRoom, fetchRoomData }) => {
-  const { _id, title, roomCode, capacity } = bingoRoom;
+export const FormEditRoom = ({ bingo, fetchBingoData }) => {
+  const { _id, name, bingo_code, capacity } = bingo;
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [roomTitle, setRoomTitle] = useState(title);
-  const [roomCodeForm, setRoomCodeForm] = useState(roomCode);
-  const [roomCapacity, setRoomCapacity] = useState(capacity);
+  const [bingoName, setBingoName] = useState(name);
+  const [bingoCodeForm, setBingoCodeForm] = useState(bingo_code);
+  const [bingoCapacity, setBingoCapacity] = useState(capacity);
 
   useEffect(() => {
-    setRoomTitle(title);
-    setRoomCodeForm(roomCode);
-    setRoomCapacity(capacity);
-  }, [title]);
+    setBingoName(name);
+    setBingoCodeForm(bingo_code);
+    setBingoCapacity(capacity);
+  }, [name]);
 
   const toggleDialog = () => setDialogOpen(!dialogOpen);
 
   const handleSubmit = async () => {
-    if (roomTitle && roomCodeForm && roomCapacity) {
+    if (bingoName && bingoCodeForm && bingoCapacity) {
       try {
         const updateData = {
-          title: roomTitle,
-          roomCode: roomCodeForm,
-          capacity: roomCapacity,
+          name: bingoName,
+          bingo_code: bingoCodeForm,
+          capacity: bingoCapacity,
         };
         await bingoService.updateBingo(_id, updateData);
-        fetchRoomData();
+        fetchBingoData();
         toggleDialog();
       } catch (error) {
-        console.error("Error updating room:", error);
+        console.error("Error updating bingo:", error);
       }
     } else {
       alert("Por favor, completa todos los campos.");
@@ -48,33 +48,33 @@ export const FormEditRoom = ({ bingoRoom, fetchRoomData }) => {
   return (
     <div className="flex flex-col">
       <Button onClick={toggleDialog} className="rounded-l-lg rounded-r-none">
-        Configurar Sala
+        Configurar Bingo
       </Button>
 
       <Dialog open={dialogOpen} handler={toggleDialog}>
         <DialogBody className="space-y-4">
-          <Typography variant="h5">Configurar Sala</Typography>
+          <Typography variant="h5">Configurar Bingo</Typography>
           <Input
-            label="Título de la Sala"
-            value={roomTitle}
-            onChange={(e) => setRoomTitle(e.target.value)}
+            label="Nombre del bingo"
+            value={bingoName}
+            onChange={(e) => setBingoName(e.target.value)}
           />
           <Input
-            label="Código de la sala"
-            value={roomCodeForm}
-            onChange={(e) => setRoomCodeForm(e.target.value)}
+            label="Código del bingo"
+            value={bingoCodeForm}
+            onChange={(e) => setBingoCodeForm(e.target.value)}
           />
           <Input
             label="Aforo/Capacidad"
-            value={roomCapacity}
-            onChange={(e) => setRoomCapacity(e.target.value)}
+            value={bingoCapacity}
+            onChange={(e) => setBingoCapacity(e.target.value)}
           />
         </DialogBody>
         <DialogFooter>
           <Button variant="text" color="blue-gray" onClick={toggleDialog}>
             Cancelar
           </Button>
-          <Button variant="filled"  onClick={handleSubmit}>
+          <Button variant="filled" onClick={handleSubmit}>
             Guardar
           </Button>
         </DialogFooter>

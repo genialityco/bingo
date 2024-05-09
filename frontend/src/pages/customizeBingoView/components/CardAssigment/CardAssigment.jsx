@@ -32,7 +32,7 @@ const CardAssigment = () => {
           />
         </div>
       </Card>
-      <Card className="w-1/2 h-96 border-2"></Card>
+      {/* <Card className="w-1/2 h-96 border-2"></Card> */}
     </div>
   );
 };

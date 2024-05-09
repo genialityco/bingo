@@ -14,7 +14,6 @@ export const TabsSection = ({
   bingoConfig,
   lastBallot,
   ballotsHistory,
-  room,
 }) => {
   const dataTabs = [
     {
@@ -37,7 +36,7 @@ export const TabsSection = ({
     {
       label: "Figura",
       value: "Figure",
-      content: <BingoFigure room={room} />,
+      content: <BingoFigure bingoConfig={bingoConfig} />,
     },
   ];
 

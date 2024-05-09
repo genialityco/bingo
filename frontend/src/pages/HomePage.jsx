@@ -1,15 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { Input } from "@material-tailwind/react";
 import bingoServices from "../services/bingoService";
+import { useState, useEffect } from "react";
 
 export const HomePage = () => {
   const navigate = useNavigate();
+  const [publicBingos, setPublicBingos] = useState([]);
 
-  const getBingo = async (roomCode) => {
+  useEffect(() => {
+    getAllPublicBingos();
+  }, []);
+
+  const getBingo = async (bingoCode) => {
     try {
       const response = await bingoServices.findBingoByField(
-        "roomCode",
-        roomCode
+        "bingo_code",
+        bingoCode
       );
       return response;
     } catch (error) {
@@ -18,14 +24,22 @@ export const HomePage = () => {
     }
   };
 
+  const getAllPublicBingos = async () => {
+    try {
+      const response = await bingoServices.getAllBingos();
+      setPublicBingos(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const goToBingo = async (e) => {
     e.preventDefault();
-    const roomCode = e.target.elements.roomCode.value;
-    const bingoRoom = await getBingo(roomCode);
-    if (bingoRoom && bingoRoom.data) {
-      // Pasando roomCode como parte de la URL y otros detalles a través de state
-      navigate(`/room-game/${roomCode}`, {
-        state: { roomId: bingoRoom.data._id, bingoId: bingoRoom.data.bingoId },
+    const bingoCode = e.target.elements.bingoCode.value;
+    const bingoResponse = await getBingo(bingoCode);
+    if (bingoResponse) {
+      navigate(`/bingo-game/${bingoCode}`, {
+        state: { bingoId: bingoResponse._id },
       });
     } else {
       alert("Sala no encontrada. Por favor, verifica el código.");
@@ -38,16 +52,46 @@ export const HomePage = () => {
         <div className="w-72 bg-black p-5 rounded-lg shadow-2xl" align="center">
           <form onSubmit={goToBingo}>
             <Input
-              name="roomCode"
+              name="bingoCode"
               type="text"
               color="white"
-              label="Ingrese código de sala"
+              label="Ingrese código del bingo"
             />
             <button className="bg-blue-500 rounded-full text-white mt-3 py-2 px-4 hover:bg-blue-400 transition duration-300 ease-in-out shadow-lg hover:shadow-xl animate-pulse-infinite">
               Entrar a la sala
             </button>
           </form>
         </div>
+      </section>
+
+      {/* Sección para mostrar bingos públicos */}
+      <section className="flex flex-col items-center mt-8">
+        <h2 className="text-xl font-bold">Bingos públicos</h2>
+        <ul className="mt-4 w-full max-w-lg space-y-4">
+          {publicBingos.length === 0 ? (
+            <li className="text-center text-gray-500">
+              No hay bingos disponibles.
+            </li>
+          ) : (
+            publicBingos.map((bingo) => (
+              <li key={bingo._id} className="bg-white p-4 rounded-lg shadow-md">
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold">{bingo.name}</span>
+                  <button
+                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-400"
+                    // onClick={() =>
+                    //   navigate(`/room-game/${bingo.roomCode}`, {
+                    //     state: { roomId: bingo._id, bingoId: bingo.bingoId },
+                    //   })
+                    // }
+                  >
+                    Personalizar
+                  </button>
+                </div>
+              </li>
+            ))
+          )}
+        </ul>
       </section>
     </div>
   );

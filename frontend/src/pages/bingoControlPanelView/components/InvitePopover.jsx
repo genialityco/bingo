@@ -8,7 +8,7 @@ import {
 import { ClipboardIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
-const InvitePopover = ({ invitationLink, bingoRoom }) => {
+const InvitePopover = ({ invitationLink, bingo }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const togglePopover = () => setPopoverOpen(!popoverOpen);
@@ -64,18 +64,18 @@ const InvitePopover = ({ invitationLink, bingoRoom }) => {
               textOverflow: "ellipsis",
             }}
           />
-          {bingoRoom && (
+          {bingo && (
             <Chip
               variant="outlined"
               className="normal-case text-center"
               value={
                 <span
                   className="flex items-center gap-2"
-                  onClick={() => copyToClipboard(bingoRoom.roomCode)}
+                  onClick={() => copyToClipboard(bingo.bingo_code)}
                 >
                   <ClipboardIcon className="h-5 w-5 cursor-pointer" />
                   <span className="text-center">
-                    Código de sala: {bingoRoom.roomCode}
+                    Código de sala: {bingo.bingo_code}
                   </span>
                 </span>
               }

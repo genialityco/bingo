@@ -6,7 +6,6 @@ import { shuffle } from "../../utils/AuxiliaryFunctions";
 import io from "socket.io-client";
 import BingoCardStatic from "../../components/BingoCard";
 import bingoServices from "../../services/bingoService";
-import bingoTemplateServices from "../../services/bingoTemplateService";
 import bingoCardboardService from "../../services/bingoCardboardService";
 import { TabsSection } from "./components/TabsSetion";
 import { MessageDialog } from "./components/MessageDialog";
@@ -34,8 +33,8 @@ async function generateRandomAlphanumeric(length) {
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
-export const RoomPageV1 = () => {
-  const { roomCode } = useParams();
+export const PlayerBingoPage = () => {
+  const { bingoCode } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,7 +48,6 @@ export const RoomPageV1 = () => {
   const [rows, setRows] = useState();
   const [markedSquares, setMarkedSquares] = useState([]);
   const [liveStreamPosition, setLiveStreamPosition] = useState({ x: 0, y: 0 });
-  const [room, setRoom] = useState(null);
   const [ballotsHistory, setBallotsHistory] = useState([]);
   const [lastBallot, setLastBallot] = useState("");
   const [storageUserId, setStorageUserId] = useState(
@@ -69,8 +67,7 @@ export const RoomPageV1 = () => {
     message: "",
   });
 
-  // Estado para almacenar `roomId` y `bingoId`
-  const [roomId, setRoomId] = useState(null);
+  // Estado para almacenar `bingoId`
   const [bingoId, setBingoId] = useState(null);
 
   const [logs, setLogs] = useState([]);
@@ -83,26 +80,24 @@ export const RoomPageV1 = () => {
     if (encodedState) {
       try {
         const state = JSON.parse(decodeURIComponent(encodedState));
-        setRoomId(state.roomId || null);
         setBingoId(state.bingoId || null);
-
+        location.state = state.bingoId;
         // Redirige a una URL limpia sin el parámetro `state`
-        navigate(`/room-game/${roomCode}`, { replace: true });
+        navigate(`/bingo-game/${bingoCode}`, { replace: true });
       } catch (error) {
         console.error("Error al decodificar el estado:", error);
       }
     } else {
-      const { roomId, bingoId } = location.state || {};
-      setRoomId(roomId || null);
+      const { bingoId } = location.state || {};
       setBingoId(bingoId || null);
     }
-  }, [location.search, location.state, navigate, roomCode]);
+  }, [location.search, location.state, navigate, bingoCode]);
 
   // Efecto para obtener la configuración del bingo
   useEffect(() => {
     const getBingo = async () => {
-      if (bingoId && roomId) {
-        const response = await bingoTemplateServices.getBingoById(bingoId);
+      if (bingoId) {
+        const response = await bingoServices.getBingoById(bingoId);
         setBingoConfig(response);
         if (response) {
           generateBingoCard(
@@ -110,7 +105,7 @@ export const RoomPageV1 = () => {
             response.dimensions,
             response.positions_disabled
           );
-          getBallotsHistory();
+          getBallotsHistory(response.history_of_ballots);
         }
       }
     };
@@ -153,7 +148,7 @@ export const RoomPageV1 = () => {
    */
   const handleBallotUpdate = (data) => {
     const updateDescription = data.updateDescription;
-    if (data.documentKey && data.documentKey._id === roomId) {
+    if (data.documentKey && data.documentKey._id === bingoId) {
       if (updateDescription && updateDescription.updatedFields) {
         Object.keys(updateDescription.updatedFields).forEach((key) => {
           if (key.startsWith("history_of_ballots")) {
@@ -171,10 +166,10 @@ export const RoomPageV1 = () => {
               setMarkedSquares(resetMarkedSquares);
               updateMarkSquare(resetMarkedSquares);
             }
-            getBallotsHistory();
+            getBallotsHistory(ballotsHistory);
           }
           if (key.startsWith("bingoFigure")) {
-            getBallotsHistory();
+            getBallotsHistory(ballotsHistory);
           }
         });
       }
@@ -212,7 +207,7 @@ export const RoomPageV1 = () => {
     try {
       await bingoServices.sangBingo(
         markedSquares,
-        room._id,
+        bingoConfig._id,
         storageUserId,
         cardboardCode
       );
@@ -399,14 +394,12 @@ export const RoomPageV1 = () => {
   };
 
   const getBallotsHistory = async () => {
-    const roomData = await bingoServices.getBingoById(roomId);
-    setRoom(roomData);
-    setBallotsHistory(roomData.history_of_ballots);
+    const { history_of_ballots } = await bingoServices.getBingoById(bingoId);
+    setBallotsHistory(history_of_ballots);
 
     // Asignar la última balota del historial a lastBallot
-    if (roomData.history_of_ballots.length > 0) {
-      const lastBallotId =
-        roomData.history_of_ballots[roomData.history_of_ballots.length - 1];
+    if (history_of_ballots.length > 0) {
+      const lastBallotId = history_of_ballots[history_of_ballots.length - 1];
       setLastBallot(lastBallotId);
     }
   };
@@ -429,7 +422,6 @@ export const RoomPageV1 = () => {
               bingoConfig={bingoConfig}
               lastBallot={lastBallot}
               ballotsHistory={ballotsHistory}
-              room={room}
             />
           </Card>
         </div>

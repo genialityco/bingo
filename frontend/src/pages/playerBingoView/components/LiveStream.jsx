@@ -6,12 +6,11 @@ export const LiveStream = ({
   cardboardCode,
   logs,
 }) => {
-  console.log(logs);
   return (
     <div>
       <section>
         {bingoConfig && (
-          <Accordion title={bingoConfig?.title}>
+          <Accordion name={bingoConfig?.name}>
             <Typography variant="small" className="mb-1">
               <strong>Código de cartón:</strong> {cardboardCode}
             </Typography>
@@ -52,18 +51,16 @@ const SectionLiveStream = () => {
   );
 };
 
-const Accordion = ({ title, children }) => {
+const Accordion = ({ name, children }) => {
   return (
     <div className="mb-1 bg-black rounded">
-      {/* <div className="p-4">
-        <Typography
-          variant="h6"
-          color="white"
-          className="uppercase text-sm md:text-base"
-        >
-          {title}
-        </Typography>
-      </div> */}
+      <Typography
+        variant="h6"
+        color="white"
+        className=" pl-3 pt-2 uppercase text-sm md:text-base"
+      >
+        {name}
+      </Typography>
       <div className="p-3 text-white">{children}</div>
     </div>
   );

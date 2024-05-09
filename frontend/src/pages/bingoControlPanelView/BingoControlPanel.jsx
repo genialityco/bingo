@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import bingoServices from "../../services/bingoService";
-import bingoTemplateServices from "../../services/bingoTemplateService";
+import bingoFigureServices from "../../services/bingoFigureServices";
 import io from "socket.io-client";
 import { SelectFigure } from "./components/SelectFigure";
 import { BallotMachine } from "./components/BallotMachine";
@@ -23,15 +23,14 @@ import { BingoRequestTable } from "./components/BingoRequestTable";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
-export const PlayBingoPage = () => {
-  const { roomId } = useParams();
+export const BingoControlPanel = () => {
+  const { bingoId } = useParams();
   const [currentBallot, setCurrentBallot] = useState(null);
   const [announcedBallots, setAnnouncedBallots] = useState([]);
-  const [bingoRoom, setBingoRoom] = useState(null);
-  const [bingoTemplates, setBingoTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [bingo, setBingo] = useState(null);
+  const [figures, setFigures] = useState([]);
+  const [selectedFigure, setSelectedFigure] = useState(null);
   const [bingoRequests, setBingoRequests] = useState([]);
-  const [bingoConfig, setBingoConfig] = useState({});
 
   const [invitationLink, setInvitationLink] = useState("");
 
@@ -66,33 +65,25 @@ export const PlayBingoPage = () => {
 
   const fetchInitialData = async () => {
     try {
-      const bingoRoomResponse = await bingoServices.getBingoById(roomId);
-      setBingoRoom(bingoRoomResponse);
-      setAnnouncedBallots(bingoRoomResponse.history_of_ballots);
-      setSelectedTemplate(bingoRoomResponse.bingoFigure?._id || null);
-
-      // Obtén el bingoId de la sala
-      const bingoConfigResponse = await bingoTemplateServices.getBingoById(
-        bingoRoomResponse.bingoId
-      );
-
-      setBingoConfig(bingoConfigResponse);
+      const bingoResponse = await bingoServices.getBingoById(bingoId);
+      setBingo(bingoResponse);
+      setAnnouncedBallots(bingoResponse.history_of_ballots);
+      setSelectedFigure(bingoResponse.bingo_figure?._id || null);
 
       const lastBallotId =
-        bingoRoomResponse.history_of_ballots[
-          bingoRoomResponse.history_of_ballots.length - 1
+        bingoResponse.history_of_ballots[
+          bingoResponse.history_of_ballots.length - 1
         ];
-      const lastBallot = bingoConfigResponse.bingo_values.find(
+      const lastBallot = bingoResponse.bingo_values.find(
         (ballot) => ballot._id === lastBallotId
       );
       setCurrentBallot(lastBallot);
 
-      const templates = await bingoTemplateServices.getAllTemplates();
-      setBingoTemplates(templates);
+      const figures = await bingoFigureServices.getAllFigures()
+      setFigures(figures);
       generateInvitationLink(
-        bingoRoomResponse.roomCode,
-        bingoRoomResponse._id,
-        bingoConfigResponse._id
+        bingoResponse.bingo_code,
+        bingoResponse._id,
       );
     } catch (error) {
       console.error("Error:", error);
@@ -100,10 +91,10 @@ export const PlayBingoPage = () => {
   };
 
   useEffect(() => {
-    if (roomId) {
+    if (bingoId) {
       fetchInitialData();
     }
-  }, [roomId]);
+  }, [bingoId]);
 
   useEffect(() => {
     const storedRequests = localStorage.getItem("bingoRequests");
@@ -122,17 +113,17 @@ export const PlayBingoPage = () => {
     };
   }, [addBingoRequest]);
 
-  const generateInvitationLink = (roomCode, roomId, bingoId) => {
+  const generateInvitationLink = (bingoCode, bingoId) => {
     const baseURL = window.location.origin;
-    const state = JSON.stringify({ roomId, bingoId });
+    const state = JSON.stringify({ bingoId });
     const encodedState = encodeURIComponent(state);
-    setInvitationLink(`${baseURL}/room-game/${roomCode}?state=${encodedState}`);
+    setInvitationLink(`${baseURL}/bingo-game/${bingoCode}?state=${encodedState}`);
   };
 
   const restartBingo = async () => {
     try {
       const updateData = { history_of_ballots: [] };
-      const response = await bingoServices.updateBingo(roomId, updateData);
+      const response = await bingoServices.updateBingo(bingoId, updateData);
       fetchInitialData();
     } catch (error) {
       console.error(error);
@@ -140,7 +131,7 @@ export const PlayBingoPage = () => {
   };
 
   const drawBallot = async () => {
-    const remainingBallots = bingoConfig.bingo_values.filter(
+    const remainingBallots = bingo.bingo_values.filter(
       (ballot) => !announcedBallots.includes(ballot._id)
     );
 
@@ -154,15 +145,15 @@ export const PlayBingoPage = () => {
     setCurrentBallot(randomBallot);
     setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
     try {
-      await bingoServices.addBallotToHistory(roomId, randomBallot._id);
+      await bingoServices.addBallotToHistory(bingoId, randomBallot._id);
     } catch (error) {
       console.error("Error adding ballot to history:", error);
     }
   };
 
   const getBallotValueForDom = (id) => {
-    if (bingoConfig && id) {
-      const ballotData = bingoConfig.bingo_values.find(
+    if (bingo && id) {
+      const ballotData = bingo.bingo_values.find(
         (ballot) => ballot._id === id
       );
       return {
@@ -178,7 +169,7 @@ export const PlayBingoPage = () => {
         <Card className="w-full">
           <CardBody className="flex flex-col items-center justify-center">
             <Typography variant="h4">Panel de control</Typography>
-            <Typography>{bingoRoom?.title}</Typography>
+            <Typography>{bingo?.name}</Typography>
           </CardBody>
         </Card>
       </section>
@@ -215,16 +206,16 @@ export const PlayBingoPage = () => {
             </CardBody>
           </Card>
 
-          {bingoConfig.dimensions && (
+          {bingo?.dimensions && (
             <Card className="w-full">
               <CardBody className="flex justify-center items-center">
-                {bingoConfig.dimensions && (
+                {bingo.dimensions && (
                   <SelectFigure
-                    bingoTemplates={bingoTemplates}
-                    selectedTemplate={selectedTemplate}
-                    setSelectedTemplate={setSelectedTemplate}
-                    bingoRoom={bingoRoom}
-                    dimensions={bingoConfig.dimensions}
+                    figures={figures}
+                    selectedFigure={selectedFigure}
+                    setSelectedFigure={setSelectedFigure}
+                    bingo={bingo}
+                    dimensions={bingo.dimensions}
                   />
                 )}
               </CardBody>
@@ -263,8 +254,8 @@ export const PlayBingoPage = () => {
       {/* Sección para las balotas anunciadas */}
       <div className="w-full">
         {/* Verifica que bingoConfig exista */}
-        {bingoConfig &&
-          Object.keys(bingoConfig).length > 0 &&
+        {bingo &&
+          Object.keys(bingo).length > 0 &&
           announcedBallots && (
             <Card className="w-full">
               <CardBody className="flex flex-wrap justify-center items-center gap-2">
@@ -296,15 +287,15 @@ export const PlayBingoPage = () => {
               <CardFooter>
                 <ButtonGroup className="flex justify-center">
                   <FormEditRoom
-                    bingoRoom={bingoRoom}
-                    fetchRoomData={fetchInitialData}
+                    bingo={bingo}
+                    fetchBingoData={fetchInitialData}
                   />
                   <Button onClick={restartBingo}>
                     Reiniciar/Limpiar bingo
                   </Button>
                   <InvitePopover
                     invitationLink={invitationLink}
-                    bingoRoom={bingoRoom}
+                    bingo={bingo}
                   />
                 </ButtonGroup>
               </CardFooter>

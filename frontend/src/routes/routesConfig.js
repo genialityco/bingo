@@ -1,8 +1,8 @@
 import { HomePage } from "../pages/HomePage";
-import BingoConfig from "../pages/bingoConfig/BingoConfig";
-import BingosList from "../pages/bingoConfig/BingosList";
-import { PlayBingoPage } from "../pages/playBingo/PlayBingoPage";
-import { RoomPageV1 } from "../pages/room/RoomPageV1";
+import BingosList from "../pages/customizeBingoView/BingosList";
+import CustomizeBingo from "../pages/customizeBingoView/CustomizeBingo";
+import { BingoControlPanel } from "../pages/bingoControlPanelView/BingoControlPanel";
+import { PlayerBingoPage } from "../pages/playerBingoView/PlayerBingoPage";
 
 const routesConfig = [
   {
@@ -11,18 +11,18 @@ const routesConfig = [
     exact: true,
   },
   {
-    path: "/room-game/:roomCode",
-    component: RoomPageV1,
+    path: "/bingo-game/:bingoCode",
+    component: PlayerBingoPage,
     exact: true,
   },
   {
-    path: "/play-bingo/:roomId",
-    component: PlayBingoPage,
+    path: "/play-bingo/:bingoId",
+    component: BingoControlPanel,
     exact: true,
   },
   {
-    path: "/bingo-config",
-    component: BingoConfig,
+    path: "/customize-bingo",
+    component: CustomizeBingo,
     exact: true,
   },
   {

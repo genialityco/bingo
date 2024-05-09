@@ -35,7 +35,6 @@ const DimensionsBingoCard = ({
     ? delete modifiedBingoTemplate._id
     : modifiedBingoTemplate; */
 
- console.log(modifiedBingoTemplate)
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -156,20 +155,20 @@ const DimensionsBingoCard = ({
       {/* 1st Card: Tittle,  Dimentions and Rules */}
       <Card className="w-2/5 bg-white p-5 flex justify-center items-center gap-3 border-gray-50 border-2 text-center">
         <Typography variant="h5" className="self-start">
-          Titulo
+          Nombre
         </Typography>
         <div className="w-72">
           <Input
             type="text"
-            placeholder="Titulo"
-            name="title"
+            placeholder="Nombre"
+            name="name"
             className="!border !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 placeholder:opacity-100 focus:!border-gray-900 focus:!border-t-gray-900 focus:ring-gray-900/10"
             labelProps={{
               className: 'hidden',
             }}
             containerProps={{ className: 'min-w-[100px]' }}
             onChange={(e) => handleCreateNewBingo(e)}
-            value={bingoCard.title}
+            value={bingoCard.name}
           />
         </div>
 

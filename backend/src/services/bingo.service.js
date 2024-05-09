@@ -14,7 +14,7 @@ class BingoServices {
 
   async getBingoById(id) {
     try {
-      const bingo = await Bingo.findById(id).populate("bingoFigure");
+      const bingo = await Bingo.findById(id).populate("bingo_figure");
       return bingo;
     } catch (error) {
       console.error("Error finding bingo:", error);

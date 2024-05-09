@@ -1,5 +1,4 @@
 import BingoServices from "../services/bingo.service";
-import BingoTemplateServices from "../services/bingoTemplate.service";
 import sendResponse from "../utils/sendResponse";
 const customEmitter = require("../utils/eventEmitter");
 
@@ -61,7 +60,12 @@ class BingoController {
         req.params.id,
         req.body.ballot
       );
-      sendResponse(res, 200, bingo, "Ballot added to bingo history successfully");
+      sendResponse(
+        res,
+        200,
+        bingo,
+        "Ballot added to bingo history successfully"
+      );
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -124,9 +128,10 @@ class BingoController {
   }
 
   async sangBingo(req, res) {
-    const { markedSquares, bingoId, userId, cardboardCode } = req.body;
-    const bingo = await BingoServices.getBingoById(bingoId);
-    const figure = bingo.bingoFigure.index_to_validate;
+    const { markedSquares, id, userId, cardboardCode } = req.body;
+    const bingo = await BingoServices.getBingoById(id);
+
+    const figure = bingo.bingo_figure.index_to_validate;
     const historyBallots = bingo.history_of_ballots;
 
     customEmitter.emit("sangBingo", { userId: userId, status: "Validando" });

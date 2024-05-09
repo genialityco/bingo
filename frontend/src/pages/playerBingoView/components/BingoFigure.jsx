@@ -1,8 +1,8 @@
-export const BingoFigure = ({ room }) => {
+export const BingoFigure = ({ bingoConfig }) => {
   return (
     <div>
       <img
-        src={room?.bingoFigure?.image}
+        src={bingoConfig?.bingo_figure?.image}
         alt="Figura de Bingo"
         width={"140"}
         height={"100"}
