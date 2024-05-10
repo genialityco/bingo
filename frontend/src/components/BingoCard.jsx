@@ -1,51 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 
-const BingoCardStatic = ({ bingoConfig, markedSquares, onMarkSquare }) => {
-  if (!bingoConfig) {
+const BingoCardStatic = ({
+  bingoCard,
+  rows,
+  bingoAppearance,
+  markedSquares,
+  onMarkSquare,
+}) => {
+  if (!bingoCard) {
     return <p>Cargando configuración del bingo...</p>;
   }
-
-  const { bingoAppearance, bingoValues, dimensions } = bingoConfig;
-
-  // Calcula el número de filas y columnas a partir de las dimensiones.
-  const [rows, cols] = dimensions.split("x").map(Number);
-  const totalSquares = rows * cols;
-
-  // Estado para los valores del cartón, inicializado desde localStorage si existe
-  const savedCardValues = JSON.parse(localStorage.getItem("cardValues"));
-  const [cardValues, setCardValues] = useState(savedCardValues || []);
-
-  useEffect(() => {
-    if (!savedCardValues && bingoValues.length > 0) {
-      // Genera valores solo si no hay valores guardados y bingoValues está disponible
-      const generateRandomValues = () => {
-        let uniqueValues = new Set();
-        while (uniqueValues.size < totalSquares) {
-          const randomIndex = Math.floor(Math.random() * bingoValues.length);
-          const randomValue = bingoValues[randomIndex];
-
-          // Usamos el ID como identificador único para asegurar que no haya duplicados
-          uniqueValues.add(randomValue.id);
-        }
-
-        // Transformamos los IDs únicos de nuevo en objetos de bingoValues
-        return Array.from(uniqueValues).map((id) => {
-          const item = bingoValues.find((value) => value.id === id);
-          return item;
-        });
-      };
-
-      const newCardValues = generateRandomValues();
-      setCardValues(newCardValues);
-      localStorage.setItem("cardValues", JSON.stringify(newCardValues)); // Guarda los nuevos valores en localStorage
-    }
-  }, [bingoValues, totalSquares, savedCardValues]);
-
-  // useEffect(() => {
-  //   // Guarda las casillas marcadas en localStorage cada vez que cambian
-  //   localStorage.setItem("markedSquares", JSON.stringify(markedSquares));
-  // }, [markedSquares]);
+  const cols = Number.isInteger(rows) && rows > 0 ? rows : 3;
 
   return (
     <div className="flex flex-col flex-1 w-full h-full">
@@ -57,39 +23,74 @@ const BingoCardStatic = ({ bingoConfig, markedSquares, onMarkSquare }) => {
         />
       )}
 
-      <div className="relative w-full h-full">
-        <Card className="h-full">
+      <div className="w-full h-full">
+        <Card className="w-full h-full">
           <CardBody
-            className={`grid grid-cols-${rows} gap-1 relative w-full h-full `}
-            style={{ backgroundColor: bingoAppearance.background_color }}
+            className={`grid grid-cols-1 grid-cols-${cols} gap-1 w-full h-full`}
+            style={{
+              backgroundColor: bingoAppearance.background_color,
+            }}
           >
-            {cardValues.map((item, index) => (
+            {bingoCard.map((cell, index) => (
               <div
                 key={index}
-                className="relative bg-blue-100 rounded-md shadow-lg m-0.5 flex justify-center items-center cursor-pointer"
-                onClick={() => onMarkSquare(item, index)}
+                className="aspect-[1/0.6] bg-blue-100 rounded-md shadow-lg cursor-pointer flex justify-center items-center relative"
+                style={{
+                  textAlign: "center",
+                  position: "relative",
+                }}
+                onClick={() => onMarkSquare(cell, index)}
               >
-                {item.type === "default" || item.type === "text" ? (
-                  <Typography className="text-black text-4xl font-bold select-none z-10">
-                    {item.value}
-                  </Typography>
-                ) : (
+                {cell.default_image ? (
                   <img
-                    src={item.imageUrl}
+                    src={cell.default_image}
                     alt="Marked"
-                    className="animate-mark-in"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
                   />
+                ) : (
+                  <React.Fragment>
+                    {
+                      cell.type === "image" ? (
+                        <img
+                          src={cell.value}
+                          alt="Carton"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      ) : cell.value ? ( // Añadido condicional para asegurar que cell.value no es undefined
+                        <Typography className="text-black text-xl font-bold select-none">
+                          {cell.value}
+                        </Typography>
+                      ) : null // Puedes cambiar esto por un valor por defecto si necesario
+                    }
+                  </React.Fragment>
                 )}
-                {markedSquares[index] && markedSquares[index].isMarked && (
-                  <div className="absolute inset-0 flex justify-center items-center bg-opacity-50">
-                    <Typography
-                      color="red"
-                      className="lg:text-5xl xl:text-8xl font-bold select-none animate-mark-in"
-                    >
-                      X
-                    </Typography>
-                  </div>
-                )}
+                {markedSquares[index] &&
+                  markedSquares[index].isMarked &&
+                  markedSquares[index].value != "Disabled" &&
+                  (bingoAppearance.dial_image ? (
+                    <img
+                      src={bingoAppearance.dial_image}
+                      alt="Marked Overlay"
+                      className="absolute rounded-md inset-0 w-full h-full object-cover animate-mark-in"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50 bg-black">
+                      <Typography
+                        color="red"
+                        className="sm:text-8xl md:text-4xl lg:text-5xl xl:text-6xl font-bold select-none animate-mark-in"
+                      >
+                        X
+                      </Typography>
+                    </div>
+                  ))}
               </div>
             ))}
           </CardBody>

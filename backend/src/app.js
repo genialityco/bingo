@@ -6,9 +6,10 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import bingoRoutes from "./routes/bingo.js";
-import roomBingoRoutes from "./routes/roomBingo.js";
-import templatesBingoRoutes from "./routes/templateBingo";
+import bingo from "./routes/bingo.js";
+import bingoTemplateRoutes from "./routes/bingoTemplate.js";
+import bingoFigureRoutes from "./routes/bingoFigure.js";
+import bingoCardboardRoutes from "./routes/bingoCardboard.js";
 
 const customEmitter = require("./utils/eventEmitter.js");
 const http = require("http");
@@ -21,19 +22,20 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
-    credentials: true, 
+    credentials: true,
   },
 });
 
 app.use(cors({ origin: "*" }));
 app.use(morgan("dev"));
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
-app.use(bingoRoutes);
-app.use(roomBingoRoutes);
-app.use(templatesBingoRoutes);
+app.use(bingo);
+app.use(bingoTemplateRoutes);
+app.use(bingoFigureRoutes);
+app.use(bingoCardboardRoutes);
 
 app.get("/", (req, res) => {
   res.send("API bingo");
@@ -67,13 +69,20 @@ server.listen(PORT, () => {
 io.on("connection", (socket) => {
   console.log("Un cliente se ha conectado");
 
+  socket.on("clientConnected", (data) => {
+    console.log(`${data.playerName} se ha conectado`);
+    socket.broadcast.emit("userConnected", {
+      message: `${data.playerName} se ha conectado`,
+    });
+  });
+
   // Escuchar los eventos emitidos por el EventEmitter personalizado
   customEmitter.on("ballotUpdate", (data) => {
     socket.emit("ballotUpdate", data); // Emitir eventos a los clientes conectados con los cambios de datos
   });
 
   customEmitter.on("sangBingo", (isWinner) => {
-    if (isWinner) {
+    if (isWinner.status) {
       console.log("Tenemos un ganador en sangBingo!");
     } else {
       console.log("No hay ganador esta vez en sangBingo.");

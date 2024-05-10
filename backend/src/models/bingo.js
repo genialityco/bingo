@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
-const { Schema } = mongoose;
+const { Schema, Types } = mongoose;
 
+// Subesquemas
 const bingoAppearanceSchema = new Schema({
   background_color: { type: String, default: "#00bcd4" },
   background_image: { type: String, default: null },
@@ -19,27 +20,97 @@ const bingoAppearanceSchema = new Schema({
 });
 
 const bingoValueSchema = new Schema({
-  id: { type: Number, required: true },
-  value: { type: String, required: true },
-  type: { type: String, enum: ["default", "text", "image"], required: true },
-  imageUrl: {
+  _id: { type: Schema.Types.ObjectId, default: () => new Types.ObjectId() },
+  carton_value: { type: String, required: true },
+  carton_type: {
     type: String,
-    required: function () {
-      return this.type === "image";
-    },
+    enum: ["default", "text", "image"],
+    required: true,
+  },
+  ballot_value: { type: String, required: true },
+  ballot_type: {
+    type: String,
+    enum: ["default", "text", "image"],
+    required: true,
+  },
+  positions: { type: Array, required: false },
+});
+
+const bingoPositionsDisabledSchema = new Schema({
+  position: {
+    type: Number,
+    required: false,
+  },
+  default_image: {
+    type: String,
+    required: false,
   },
 });
 
+// Esquema principal
 const bingoSchema = new Schema({
-  title: { type: String, required: true },
+  // Información básica
+  name: {
+    type: String,
+    required: true,
+  },
+  capacity: {
+    type: Number,
+    required: true,
+  },
+  bingo_code: {
+    type: String,
+    required: true,
+  },
+
+  // Tiempos
+  start_time: {
+    type: Date,
+    default: Date.now,
+  },
+  end_time: {
+    type: Date,
+  },
+
+  // Juego
+  bingo_figure: {
+    type: Schema.Types.ObjectId,
+    ref: "BingoFigure",
+    required: false,
+  },
   rules: { type: String, required: false },
-  creatorId: { type: Schema.Types.ObjectId, required: false },
-  bingoAppearance: {
+  history_of_ballots: [String],
+  number_of_winners: {
+    type: Number,
+    default: 0,
+  },
+  winners: [
+    {
+      type: Schema.Types.ObjectId,
+    },
+  ],
+
+  // Configuraciones adicionales
+  creator_id: { type: Schema.Types.ObjectId, required: false },
+  bingo_appearance: {
     type: bingoAppearanceSchema,
     default: () => ({}),
   },
-  bingoValues: [bingoValueSchema],
-  dimensions: { type: String, default: "4x4" },
+  bingo_values: [bingoValueSchema],
+  positions_disabled: [bingoPositionsDisabledSchema],
+  dimensions: { type: String, default: "5x5" },
+
+  // Configuración general
+  is_template: {
+    type: Boolean,
+    default: false,
+  },
+  is_public: {
+    type: Boolean,
+    default: true,
+  },
+
+  // Metadatos
   updated_at: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now },
 });

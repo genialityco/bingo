@@ -1,21 +1,36 @@
 import express from "express";
-import BingoController from "../controllers/bingoController.js";
+import BingoController from "../controllers/bingoController";
+
 
 const router = express.Router();
 
-// Ruta para crear un nuevo bingo
+// Ruta para crear una nueva sala de bingo
 router.post("/bingos", BingoController.createBingo);
 
-// Ruta para obtener un bingo por Id
+// Ruta para obtener una sala por cualquier campo
+router.get("/bingos/search", BingoController.findBingoByField);
+
+// Ruta para obtener una sala de bingo por su ID
 router.get("/bingos/:id", BingoController.getBingoById);
 
-// Ruta para actualizar un bingo
+// Ruta para añadir una balota al historial de una sala específica
+router.put("/bingos/:id/ballots", BingoController.addBallotToHistory);
+
+// Ruta para marcar el fin del juego en una sala específica
+router.post("/bingos/:id/end", BingoController.markGameEnd);
+
+// Ruta para actualizar la capacidad de una sala específica
+router.put("/bingos/:id/capacity", BingoController.updateBingoCapacity);
+
+// Ruta para obtener todas las salas de bingo
+router.get("/bingos", BingoController.getAllBingos);
+
+// Ruta para actualizar una sala específica
 router.put("/bingos/:id", BingoController.updateBingo);
 
-// Ruta para eliminar un bingo
+// Ruta para eliminar una sala específica
 router.delete("/bingos/:id", BingoController.deleteBingo);
 
-// Ruta para obtener todos los bingos
-router.get("/bingos", BingoController.listAllBingos);
+router.post("/bingos/sangBingo", BingoController.sangBingo);
 
 export default router;

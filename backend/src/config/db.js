@@ -8,13 +8,12 @@ config({ path: `.env.${process.env.NODE_ENV}` });
 
 const { DB_URI } = process.env;
 
-
 connect(DB_URI)
   .then(() => {
     console.log(`📡 Established connection to the database`);
 
     const db = connection;
-    const changeStream = db.collection("bingorooms").watch();
+    const changeStream = db.collection("bingos").watch();
 
     changeStream.on("change", (change) => {
       customEmitter.emit("ballotUpdate", change);
