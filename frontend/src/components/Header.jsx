@@ -75,14 +75,14 @@ export function Header() {
           variant="h6"
           className="mr-4 cursor-pointer py-1.5 lg:ml-2"
         >
-          Powered Magneti
+          Powered Magnetic
         </Typography>
         <div className="hidden lg:block">
           <NavList />
         </div>
         <div className="hidden gap-2 lg:flex">
-          <Button size="sm" color="blue-gray" onClick={goToAdminBingo}>
-            Ir a la sala del bingo
+          <Button size="sm" color="blue-gray">
+            Iniciar Sesión
           </Button>
           <Button variant="gradient" size="sm">
             Registrarse

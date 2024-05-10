@@ -5,7 +5,6 @@ const API_BASE_URL =
     ? import.meta.env.VITE_APP_API_URL
     : import.meta.env.VITE_APP_URL_DEPLOYMENT;
 
-
 const createAxiosInstance = (baseURL) => {
   const api = axios.create({
     baseURL,
@@ -14,7 +13,9 @@ const createAxiosInstance = (baseURL) => {
   return api;
 };
 
-const apiTemplatesBingo = createAxiosInstance(`${API_BASE_URL}/templates`);
-const apiBingoRoom = createAxiosInstance(`${API_BASE_URL}/rooms`);
+const apiBingo = createAxiosInstance(`${API_BASE_URL}/bingos`);
+const apiBingoTemplate = createAxiosInstance(`${API_BASE_URL}/bingoTemplate`);
+const apiBingoFigures = createAxiosInstance(`${API_BASE_URL}/figure`);
+const apiBingoCardboard = createAxiosInstance(`${API_BASE_URL}/cardboard`);
 
-export { apiTemplatesBingo, apiBingoRoom };
+export { apiBingoTemplate, apiBingo, apiBingoFigures, apiBingoCardboard };
