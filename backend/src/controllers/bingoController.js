@@ -111,7 +111,7 @@ class BingoController {
   async updateBingo(req, res) {
     try {
       const bingo = await BingoServices.updateBingo(req.params.id, req.body);
-      sendResponse(res, 200, bingo, "Room updated successfully");
+      sendResponse(res, 200, bingo, "Bingo updated successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -175,7 +175,7 @@ class BingoController {
         });
         sendResponse(res, 400, esGanador, "Todavía no ganas el Bingo.");
       }
-    }, "3000");
+    }, "7000");
   }
 }
 

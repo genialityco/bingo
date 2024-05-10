@@ -5,11 +5,11 @@ import { useState, useEffect } from "react";
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const [publicBingos, setPublicBingos] = useState([]);
+  // const [publicBingos, setPublicBingos] = useState([]);
 
-  useEffect(() => {
-    getAllPublicBingos();
-  }, []);
+  // useEffect(() => {
+  //   getAllPublicBingos();
+  // }, []);
 
   const getBingo = async (bingoCode) => {
     try {
@@ -24,25 +24,23 @@ export const HomePage = () => {
     }
   };
 
-  const getAllPublicBingos = async () => {
-    try {
-      const response = await bingoServices.getAllBingos();
-      setPublicBingos(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const getAllPublicBingos = async () => {
+  //   try {
+  //     const response = await bingoServices.getAllBingos();
+  //     setPublicBingos(response);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const goToBingo = async (e) => {
     e.preventDefault();
     const bingoCode = e.target.elements.bingoCode.value;
     const bingoResponse = await getBingo(bingoCode);
     if (bingoResponse) {
-      navigate(`/bingo-game/${bingoCode}`, {
-        state: { bingoId: bingoResponse._id },
-      });
+      navigate(`/bingo-game/${bingoCode}/${bingoResponse._id}`);
     } else {
-      alert("Sala no encontrada. Por favor, verifica el código.");
+      alert("Bingo no encotrado. Por favor, verifica el código.");
     }
   };
 
@@ -65,7 +63,7 @@ export const HomePage = () => {
       </section>
 
       {/* Sección para mostrar bingos públicos */}
-      <section className="flex flex-col items-center mt-8">
+      {/* <section className="flex flex-col items-center mt-8">
         <h2 className="text-xl font-bold">Bingos públicos</h2>
         <ul className="mt-4 w-full max-w-lg space-y-4">
           {publicBingos.length === 0 ? (
@@ -92,7 +90,7 @@ export const HomePage = () => {
             ))
           )}
         </ul>
-      </section>
+      </section> */}
     </div>
   );
 };

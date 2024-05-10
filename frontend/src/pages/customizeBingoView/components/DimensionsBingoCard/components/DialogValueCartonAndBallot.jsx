@@ -34,7 +34,7 @@ const DialogValueCartonAndBallot = ({
   positionsDisabled,
   dimension,
 }) => {
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
 
   //estado para editar dependiendo del tipo que eliga el usuario
   const [editInputsCarton, setEditInputsCarton] = useState({
@@ -71,9 +71,9 @@ const DialogValueCartonAndBallot = ({
   // UseEffect para actualizar los valores cuando el índice de edición cambie
   useEffect(() => {
     if (editIndex !== null) {
-      setSelectedItem(bingoCard.bingo_values[editIndex]);
+      setSelectedItem(bingo.bingo_values[editIndex]);
     }
-  }, [editIndex, bingoCard.bingo_values]);
+  }, [editIndex, bingo.bingo_values]);
 
   // UseEffect para establecer los valores iniciales de los campos
   useEffect(() => {

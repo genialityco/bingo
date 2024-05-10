@@ -6,7 +6,7 @@ class BingoController {
   async createBingo(req, res) {
     try {
       const bingo = await BingoTemplateServices.createBingo(req.body);
-      sendResponse(res, 201, bingo, 'Bingo created successfully');
+      sendResponse(res, 201, bingo, 'Template created successfully');
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -17,9 +17,9 @@ class BingoController {
     try {
       const bingo = await BingoTemplateServices.getBingoById(req.params.id);
       if (!bingo) {
-        return sendResponse(res, 404, null, 'Bingo not found');
+        return sendResponse(res, 404, null, 'Template not found');
       }
-      sendResponse(res, 200, bingo, 'Bingo retrieved successfully');
+      sendResponse(res, 200, bingo, 'Template retrieved successfully');
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -30,9 +30,9 @@ class BingoController {
     try {
       const bingo = await BingoTemplateServices.updateBingo(req.params.id, req.body);
       if (!bingo) {
-        return sendResponse(res, 404, null, 'Bingo not found');
+        return sendResponse(res, 404, null, 'Template not found');
       }
-      sendResponse(res, 200, bingo, 'Bingo updated successfully');
+      sendResponse(res, 200, bingo, 'Template updated successfully');
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -43,9 +43,9 @@ class BingoController {
     try {
       const result = await BingoTemplateServices.deleteBingo(req.params.id);
       if (!result) {
-        return sendResponse(res, 404, null, 'Bingo not found');
+        return sendResponse(res, 404, null, 'Template not found');
       }
-      sendResponse(res, 200, result, 'Bingo deleted successfully');
+      sendResponse(res, 200, result, 'Template deleted successfully');
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }
@@ -55,7 +55,7 @@ class BingoController {
   async listAllBingos(req, res) {
     try {
       const bingos = await BingoTemplateServices.listAllBingos();
-      sendResponse(res, 200, bingos, 'All bingos retrieved successfully');
+      sendResponse(res, 200, bingos, 'All templates retrieved successfully');
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }

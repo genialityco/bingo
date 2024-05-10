@@ -1,54 +1,45 @@
-import {
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
-  Card,
-  CardBody,
-  Typography,
-  Button,
-} from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import DimensionsBingoCard from "./components/DimensionsBingoCard/DimensionsBingoCard";
 import AppearanceCard from "./components/AppearanceBingo/AppearanceCard";
 import CardAssigment from "./components/CardAssigment/CardAssigment";
-import { Link } from "react-router-dom";
-import { useState, useContext, useEffect } from "react";
+
+// Importaciones de servicios
+import bingoServices from "../../services/bingoService";
 import bingoTemplateServices from "../../services/bingoTemplateService";
+
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { NewBingoContext } from "./context/NewBingoContext";
-import {
-  isBase64Url,
-  uploadBase64ImageToFirebase,
-} from "../../utils/validationImageExternalUrl";
-import { v4 } from "uuid";
 import { CustomBingoViewHeader } from "./components/CustomBingoViewHeader";
 import { CustomBingoTabs } from "./components/CustomBingoTabs";
-import bingoServices from "../../services/bingoService";
 
 const BingoConfig = () => {
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
   const [newBingoCreated, setNewBingoCreated] = useState(null);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const bingoId = searchParams.get("bingoId");
+  const isTemplate = searchParams.get("isTemplate");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
-      const response = await bingoServices.getBingoById(bingoId);
-      updateBingoCard(response);
+      let response;
+      if (isTemplate === "true") {
+        response = await bingoTemplateServices.getTemplateById(bingoId);
+      } else {
+        response = await bingoServices.getBingoById(bingoId);
+      }
+      updateBingo(response);
       setModifiedBingoTemplate(response);
-      // Aquí también podrías inicializar newBingoCreated si lo necesitas
-      // setNewBingoCreated(response);
     };
+
     if (bingoId) {
       getTemplateByIdToEdit();
     } else {
-      // Si no se selecciona un template existente, inicializa newBingoCreated con un objeto vacío
       setNewBingoCreated({});
     }
   }, [bingoId]);
@@ -119,11 +110,21 @@ const BingoConfig = () => {
   const handleSendUpdateTemplateBingo = async (e) => {
     e.preventDefault();
     try {
-      const response = await bingoServices.updateBingo(
-        modifiedBingoTemplate._id,
-        modifiedBingoTemplate
-      );
+      let response;
+
+      if (isTemplate === "true") {
+        response = await bingoTemplateServices.updateTemplate(
+          modifiedBingoTemplate._id,
+          modifiedBingoTemplate
+        );
+      } else {
+        response = await bingoServices.updateBingo(
+          modifiedBingoTemplate._id,
+          modifiedBingoTemplate
+        );
+      }
       const { status, message } = response;
+
       if (status === "Success") {
         alert(message);
       }
@@ -133,6 +134,15 @@ const BingoConfig = () => {
         "Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente."
       );
     }
+  };
+
+  // Hacer una plantilla publica
+  const publishTemplate = (status) => {
+    const updateIsPublic = {
+      ...modifiedBingoTemplate,
+      is_public: status,
+    }
+    setModifiedBingoTemplate(updateIsPublic);
   };
 
   // Función para manejar los cambios en la configuración del bingo
@@ -171,10 +181,15 @@ const BingoConfig = () => {
         Personaliza tu bingo
       </Typography>
 
-      <CustomBingoViewHeader
-        handleSendUpdateTemplateBingo={handleSendUpdateTemplateBingo}
-      />
-
+      {modifiedBingoTemplate && (
+        <CustomBingoViewHeader
+          handleSendUpdateTemplateBingo={handleSendUpdateTemplateBingo}
+          isPublish={modifiedBingoTemplate.is_public}
+          publishTemplate={publishTemplate}
+          bingoId={bingoId}
+          isTemplate={isTemplate}
+        />
+      )}
       <CustomBingoTabs data={data} />
     </div>
   );

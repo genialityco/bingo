@@ -19,6 +19,7 @@ const bingoCardboardSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.Mixed }],
     required: true,
   },
+  userId: { type: String, required: true },
   updated_at: { type: Date, default: Date.now },
   created_at: { type: Date, default: Date.now },
 });

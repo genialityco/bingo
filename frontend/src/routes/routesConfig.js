@@ -11,7 +11,7 @@ const routesConfig = [
     exact: true,
   },
   {
-    path: "/bingo-game/:bingoCode",
+    path: "/bingo-game/:bingoCode/:bingoId",
     component: PlayerBingoPage,
     exact: true,
   },

@@ -53,27 +53,36 @@ const BingoCardStatic = ({
                   />
                 ) : (
                   <React.Fragment>
-                    {cell.type === "image" ? (
-                      <img
-                        src={cell.value}
-                        alt="Carton"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                        }}
-                      />
-                    ) : (
-                      <Typography className="text-black text-xl font-bold select-none">
-                        {cell.value}
-                      </Typography>
-                    )}
+                    {
+                      cell.type === "image" ? (
+                        <img
+                          src={cell.value}
+                          alt="Carton"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "contain",
+                          }}
+                        />
+                      ) : cell.value ? ( // Añadido condicional para asegurar que cell.value no es undefined
+                        <Typography className="text-black text-xl font-bold select-none">
+                          {cell.value}
+                        </Typography>
+                      ) : null // Puedes cambiar esto por un valor por defecto si necesario
+                    }
                   </React.Fragment>
                 )}
                 {markedSquares[index] &&
                   markedSquares[index].isMarked &&
-                  markedSquares[index].value != "Disabled" && (
-                    <div className="absolute inset-0 flex justify-center items-center bg-opacity-50">
+                  markedSquares[index].value != "Disabled" &&
+                  (bingoAppearance.dial_image ? (
+                    <img
+                      src={bingoAppearance.dial_image}
+                      alt="Marked Overlay"
+                      className="absolute rounded-md inset-0 w-full h-full object-cover animate-mark-in"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50 bg-black">
                       <Typography
                         color="red"
                         className="sm:text-8xl md:text-4xl lg:text-5xl xl:text-6xl font-bold select-none animate-mark-in"
@@ -81,7 +90,7 @@ const BingoCardStatic = ({
                         X
                       </Typography>
                     </div>
-                  )}
+                  ))}
               </div>
             ))}
           </CardBody>

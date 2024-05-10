@@ -28,7 +28,7 @@ const DimensionsBingoCard = ({
   onConfigChange,
 }) => {
 
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
   // console.log(bingoCard)
 
  /*  const deleteIdBingoModified = modifiedBingoTemplate
@@ -60,7 +60,7 @@ const DimensionsBingoCard = ({
   //captura  el titulo y las reglas
   const handleCreateNewBingo = (e) => {
     const { name, value } = e.target;
-    updateBingoCard({ ...bingoCard, [name]: value });
+    updateBingo({ ...bingo, [name]: value });
     onConfigChange({ ...modifiedBingoTemplate, [name]: value });
   };
 
@@ -74,7 +74,7 @@ const DimensionsBingoCard = ({
       positions: [],
     }));
 
-    updateBingoCard((prevState) => ({
+    updatedBi((prevState) => ({
       ...prevState,
       bingo_values: [...newBingoValues, ...prevState.bingo_values],
     }));
@@ -102,7 +102,7 @@ const DimensionsBingoCard = ({
       positions: [],
     };
 
-    updateBingoCard((prevState) => ({
+    updateBingo((prevState) => ({
       ...prevState,
       bingo_values: [newBalota,...prevState.bingo_values],
     }));
@@ -114,10 +114,10 @@ const DimensionsBingoCard = ({
 
   //elimina un objeto dentro del array bingoValues
   const handleDeleteValueInBingoValues = (index) => {
-    const updatedBingoValues = bingoCard.bingo_values.filter(
+    const updatedBingoValues = bingo.bingo_values.filter(
       (_, i) => i !== index
     );
-    updateBingoCard((prevState) => ({
+    updateBingo((prevState) => ({
       ...prevState,
       bingo_values: updatedBingoValues,
     }));
@@ -140,11 +140,11 @@ const DimensionsBingoCard = ({
 
   //mantener actualizado el estado bingoCard con la config y enviarlo al padre "BingoConfig"
   useEffect(() => {
-    sendBingoCreated(bingoCard);
-  }, [bingoCard]);
+    sendBingoCreated(bingo);
+  }, [bingo]);
 
   useEffect(() => {
-    updateBingoCard((prevState) => ({
+    updateBingo((prevState) => ({
       ...prevState,
       positions_disabled: [],
     }));
@@ -168,7 +168,7 @@ const DimensionsBingoCard = ({
             }}
             containerProps={{ className: 'min-w-[100px]' }}
             onChange={(e) => handleCreateNewBingo(e)}
-            value={bingoCard.name}
+            value={bingo.name}
           />
         </div>
 
@@ -187,7 +187,7 @@ const DimensionsBingoCard = ({
             label="Escribe las reglas del juego"
             name="rules"
             onChange={(e) => handleCreateNewBingo(e)}
-            value={bingoCard.rules}
+            value={bingo.rules}
           />
         </div>
       </Card>
@@ -267,7 +267,7 @@ const DimensionsBingoCard = ({
               </tr>
             </thead>
             <tbody>
-              {bingoCard.bingo_values?.map((item, index) => (
+              {bingo.bingo_values?.map((item, index) => (
                 <tr key={index} className="even:bg-blue-gray-50/50">
                   {/* tipo valor en carton */}
                   <td className="p-4">

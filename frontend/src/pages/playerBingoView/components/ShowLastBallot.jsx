@@ -1,10 +1,20 @@
+import { useState, useEffect, useRef } from "react";
 import { Typography } from "@material-tailwind/react";
 
-export const ShowLastBallot = ({ bingoConfig, lastBallot }) => {
+export const ShowLastBallot = ({
+  bingoConfig,
+  lastBallot,
+  messageLastBallot,
+}) => {
+  const bingoStartAudioRef = useRef(null);
+  const bingoRestartAudioRef = useRef(null);
+  const bingoValidatingRef = useRef(null);
+  const bingoNoWinRef = useRef(null);
+
   const getBallotValueForDom = (id) => {
-    if (bingoConfig && lastBallot != "") {
+    if (bingoConfig && lastBallot !== "") {
       const ballotData = bingoConfig.bingo_values.find(
-        (objeto) => objeto._id == id
+        (objeto) => objeto._id === id
       );
       return {
         value: ballotData.ballot_value,
@@ -12,25 +22,36 @@ export const ShowLastBallot = ({ bingoConfig, lastBallot }) => {
       };
     }
   };
+
+  useEffect(() => {
+    if (messageLastBallot === "¡El bingo ha comenzado!") {
+      // bingoStartAudioRef.current.play();
+    } else if (
+      messageLastBallot ===
+      "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
+    ) {
+      bingoRestartAudioRef.current.play();
+    } else if (
+      messageLastBallot === "¡Alguien ha cantado bingo, estamos validando!"
+    ) {
+      bingoValidatingRef.current.play();
+    } 
+  }, [messageLastBallot]);
+
   return (
     <div className="p-2">
-      <Typography className="text-center">
-        {lastBallot
-          ? "¡El bingo ha iniciado!"
-          : "¡El bingo aún no ha iniciado!"}
-      </Typography>
-      {lastBallot && (
+      <audio ref={bingoStartAudioRef} src="/audios/startBingo.mp3"></audio>
+      <audio ref={bingoRestartAudioRef} src="/audios/restartBingo.mp3"></audio>
+      <audio ref={bingoValidatingRef} src="/audios/validatingBingo.mp3"></audio>
+      <Typography className="text-center">{messageLastBallot}</Typography>
+      {lastBallot && lastBallot !== "" && (
         <Typography variant="h6" className="text-center">
           Última balota sacada:{" "}
           {getBallotValueForDom(lastBallot).type === "image" ? (
             <img
               src={getBallotValueForDom(lastBallot).value}
               alt="Ballot"
-              style={{
-                width: "10",
-                height: "10",
-                objectFit: "contain",
-              }}
+              style={{ width: "10", height: "10", objectFit: "contain" }}
               className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50"
             />
           ) : (

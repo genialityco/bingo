@@ -6,7 +6,7 @@ const SizeBingoCard = ({
   getPositionsDisablesAndDimension,
   onConfigChange,
 }) => {
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
 
   const [selectedDimensions, setSelectedDimensions] = useState(null);
   const [disabledPositions, setDisabledPositions] = useState([]);
@@ -28,7 +28,7 @@ const SizeBingoCard = ({
     // Actualizamos el estado disabledPositions
     setDisabledPositions(newDisabledPositions);
 
-    updateBingoCard((prevState) => {
+    updateBingo((prevState) => {
       const newBingoCard = { ...prevState };
 
       // Verificar si el índice ya está en positions_disabled
@@ -84,7 +84,7 @@ const SizeBingoCard = ({
   //limpiar estados de disabledPositions y selectedPositions cuando cambio de tamaño del carton
   const handleSizeChange = (newDimension) => {
     //  console.log("newDimension", newDimension)
-    const currentDimension = bingoCard.dimensions;
+    const currentDimension = bingo.dimensions;
     // console.log("current dimension", currentDimension)
 
     if (sizeChangeCount > 0 && currentDimension !== newDimension) {
@@ -93,7 +93,7 @@ const SizeBingoCard = ({
       );
 
       if (confirmChange && currentDimension !== newDimension) {
-        updateBingoCard((prevBingoCard) => ({
+        updateBingo((prevBingoCard) => ({
           ...prevBingoCard,
           dimensions: newDimension,
           bingo_values: prevBingoCard.bingo_values.map((value) => ({
@@ -112,7 +112,7 @@ const SizeBingoCard = ({
         setSelectedDimensions(newDimension);
       }
     } else if (currentDimension !== newDimension) {
-      updateBingoCard((prevBingoCard) => ({
+      updateBingo((prevBingoCard) => ({
         ...prevBingoCard,
         dimensions: newDimension,
         bingo_values: prevBingoCard?.bingo_values?.map((value) => ({
@@ -136,27 +136,27 @@ const SizeBingoCard = ({
 
   // Actualizar el índice activo del carrusel según las dimensiones seleccionadas
   useEffect(() => {
-    if (bingoCard.dimensions === '3x3') {
+    if (bingo.dimensions === '3x3') {
       setActiveIndex(0);
-    } else if (bingoCard.dimensions === '4x4') {
+    } else if (bingo.dimensions === '4x4') {
       setActiveIndex(1);
-    } else if (bingoCard.dimensions === '5x5') {
+    } else if (bingo.dimensions === '5x5') {
       setActiveIndex(2);
     }
-  }, [bingoCard.dimensions, setActiveIndex]);
+  }, [bingo.dimensions, setActiveIndex]);
   
 
   useEffect(() => {
-    if (bingoCard && bingoCard.dimensions && bingoCard.positions_disabled) {
-      setSelectedDimensions(bingoCard.dimensions);
+    if (bingo && bingo.dimensions && bingo.positions_disabled) {
+      setSelectedDimensions(bingo.dimensions);
 
       setDisabledPositions(
-        bingoCard.positions_disabled.map((item) => item.position)
+        bingo.positions_disabled.map((item) => item.position)
       );
 
       getPositionsDisablesAndDimension(disabledPositions, selectedDimensions);
     }
-  }, [bingoCard]);
+  }, [bingo]);
 
   return (
     <Carousel

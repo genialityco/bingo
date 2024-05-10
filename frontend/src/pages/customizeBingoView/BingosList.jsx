@@ -1,4 +1,5 @@
 import {
+  ButtonGroup,
   Button,
   Card,
   CardBody,
@@ -13,17 +14,22 @@ import {
 } from "@material-tailwind/react";
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+
+// Importaciones de servicios
 import bingoServices from "../../services/bingoService";
 import bingoTemplateServices from "../../services/bingoTemplateService";
 
+// Componentes principales
 const BingoList = () => {
-  // Estados para listas de bingos y plantillas
+  // Estados para listas y errores
   const [bingos, setBingos] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loadingBingos, setLoadingBingos] = useState(true);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [errorBingos, setErrorBingos] = useState(null);
   const [errorTemplates, setErrorTemplates] = useState(null);
+
+  // Estado del diálogo de creación
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newBingo, setNewBingo] = useState({
     name: "",
@@ -31,7 +37,7 @@ const BingoList = () => {
     templateId: "",
   });
 
-  // Función para obtener la lista de bingos
+  // Funciones para obtener listas
   const fetchBingos = useCallback(async () => {
     try {
       const response = await bingoServices.getAllBingos();
@@ -43,10 +49,9 @@ const BingoList = () => {
     }
   }, []);
 
-  // Función para obtener la lista de plantillas
   const fetchTemplates = useCallback(async () => {
     try {
-      const { data } = await bingoTemplateServices.listAllBingos();
+      const { data } = await bingoTemplateServices.listAllTemplates();
       setTemplates(data);
     } catch (err) {
       setErrorTemplates("Error al obtener la lista de plantillas");
@@ -55,20 +60,17 @@ const BingoList = () => {
     }
   }, []);
 
+  // Uso de useEffect para llamar a las funciones de carga
   useEffect(() => {
     fetchBingos();
     fetchTemplates();
   }, [fetchBingos, fetchTemplates]);
 
-  const openDialog = () => {
-    setIsDialogOpen(true);
-  };
+  // Manejo de diálogos
+  const openDialog = () => setIsDialogOpen(true);
+  const closeDialog = () => setIsDialogOpen(false);
 
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-  // Función para manejar el formulario de creación del nuevo bingo
+  // Manejo del formulario de creación
   const handleBingoChange = (event) => {
     const { name, value } = event.target;
     setNewBingo({ ...newBingo, [name]: value });
@@ -80,49 +82,35 @@ const BingoList = () => {
 
   const createNewBingo = async () => {
     try {
-      // Crear los datos básicos para el nuevo Bingo
       const newBingoData = {
         ...newBingo,
         capacity: 100,
         bingo_code: `ROOM${Math.random().toString(36).substring(2, 8)}`,
       };
 
-      // Obtener el template original
-      const originalTemplate = await bingoTemplateServices.getBingoById(
+      const originalTemplate = await bingoTemplateServices.getTemplateById(
         newBingoData.templateId
       );
-
       if (!originalTemplate) {
         console.error("Template no encontrado");
         return;
       }
 
-      // Hacer una copia del template
-      const copiedTemplate = { ...originalTemplate };
-      copiedTemplate._id = undefined; // Limpiar el _id para generar uno nuevo al copiar
-      copiedTemplate.name = `Copia del Bingo: ${newBingoData.roomCode} - Template: ${originalTemplate.title}`;
+      const copiedTemplate = {
+        ...originalTemplate,
+        _id: undefined,
+        name: newBingoData.name,
+        bingo_code: newBingoData.bingo_code,
+        is_template: false,
+        is_public: false,
+      };
 
-      // Crear el nuevo template copiado en el sistema
-      const newTemplate = await bingoTemplateServices.createBingo(
-        copiedTemplate
-      );
-
-      if (!newTemplate || !newTemplate._id) {
-        console.error("No se pudo crear el nuevo template");
-        return;
-      }
-
-      // Asignar el _id del nuevo template al Bingo
-      newBingoData.bingoId = newTemplate._id;
-
-      // Crear el nuevo Bingo con el nuevo template
-      const newBingoCreated = await bingoServices.createBingo(newBingoData);
+      const newBingoCreated = await bingoServices.createBingo(copiedTemplate);
 
       if (newBingoCreated) {
-        console.log("Nuevo Bingo creado con éxito:", newBingo.title);
         fetchBingos();
         fetchTemplates();
-        closeDialog(); // Cerrar el diálogo si está abierto
+        closeDialog();
       } else {
         console.error("No se pudo crear el nuevo Bingo");
       }
@@ -131,7 +119,22 @@ const BingoList = () => {
     }
   };
 
-  // Componentes de carga y error para las listas
+  const convertToTemplate = async (bingo) => {
+    try {
+      const newTemplate = {
+        ...bingo,
+        _id: undefined,
+        is_public: false,
+        is_template: true,
+      };
+      const response = await bingoTemplateServices.createTemplate(newTemplate);
+      fetchTemplates();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Componentes auxiliares
   const LoadingOrErrorComponent = ({ loading, error, children }) => {
     if (loading) {
       return (
@@ -151,33 +154,56 @@ const BingoList = () => {
     return children;
   };
 
-  // Renderizado de la lista de bingos
+  const BingoCard = ({ bingo }) => (
+    <Card className="bg-blue-gray-100 flex flex-col justify-between h-full w-full">
+      <CardBody className="flex-grow">
+        <h3 className="text-xl font-bold">{bingo.name}</h3>
+      </CardBody>
+      <CardFooter>
+        <div className="flex gap-2 w-full">
+          <ButtonGroup>
+            <Button className="normal-case" size="sm">
+              <Link to={`/customize-bingo?bingoId=${bingo._id}`}>
+                Personalizar
+              </Link>
+            </Button>
+
+            <Button className="normal-case" size="sm">
+              <Link to={`/play-bingo/${bingo._id}`}>Iniciar bingo</Link>
+            </Button>
+            <Button
+              className="normal-case"
+              size="sm"
+              onClick={() => convertToTemplate(bingo)}
+            >
+              Convertir en plantilla
+            </Button>
+          </ButtonGroup>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+
+  const TemplateCard = ({ template }) => (
+    <Card className="bg-teal-100 flex flex-col justify-between h-full">
+      <CardBody className="flex-grow">
+        <h3 className="text-xl font-bold">{template.name}</h3>
+      </CardBody>
+      <CardFooter>
+        <Link
+          to={`/customize-bingo?bingoId=${template._id}&isTemplate=true`}
+          className="w-1/2"
+        >
+          <Button className="w-full">Modificar Plantilla</Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  );
+
   const renderBingos = () => (
-    <div className="w-full m-auto my-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
       {bingos.length ? (
-        bingos.map((bingo) => (
-          <Card
-            key={bingo._id}
-            className="bg-blue-gray-100 flex flex-col justify-between h-full"
-          >
-            <CardBody className="flex-grow">
-              <h3 className="text-xl font-bold">{bingo.name}</h3>
-            </CardBody>
-            <CardFooter>
-              <div className="flex gap-2 w-full">
-                <Link
-                  to={`/customize-bingo?bingoId=${bingo._id}`}
-                  className="w-1/2"
-                >
-                  <Button className="w-full">Personalizar</Button>
-                </Link>
-                <Link to={`/play-bingo/${bingo._id}`}>
-                  <Button>Iniciar bingo</Button>
-                </Link>
-              </div>
-            </CardFooter>
-          </Card>
-        ))
+        bingos.map((bingo) => <BingoCard key={bingo._id} bingo={bingo} />)
       ) : (
         <div className="text-center text-lg text-gray-500">
           No se encontraron bingos.
@@ -186,29 +212,11 @@ const BingoList = () => {
     </div>
   );
 
-  // Renderizado de la lista de plantillas
   const renderTemplates = () => (
-    <div className="w-full m-auto my-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
       {templates.length ? (
         templates.map((template) => (
-          <Card
-            key={template._id}
-            className="bg-teal-100 flex flex-col justify-between h-full"
-          >
-            <CardBody className="flex-grow">
-              <h3 className="text-xl font-bold">{template.name}</h3>
-            </CardBody>
-            <CardFooter>
-              <div className="flex w-full">
-                <Link
-                  to={`/bingo-config?bingoId=${template._id}`}
-                  className="w-1/2"
-                >
-                  <Button className="w-full">Modificar Plantilla</Button>
-                </Link>
-              </div>
-            </CardFooter>
-          </Card>
+          <TemplateCard key={template._id} template={template} />
         ))
       ) : (
         <div className="text-center text-lg text-gray-500">
@@ -237,13 +245,12 @@ const BingoList = () => {
         <div className="p-5">
           <div className="flex gap-5 items-center">
             <h2 className="text-2xl font-bold my-4">Lista de Plantillas</h2>
-            <Button>Crear Nueva Plantilla</Button>
           </div>
           {renderTemplates()}
         </div>
       </LoadingOrErrorComponent>
 
-      {/* Dialog */}
+      {/* Diálogo de creación */}
       <Dialog open={isDialogOpen} handler={closeDialog}>
         <DialogHeader>Crear Nuevo Bingo</DialogHeader>
         <DialogBody divider>

@@ -79,12 +79,9 @@ export const BingoControlPanel = () => {
       );
       setCurrentBallot(lastBallot);
 
-      const figures = await bingoFigureServices.getAllFigures()
+      const figures = await bingoFigureServices.getAllFigures();
       setFigures(figures);
-      generateInvitationLink(
-        bingoResponse.bingo_code,
-        bingoResponse._id,
-      );
+      generateInvitationLink(bingoResponse.bingo_code, bingoResponse._id);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -115,9 +112,7 @@ export const BingoControlPanel = () => {
 
   const generateInvitationLink = (bingoCode, bingoId) => {
     const baseURL = window.location.origin;
-    const state = JSON.stringify({ bingoId });
-    const encodedState = encodeURIComponent(state);
-    setInvitationLink(`${baseURL}/bingo-game/${bingoCode}?state=${encodedState}`);
+    setInvitationLink(`${baseURL}/bingo-game/${bingoCode}/${bingoId}`);
   };
 
   const restartBingo = async () => {
@@ -153,9 +148,7 @@ export const BingoControlPanel = () => {
 
   const getBallotValueForDom = (id) => {
     if (bingo && id) {
-      const ballotData = bingo.bingo_values.find(
-        (ballot) => ballot._id === id
-      );
+      const ballotData = bingo.bingo_values.find((ballot) => ballot._id === id);
       return {
         value: ballotData?.ballot_value ?? null,
         type: ballotData?.ballot_type ?? null,
@@ -180,7 +173,8 @@ export const BingoControlPanel = () => {
           <Card className="w-full mb-1">
             <CardBody className="flex flex-col items-center justify-center">
               {currentBallot ? (
-                currentBallot.type === "image" && currentBallot.ballot_value ? (
+                currentBallot.ballot_type === "image" &&
+                currentBallot.ballot_value ? (
                   <img
                     src={currentBallot.ballot_value}
                     alt="Ballot"
@@ -254,53 +248,43 @@ export const BingoControlPanel = () => {
       {/* Sección para las balotas anunciadas */}
       <div className="w-full">
         {/* Verifica que bingoConfig exista */}
-        {bingo &&
-          Object.keys(bingo).length > 0 &&
-          announcedBallots && (
-            <Card className="w-full">
-              <CardBody className="flex flex-wrap justify-center items-center gap-2">
-                <Typography variant="h6" className="w-full text-center">
-                  Balotas anunciadas {announcedBallots.length}
-                </Typography>
-                {announcedBallots.map((ballot) => {
-                  const { value, type } = getBallotValueForDom(ballot);
-                  return (
-                    <React.Fragment key={ballot}>
-                      {type === "image" ? (
-                        <img
-                          src={value}
-                          alt="Ballot"
-                          className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50 mb-5"
-                        />
-                      ) : (
-                        <Typography
-                          variant="h5"
-                          className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
-                        >
-                          {value}
-                        </Typography>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </CardBody>
-              <CardFooter>
-                <ButtonGroup className="flex justify-center">
-                  <FormEditRoom
-                    bingo={bingo}
-                    fetchBingoData={fetchInitialData}
-                  />
-                  <Button onClick={restartBingo}>
-                    Reiniciar/Limpiar bingo
-                  </Button>
-                  <InvitePopover
-                    invitationLink={invitationLink}
-                    bingo={bingo}
-                  />
-                </ButtonGroup>
-              </CardFooter>
-            </Card>
-          )}
+        {bingo && Object.keys(bingo).length > 0 && announcedBallots && (
+          <Card className="w-full">
+            <CardBody className="flex flex-wrap justify-center items-center gap-2">
+              <Typography variant="h6" className="w-full text-center">
+                Balotas anunciadas {announcedBallots.length}
+              </Typography>
+              {announcedBallots.map((ballot) => {
+                const { value, type } = getBallotValueForDom(ballot);
+                return (
+                  <React.Fragment key={ballot}>
+                    {type === "image" ? (
+                      <img
+                        src={value}
+                        alt="Ballot"
+                        className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50 mb-5"
+                      />
+                    ) : (
+                      <Typography
+                        variant="h5"
+                        className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                      >
+                        {value}
+                      </Typography>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </CardBody>
+            <CardFooter>
+              <ButtonGroup className="flex justify-center">
+                <FormEditRoom bingo={bingo} fetchBingoData={fetchInitialData} />
+                <Button onClick={restartBingo}>Reiniciar/Limpiar bingo</Button>
+                <InvitePopover invitationLink={invitationLink} bingo={bingo} />
+              </ButtonGroup>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </div>
   );

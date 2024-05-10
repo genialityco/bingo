@@ -1,19 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
   Card,
   CardBody,
   Typography,
   Button,
+  Switch,
 } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 
-export const CustomBingoViewHeader = ({ handleSendUpdateTemplateBingo }) => {
+export const CustomBingoViewHeader = ({
+  handleSendUpdateTemplateBingo,
+  isPublish,
+  publishTemplate,
+  bingoId,
+  isTemplate,
+}) => {
+  const [publish, setPublish] = useState(isPublish);
+
+  const handleToggleChange = () => {
+    const newPublishState = !publish;
+    setPublish(newPublishState);
+    publishTemplate(newPublishState);
+  };
+
   return (
-    <Card className=" w-full shadow-none">
+    <Card className="w-full shadow-none">
       <CardBody className="flex flex-col justify-between items-center sm:flex-row gap-8">
         <div className="flex items-center justify-center gap-2">
           <svg
@@ -32,13 +43,23 @@ export const CustomBingoViewHeader = ({ handleSendUpdateTemplateBingo }) => {
             Administrador Juego
           </Typography>
         </div>
-        {/* Buttons with icon */}
+        {/* Botones con íconos */}
         <div className="flex items-center gap-5">
-          {/* {bingoId && (
-          <Link to={`/play-bingo/${bingoId}`}>
-            <Button className="flex items-center gap-3">Jugar</Button>
-          </Link>
-        )} */}
+          {isTemplate === "true" && (
+            <div className="flex items-center gap-2">
+              <Typography variant="small">Público</Typography>
+              <Switch
+                color="blue"
+                checked={publish}
+                onChange={handleToggleChange}
+              />
+            </div>
+          )}
+          {isTemplate !== "true" && (
+            <Button>
+              <Link to={`/play-bingo/${bingoId}`}>Iniciar bingo</Link>
+            </Button>
+          )}
           <Button
             className="flex items-center gap-3"
             onClick={(e) => handleSendUpdateTemplateBingo(e)}

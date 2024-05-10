@@ -2,7 +2,7 @@ import { apiBingoTemplate } from "./index";
 
 const bingoTemplateServices = {
   // Crear un nuevo juego de bingo
-  createBingo: async (bingoData) => {
+  createTemplate: async (bingoData) => {
     try {
       const response = await apiBingoTemplate.post("/", bingoData);
       return response.data.data;
@@ -12,7 +12,7 @@ const bingoTemplateServices = {
   },
 
   // Obtener los detalles de un juego de bingo por su ID
-  getBingoById: async (bingoId) => {
+  getTemplateById: async (bingoId) => {
     try {
       const response = await apiBingoTemplate.get(`/${bingoId}`);
       return response.data.data;
@@ -22,7 +22,7 @@ const bingoTemplateServices = {
   },
 
   // Actualizar un juego de bingo
-  updateBingo: async (bingoId, updateData) => {
+  updateTemplate: async (bingoId, updateData) => {
     try {
       const response = await apiBingoTemplate.put(`/${bingoId}`, updateData);
       return response.data;
@@ -32,7 +32,7 @@ const bingoTemplateServices = {
   },
 
   // Eliminar un juego de bingo
-  deleteBingo: async (bingoId) => {
+  deleteTemplate: async (bingoId) => {
     try {
       const response = await apiBingoTemplate.delete(`/${bingoId}`);
       return response.data;
@@ -42,7 +42,7 @@ const bingoTemplateServices = {
   },
 
   // Listar todos los juegos de bingo
-  listAllBingos: async () => {
+  listAllTemplates: async () => {
     try {
       const response = await apiBingoTemplate.get("/");
       return response.data;

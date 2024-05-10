@@ -13,6 +13,7 @@ import { BingoFigure } from "./BingoFigure";
 export const TabsSection = ({
   bingoConfig,
   lastBallot,
+  messageLastBallot,
   ballotsHistory,
 }) => {
   const dataTabs = [
@@ -20,7 +21,11 @@ export const TabsSection = ({
       label: "Balotas",
       value: "balls",
       content: (
-        <ShowLastBallot bingoConfig={bingoConfig} lastBallot={lastBallot} />
+        <ShowLastBallot
+          bingoConfig={bingoConfig}
+          lastBallot={lastBallot}
+          messageLastBallot={messageLastBallot}
+        />
       ),
     },
     {
