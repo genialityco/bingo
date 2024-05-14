@@ -11,7 +11,7 @@ import { TabsSection } from "./components/TabsSetion";
 import { MessageDialog } from "./components/MessageDialog";
 import { LiveStream } from "./components/LiveStream";
 
-import { signInAnonymously, updateProfile  } from "firebase/auth";
+import { signInAnonymously, updateProfile } from "firebase/auth";
 import { auth } from "../../firebase";
 
 async function generateRandomAlphanumeric(length) {
@@ -63,7 +63,11 @@ export const PlayerBingoPage = () => {
       ? JSON.parse(localStorage.getItem("cardboard_code"))
       : ""
   );
-  const [cardboardId, setCardboardId] = useState();
+  const [cardboardId, setCardboardId] = useState(
+    JSON.parse(localStorage.getItem("cardboard_id"))
+      ? JSON.parse(localStorage.getItem("cardboard_id"))
+      : ""
+  );
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
     color: "lightBlue",
@@ -155,7 +159,7 @@ export const PlayerBingoPage = () => {
 
         // Si el array de balotas está vacío, manejar reinicio
         if (Array.isArray(historyUpdates) && historyUpdates.length === 0) {
-          resetGame();
+          resetGame(cardboardId);
         } else if (ballotKeys.length) {
           // Si hay balotas actualizadas, manejar la última balota
           const latestBallotKey = ballotKeys[ballotKeys.length - 1]; // Obtener la última clave modificada
@@ -175,18 +179,19 @@ export const PlayerBingoPage = () => {
   };
 
   // Función para resetear el juego
-  function resetGame() {
+  const resetGame = (cardboardId) => {
     const resetMarkedSquares = markedSquares.map((square) =>
       square.value === "Disabled" ? square : { isMarked: false, value: "" }
     );
     setMarkedSquares(resetMarkedSquares);
-    updateMarkSquare(resetMarkedSquares);
+    updateMarkSquare(resetMarkedSquares, cardboardId);
     setLastBallot("");
     setMessageLastBallot(
       "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
     );
     getBallotsHistory();
-  }
+    getExistingCardboard(cardboardCode);
+  };
 
   const handleSangBingo = (data) => {
     const { userId, status } = data;
@@ -273,6 +278,7 @@ export const PlayerBingoPage = () => {
       setCardboardId(cardboardSaved.data._id);
       setCardboardCode(cardboard_code);
       localStorage.setItem("cardboard_code", JSON.stringify(cardboard_code));
+      localStorage.setItem("cardboard_id", JSON.stringify(cardboardSaved.data._id))
     } catch (error) {
       console.error("Error saving cardboard:", error);
     }
@@ -291,6 +297,8 @@ export const PlayerBingoPage = () => {
       setMarkedSquares(response.data.game_marked_squares);
       localStorage.setItem("userId", JSON.stringify(response.data.playerName));
       localStorage.setItem("cardboard_code", JSON.stringify(code));
+      localStorage.setItem("cardboard_id", JSON.stringify(response.data._id))
+      return response.data._id;
     }
   };
 
@@ -411,24 +419,16 @@ export const PlayerBingoPage = () => {
           value: item._id,
         };
 
-        updateMarkSquare(updatedMarks);
+        updateMarkSquare(updatedMarks, cardboardId);
         return updatedMarks;
       });
     }
   };
 
-  const updateMarkSquare = async (updatedMarks) => {
-    if (!cardboardId) {
-      await getExistingCardboard(cardboardCode);
-    }
-    
-    if (cardboardId) {
-      await bingoCardboardService.updateCardboard(cardboardId, {
-        game_marked_squares: updatedMarks,
-      });
-    } else {
-      console.error("No cardboardId available to update");
-    }
+  const updateMarkSquare = async (updatedMarks, cardboardId) => {
+    await bingoCardboardService.updateCardboard(cardboardId, {
+      game_marked_squares: updatedMarks,
+    });
   };
 
   const getBallotsHistory = async () => {

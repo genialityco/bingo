@@ -10,7 +10,7 @@ import { NewBingoContext } from '../../../context/NewBingoContext';
 const MarkerImage = ({ customBingoCard }) => {
   const [dialImage, setDialImage] = useState(null);
 
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
 
   const fileInputRef = useRef(null);
 
@@ -26,7 +26,7 @@ const MarkerImage = ({ customBingoCard }) => {
       setDialImage(image);
 
       // Actualizar el estado del contexto con la URL base64
-      updateBingoCard((prevState) => ({
+      updateBingo((prevState) => ({
         ...prevState,
         bingo_appearance: {
           ...prevState.bingo_appearance,
@@ -37,10 +37,10 @@ const MarkerImage = ({ customBingoCard }) => {
     reader.readAsDataURL(file);
   };
 
-  //mantener actualizado el estado bingoCard con la config y enviarlo al padre "AppearenceBingo"
+  //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
   useEffect(() => {
-    customBingoCard(bingoCard);
-  }, [bingoCard]);
+    customBingoCard(bingo);
+  }, [bingo]);
 
   return (
     <Card className="mt-6 w-60 h-80 ">

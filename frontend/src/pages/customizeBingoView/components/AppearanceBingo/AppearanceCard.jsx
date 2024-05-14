@@ -14,7 +14,7 @@ import { NewBingoContext } from '../../context/NewBingoContext';
 const AppearanceCard = () => {
 
   
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
 
 
   const customBingoCard=(customBingo)=>{

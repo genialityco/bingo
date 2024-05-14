@@ -5,7 +5,7 @@ import { NewBingoContext } from '../../../context/NewBingoContext';
 
 const BannerBingo = ({customBingoCard}) => {
 
-  const { bingoCard, updateBingoCard } = useContext(NewBingoContext);
+  const { bingo, updateBingo } = useContext(NewBingoContext);
 
   const[imageBanner, setImageBanner]=useState(null)
  
@@ -23,7 +23,7 @@ const BannerBingo = ({customBingoCard}) => {
       setImageBanner(image);
       
       // Actualizar el estado del contexto con la URL base64
-      updateBingoCard((prevState) => ({
+      updateBingo((prevState) => ({
         ...prevState,
         bingo_appearance: { ...prevState.bingo_appearance, banner: image }
       }));
@@ -33,10 +33,10 @@ const BannerBingo = ({customBingoCard}) => {
    
   };
 
-   //mantener actualizado el estado bingoCard con la config y enviarlo al padre "AppearenceBingo"
+   //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
    useEffect(() => {
-    customBingoCard(bingoCard);
-  }, [bingoCard]);
+    customBingoCard(bingo);
+  }, [bingo]);
 
 
   return (
