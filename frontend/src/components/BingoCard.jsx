@@ -72,15 +72,15 @@ const BingoCardStatic = ({
                     }
                   </React.Fragment>
                 )}
-                {markedSquares[index] &&
-                  markedSquares[index].isMarked &&
-                  markedSquares[index].value != "Disabled" &&
+                {bingoCard[index] &&
+                  bingoCard[index].isMarked &&
+                  bingoCard[index].value != "Disabled" &&
                   (bingoAppearance.dial_image ? (
                     <img
-                      src={bingoAppearance.dial_image}
-                      alt="Marked Overlay"
-                      className="absolute rounded-md inset-0 w-full h-full object-cover animate-mark-in"
-                    />
+                    src={bingoAppearance.dial_image}
+                    alt="Marked Overlay"
+                    className="absolute opacity-25 rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
+                  />
                   ) : (
                     <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50 bg-black">
                       <Typography

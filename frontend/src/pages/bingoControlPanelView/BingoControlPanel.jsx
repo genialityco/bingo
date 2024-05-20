@@ -20,6 +20,7 @@ import { BallotMachine } from "./components/BallotMachine";
 import InvitePopover from "./components/InvitePopover";
 import { FormEditRoom } from "./components/FormEditRoom";
 import { BingoRequestTable } from "./components/BingoRequestTable";
+import { BingoCardInputDialog } from "./components/BingoCardInputDialog";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -33,6 +34,8 @@ export const BingoControlPanel = () => {
   const [bingoRequests, setBingoRequests] = useState([]);
 
   const [invitationLink, setInvitationLink] = useState("");
+
+  const [isInputDialogOpen ,setIsInputDialogOpen] = useState(false);
 
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
@@ -279,9 +282,18 @@ export const BingoControlPanel = () => {
             <CardFooter>
               <ButtonGroup className="flex justify-center">
                 <FormEditRoom bingo={bingo} fetchBingoData={fetchInitialData} />
-                <Button onClick={restartBingo}>Reiniciar/Limpiar bingo</Button>
+                <Button className="normal-case" onClick={() => setIsInputDialogOpen(true)}>
+                  Buscar Cartón
+                </Button>
+                <Button className="normal-case"  onClick={restartBingo}>Reiniciar/Limpiar bingo</Button>
                 <InvitePopover invitationLink={invitationLink} bingo={bingo} />
               </ButtonGroup>
+              {isInputDialogOpen && (
+                <BingoCardInputDialog
+                  isOpen={isInputDialogOpen}
+                  onClose={() => setIsInputDialogOpen(false)}
+                />
+              )}
             </CardFooter>
           </Card>
         )}

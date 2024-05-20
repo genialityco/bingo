@@ -67,10 +67,11 @@ server.listen(PORT, () => {
 });
 
 io.on("connection", (socket) => {
-  console.log("Un cliente se ha conectado");
 
-  socket.on("clientConnected", (data) => {
+  // Nuevo evento para recibir el nombre del usuario
+  socket.on("setPlayerName", (data) => {
     console.log(`${data.playerName} se ha conectado`);
+    // Emitir a todos los clientes excepto al remitente
     socket.broadcast.emit("userConnected", {
       message: `${data.playerName} se ha conectado`,
     });

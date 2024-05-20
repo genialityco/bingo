@@ -19,12 +19,18 @@ module.exports = withMT({
           from: { transform: "scale(1)", opacity: "1" },
           to: { transform: "scale(0)", opacity: "0" },
         },
+        "mark-opacity": {
+          from: { transform: "scale(0)", opacity: "0" },
+          to: { transform: "scale(1)", opacity: "0.7" },
+        },
+        
       },
       animation: {
         "pulse-infinite":
           "pulse-infinite 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "mark-in": "mark-in 0.5s ease-in-out forwards",
         "mark-out": "mark-out 0.5s ease-in-out forwards",
+        "mark-opacity": "mark-opacity 0.5s ease-in-out forwards", 
       },
       colors: {
         blue: {
