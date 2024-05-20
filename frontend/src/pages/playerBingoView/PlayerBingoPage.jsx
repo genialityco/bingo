@@ -44,9 +44,9 @@ export const PlayerBingoPage = () => {
   // Estados iniciales
   const [bingoConfig, setBingoConfig] = useState(null);
   const [bingoCard, setBingoCard] = useState(
-    JSON.parse(localStorage.getItem("userId"))
-      ? JSON.parse(localStorage.getItem("bingoCard"))
-      : [""]
+    JSON.parse(localStorage.getItem("bingo_card"))
+      ? JSON.parse(localStorage.getItem("bingo_card"))
+      : ""
   );
   const [rows, setRows] = useState();
   const [markedSquares, setMarkedSquares] = useState([]);
@@ -63,7 +63,11 @@ export const PlayerBingoPage = () => {
       ? JSON.parse(localStorage.getItem("cardboard_code"))
       : ""
   );
-  const [cardboardId, setCardboardId] = useState("");
+  const [cardboardId, setCardboardId] = useState(
+    JSON.parse(localStorage.getItem("cardboard_id"))
+      ? JSON.parse(localStorage.getItem("cardboard_id"))
+      : ""
+  );
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
     color: "lightBlue",
@@ -78,6 +82,94 @@ export const PlayerBingoPage = () => {
 
   // Efecto para obtener la configuración del bingo
   useEffect(() => {
+    const generateBingoCard = (values, dimensions, positionsDisabled) => {
+      const [rows, cols] = dimensions.split("x").map(Number);
+
+      setRows(rows);
+
+      if (cardboardId !== "") {
+        getExistingCardboard();
+        return;
+      }
+
+      let card = Array.from({ length: rows * cols }, () => ({
+        value: null,
+        _id: null,
+        isMarked: false,
+        default_image: null,
+        type: null,
+      }));
+
+      // Aplicar posiciones deshabilitadas
+      positionsDisabled.forEach((disabled) => {
+        card[disabled.position] = {
+          ...card[disabled.position],
+          value: "Disabled",
+          default_image: disabled.default_image,
+          marked: true,
+        };
+      });
+
+      // Mezclar los valores antes de separarlos
+      let shuffledValues = shuffle(values);
+
+      // Separar los valores en dos grupos: con posiciones y sin posiciones
+      let valuesWithPositions = shuffledValues.filter(
+        (value) => value.positions.length > 0
+      );
+      let valuesWithoutPositions = shuffledValues.filter(
+        (value) => value.positions.length === 0
+      );
+
+      // Registro de valores ya asignados para evitar duplicados
+      let assignedValues = new Set();
+
+      // Asignar valores con posiciones específicas
+      valuesWithPositions.forEach((value) => {
+        value.positions.forEach((pos) => {
+          if (
+            pos >= 0 &&
+            pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
+            card[pos].value === null &&
+            !assignedValues.has(value.carton_value)
+          ) {
+            card[pos] = {
+              ...card[pos],
+              value: value.carton_value,
+              type: value.carton_type,
+              _id: value._id,
+            };
+            assignedValues.add(value.carton_value);
+          }
+        });
+      });
+
+      // Asignar valores sin posiciones específicas
+      valuesWithoutPositions.forEach((value) => {
+        let availablePositions = card.flatMap((cell, index) =>
+          cell.value === null ? index : []
+        );
+        if (availablePositions.length > 0) {
+          let chosenPosition =
+            availablePositions[
+              Math.floor(Math.random() * availablePositions.length)
+            ];
+          if (!assignedValues.has(value.carton_value)) {
+            card[chosenPosition] = {
+              ...card[chosenPosition],
+              value: value.carton_value,
+              type: value.carton_type,
+              _id: value._id,
+            };
+            assignedValues.add(value.carton_value);
+          }
+        }
+      });
+
+      setBingoCard(card);
+      // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
+    };
+
     const getBingo = async () => {
       if (bingoCode) {
         const response = await bingoServices.findBingoByField(
@@ -97,10 +189,6 @@ export const PlayerBingoPage = () => {
     };
     getBingo();
   }, [bingoCode]);
-
-  // useEffect(() => {
-  //   console.log("Id del cartón: ", cardboardId);
-  // }, [cardboardId]);
 
   // Efecto para configurar los eventos de socket.io
   useEffect(() => {
@@ -266,7 +354,6 @@ export const PlayerBingoPage = () => {
     const bingoId = bingoConfig._id;
     const cardboard_code = await generateRandomAlphanumeric(6);
     const game_card_values = bingoCard;
-    // const game_marked_squares = markedSquares;
 
     try {
       // Autenticarse anónimamente y obtener el usuario
@@ -278,7 +365,6 @@ export const PlayerBingoPage = () => {
         bingoId,
         cardboard_code,
         game_card_values,
-        // game_marked_squares,
         userId: user.uid, // Usar el UID del usuario autenticado
       });
 
@@ -286,20 +372,18 @@ export const PlayerBingoPage = () => {
       setCardboardCode(cardboard_code);
       setStorageUserId(playerName);
       localStorage.setItem("cardboard_code", JSON.stringify(cardboard_code));
-      // localStorage.setItem(
-      //   "cardboard_id",
-      //   JSON.stringify(cardboardSaved.data._id)
-      // );
+      localStorage.setItem(
+        "cardboard_id",
+        JSON.stringify(cardboardSaved.data._id)
+      );
     } catch (error) {
       console.error("Error saving cardboard:", error);
     }
   };
 
   // Función para resetear el juego
-  const resetGame = () => {
+  const resetGame = async () => {
     // Pendiente solucionar al refrescar
-    console.log(cardboardCode);
-    console.log(cardboardId);
     if (cardboardId) {
       const resetMarkedSquares = bingoCard.map((square) =>
         square.value === "Disabled" ? square : { ...square, isMarked: false }
@@ -322,14 +406,19 @@ export const PlayerBingoPage = () => {
         cardboardCode
       );
       setStorageUserId(response.data.playerName);
-      // setCardboardCode(code);
+      setCardboardCode(response.data.cardboard_code);
       setCardboardId(response.data._id);
       setBingoCard(response.data.game_card_values);
       // setMarkedSquares(response.data.game_marked_squares);
-      // localStorage.setItem("userId", JSON.stringify(response.data.playerName));
-      // localStorage.setItem("cardboard_code", JSON.stringify(code));
-      // localStorage.setItem("cardboard_id", JSON.stringify(response.data._id));
-      // return response.data._id;
+      // localStorage.setItem(
+      //   "bingo_card",
+      //   JSON.stringify(response.data.game_card_values)
+      // );
+      // localStorage.setItem(
+      //   "cardboard_code",
+      //   JSON.stringify(response.data.cardboard_code)
+      // );
+      localStorage.setItem("cardboard_id", JSON.stringify(response.data._id));
     }
   };
 
@@ -340,97 +429,97 @@ export const PlayerBingoPage = () => {
    * @param {*} dimensions
    * @param {*} positionsDisabled
    */
-  const generateBingoCard = (values, dimensions, positionsDisabled) => {
-    const [rows, cols] = dimensions.split("x").map(Number);
+  // const generateBingoCardd = (values, dimensions, positionsDisabled) => {
+  //   const [rows, cols] = dimensions.split("x").map(Number);
 
-    setRows(rows);
+  //   setRows(rows);
 
-    if (cardboardCode !== "") {
-      getExistingCardboard();
-      return;
-    }
+  //   if (cardboardId !== "") {
+  //     getExistingCardboard();
+  //     return;
+  //   }
 
-    let card = Array.from({ length: rows * cols }, () => ({
-      value: null,
-      _id: null,
-      isMarked: false,
-      default_image: null,
-      type: null,
-    }));
+  //   let card = Array.from({ length: rows * cols }, () => ({
+  //     value: null,
+  //     _id: null,
+  //     isMarked: false,
+  //     default_image: null,
+  //     type: null,
+  //   }));
 
-    // let markedSquares = Array(rows * cols).fill({ isMarked: false, value: "" });
+  //   // let markedSquares = Array(rows * cols).fill({ isMarked: false, value: "" });
 
-    // Aplicar posiciones deshabilitadas
-    positionsDisabled.forEach((disabled) => {
-      card[disabled.position] = {
-        ...card[disabled.position],
-        value: "Disabled",
-        default_image: disabled.default_image,
-        marked: true,
-      };
-      // markedSquares[disabled.position] = { isMarked: true, value: "Disabled" };
-    });
+  //   // Aplicar posiciones deshabilitadas
+  //   positionsDisabled.forEach((disabled) => {
+  //     card[disabled.position] = {
+  //       ...card[disabled.position],
+  //       value: "Disabled",
+  //       default_image: disabled.default_image,
+  //       marked: true,
+  //     };
+  //     // markedSquares[disabled.position] = { isMarked: true, value: "Disabled" };
+  //   });
 
-    // Mezclar los valores antes de separarlos
-    let shuffledValues = shuffle(values);
+  //   // Mezclar los valores antes de separarlos
+  //   let shuffledValues = shuffle(values);
 
-    // Separar los valores en dos grupos: con posiciones y sin posiciones
-    let valuesWithPositions = shuffledValues.filter(
-      (value) => value.positions.length > 0
-    );
-    let valuesWithoutPositions = shuffledValues.filter(
-      (value) => value.positions.length === 0
-    );
+  //   // Separar los valores en dos grupos: con posiciones y sin posiciones
+  //   let valuesWithPositions = shuffledValues.filter(
+  //     (value) => value.positions.length > 0
+  //   );
+  //   let valuesWithoutPositions = shuffledValues.filter(
+  //     (value) => value.positions.length === 0
+  //   );
 
-    // Registro de valores ya asignados para evitar duplicados
-    let assignedValues = new Set();
+  //   // Registro de valores ya asignados para evitar duplicados
+  //   let assignedValues = new Set();
 
-    // Asignar valores con posiciones específicas
-    valuesWithPositions.forEach((value) => {
-      value.positions.forEach((pos) => {
-        if (
-          pos >= 0 &&
-          pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
-          card[pos].value === null &&
-          !assignedValues.has(value.carton_value)
-        ) {
-          card[pos] = {
-            ...card[pos],
-            value: value.carton_value,
-            type: value.carton_type,
-            _id: value._id,
-          };
-          assignedValues.add(value.carton_value);
-        }
-      });
-    });
+  //   // Asignar valores con posiciones específicas
+  //   valuesWithPositions.forEach((value) => {
+  //     value.positions.forEach((pos) => {
+  //       if (
+  //         pos >= 0 &&
+  //         pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
+  //         card[pos].value === null &&
+  //         !assignedValues.has(value.carton_value)
+  //       ) {
+  //         card[pos] = {
+  //           ...card[pos],
+  //           value: value.carton_value,
+  //           type: value.carton_type,
+  //           _id: value._id,
+  //         };
+  //         assignedValues.add(value.carton_value);
+  //       }
+  //     });
+  //   });
 
-    // Asignar valores sin posiciones específicas
-    valuesWithoutPositions.forEach((value) => {
-      let availablePositions = card.flatMap((cell, index) =>
-        cell.value === null ? index : []
-      );
-      if (availablePositions.length > 0) {
-        let chosenPosition =
-          availablePositions[
-            Math.floor(Math.random() * availablePositions.length)
-          ];
-        if (!assignedValues.has(value.carton_value)) {
-          card[chosenPosition] = {
-            ...card[chosenPosition],
-            value: value.carton_value,
-            type: value.carton_type,
-            _id: value._id,
-          };
-          assignedValues.add(value.carton_value);
-        }
-      }
-    });
+  //   // Asignar valores sin posiciones específicas
+  //   valuesWithoutPositions.forEach((value) => {
+  //     let availablePositions = card.flatMap((cell, index) =>
+  //       cell.value === null ? index : []
+  //     );
+  //     if (availablePositions.length > 0) {
+  //       let chosenPosition =
+  //         availablePositions[
+  //           Math.floor(Math.random() * availablePositions.length)
+  //         ];
+  //       if (!assignedValues.has(value.carton_value)) {
+  //         card[chosenPosition] = {
+  //           ...card[chosenPosition],
+  //           value: value.carton_value,
+  //           type: value.carton_type,
+  //           _id: value._id,
+  //         };
+  //         assignedValues.add(value.carton_value);
+  //       }
+  //     }
+  //   });
 
-    setBingoCard(card);
-    // setMarkedSquares(markedSquares);
-    // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
-  };
+  //   setBingoCard(card);
+  //   // setMarkedSquares(markedSquares);
+  //   // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
+  // };
 
   const handleMarkSquare = (item, index) => {
     if (item.value !== "Disabled") {

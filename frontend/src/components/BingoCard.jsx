@@ -26,7 +26,7 @@ const BingoCardStatic = ({
       <div className="w-full h-full">
         <Card className="w-full h-full">
           <CardBody
-            className={`grid grid-cols-1 grid-cols-${cols} gap-1 w-full h-full`}
+            className={`grid grid-cols-1 grid-cols-${cols} gap-1`}
             style={{
               backgroundColor: bingoAppearance.background_color,
             }}

@@ -139,10 +139,11 @@ class BingoController {
     // Validar si los _id en los índices de la figura están en el historial de balotas
     const esGanador = figure.every((indiceFigura) => {
       const square = markedSquares[indiceFigura];
-      // Comprueba si el _id del cuadrado está en el historial de balotas
-      return historyBallots.includes(square._id);
+      console.log(square);
+      // Comprueba si el cuadrado está deshabilitado o si su _id está en el historial de balotas
+      return square.value === "Disabled" || historyBallots.includes(square._id);
     });
-
+    console.log(esGanador);
     // Emitir el evento y enviar la respuesta basada en si es ganador o no
     setTimeout(() => {
       if (esGanador) {
