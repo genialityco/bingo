@@ -136,28 +136,14 @@ class BingoController {
 
     customEmitter.emit("sangBingo", { userId: userId, status: "Validando" });
 
-    // Obtener los índices marcados que están marcados como true
-    const indicesMarcados = markedSquares
-      .map((celda, indice) => celda.isMarked && indice)
-      .filter((indice) => indice !== false);
-
-    // Verificar si todos los índices de la figura están marcados
-    const esFiguraCompleta = figure.every((indiceFigura) =>
-      indicesMarcados.includes(indiceFigura)
-    );
-
-    // Verificar si los valores en los índices de la figura que están marcados
-    // coinciden con los valores de las balotas que han salido
-    const esValido = figure.every((indiceFigura) => {
+    // Validar si los _id en los índices de la figura están en el historial de balotas
+    const esGanador = figure.every((indiceFigura) => {
       const square = markedSquares[indiceFigura];
-      // Comprueba si el cuadrado está marcado como deshabilitado o si su valor está en el historial de balotas
-      return (
-        square.value === "Disabled" || historyBallots.includes(square.value)
-      );
+      console.log(square);
+      // Comprueba si el cuadrado está deshabilitado o si su _id está en el historial de balotas
+      return square.value === "Disabled" || historyBallots.includes(square._id);
     });
-    // Determinar si es ganador
-    const esGanador = esFiguraCompleta && esValido;
-
+    console.log(esGanador);
     // Emitir el evento y enviar la respuesta basada en si es ganador o no
     setTimeout(() => {
       if (esGanador) {
@@ -175,7 +161,7 @@ class BingoController {
         });
         sendResponse(res, 400, esGanador, "Todavía no ganas el Bingo.");
       }
-    }, "7000");
+    }, 7000); // Ajuste de las comillas para el timeout
   }
 }
 

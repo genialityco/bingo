@@ -38,7 +38,7 @@ export const HomePage = () => {
     const bingoCode = e.target.elements.bingoCode.value;
     const bingoResponse = await getBingo(bingoCode);
     if (bingoResponse) {
-      navigate(`/bingo-game/${bingoCode}/${bingoResponse._id}`);
+      navigate(`/bingo-game/${bingoCode}/${bingoResponse.data._id}`);
     } else {
       alert("Bingo no encotrado. Por favor, verifica el código.");
     }
@@ -56,7 +56,7 @@ export const HomePage = () => {
               label="Ingrese código del bingo"
             />
             <button className="bg-blue-500 rounded-full text-white mt-3 py-2 px-4 hover:bg-blue-400 transition duration-300 ease-in-out shadow-lg hover:shadow-xl animate-pulse-infinite">
-              Entrar a la sala
+              Entrar al bingo
             </button>
           </form>
         </div>

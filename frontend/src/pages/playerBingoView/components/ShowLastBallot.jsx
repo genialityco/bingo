@@ -12,6 +12,7 @@ export const ShowLastBallot = ({
   const bingoNoWinRef = useRef(null);
 
   const getBallotValueForDom = (id) => {
+
     if (bingoConfig && lastBallot !== "") {
       const ballotData = bingoConfig.bingo_values.find(
         (objeto) => objeto._id === id

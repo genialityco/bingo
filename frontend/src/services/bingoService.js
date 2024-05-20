@@ -30,7 +30,7 @@ const bingoServices = {
         )}`
       );
 
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw error;
     }

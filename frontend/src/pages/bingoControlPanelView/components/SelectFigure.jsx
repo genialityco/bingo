@@ -45,7 +45,7 @@ export const SelectFigure = ({
   return (
     <div align="center">
       <Typography>
-        {figures.find((t) => t._id === filteredFigures)?.title ||
+        {figures.find((t) => t._id === selectedFigure)?.title ||
           "Ninguna seleccionada"}
       </Typography>
 

@@ -331,7 +331,7 @@ const DialogValueCartonAndBallot = ({
     }
   };
 
-  //guarda en el array de position dentro del estado bingoCard los index
+  //guarda en el array de position dentro del estado bingo los index
   const handleSelectedPosition = (index) => {
     // Verificar si el índice ya está en selectedPositions
     const isSelected = selectedPositions.includes(index);
@@ -344,8 +344,8 @@ const DialogValueCartonAndBallot = ({
     // Actualizamos el estado selectedPositions
     setSelectedPositions(newSelectedPositions);
 
-    // Actualizamos el estado bingoCard con las nuevas posiciones
-    updateBingoCard((prevBingoCard) => {
+    // Actualizamos el estado bingo con las nuevas posiciones
+    updateBingo((prevBingoCard) => {
       const newBingoCard = { ...prevBingoCard };
 
       // Actualizamos las posiciones del valor actual
@@ -377,10 +377,10 @@ const DialogValueCartonAndBallot = ({
   };
 
 
-  //guarda el valores editados en el estado "bingoCard"
+  //guarda el valores editados en el estado "bingo"
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
-      const updatedBingoValues = [...bingoCard.bingo_values];
+      const updatedBingoValues = [...bingo.bingo_values];
       const editedItem = updatedBingoValues[editIndex];
       editedItem.carton_type = selectedCartonType;
       editedItem.ballot_type = selectedBallotType;
@@ -398,7 +398,7 @@ const DialogValueCartonAndBallot = ({
           uploadBase64ImageToFirebase(editInputsCarton.imageUrl, v4())
           .then((url) => {
             editedItem.carton_value = url;
-            updateBingoCard((prevState) => ({
+            updateBingo((prevState) => ({
               ...prevState,
               bingo_values: updatedBingoValues,
             }));
@@ -424,7 +424,7 @@ const DialogValueCartonAndBallot = ({
           .then((url) => {
             console.log('retorna url: ', url);
             editedItem.carton_value = url;
-            updateBingoCard((prevState) => ({
+            updateBingo((prevState) => ({
               ...prevState,
               bingo_values: updatedBingoValues,
             }));
@@ -448,7 +448,7 @@ const DialogValueCartonAndBallot = ({
           uploadBase64ImageToFirebase(editInputsBallot.imageUrl, v4())
           .then((url) => {
             editedItem.ballot_value = url;
-            updateBingoCard((prevState) => ({
+            updateBingo((prevState) => ({
               ...prevState,
               bingo_values: updatedBingoValues,
             }));
@@ -476,7 +476,7 @@ const DialogValueCartonAndBallot = ({
               console.log('retorna url: ', url);
               editedItem.ballot_value = url;
 
-              updateBingoCard((prevState) => ({
+              updateBingo((prevState) => ({
                 ...prevState,
                 bingo_values: updatedBingoValues,
               }));
@@ -488,7 +488,7 @@ const DialogValueCartonAndBallot = ({
       }
 
       // Actualizar el estado con los nuevos valores
-      updateBingoCard((prevState) => ({
+      updateBingo((prevState) => ({
         ...prevState,
         bingo_values: updatedBingoValues,
       }));

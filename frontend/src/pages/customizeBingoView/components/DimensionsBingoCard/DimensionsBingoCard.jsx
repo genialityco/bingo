@@ -29,7 +29,7 @@ const DimensionsBingoCard = ({
 }) => {
 
   const { bingo, updateBingo } = useContext(NewBingoContext);
-  // console.log(bingoCard)
+  // console.log(bingo)
 
  /*  const deleteIdBingoModified = modifiedBingoTemplate
     ? delete modifiedBingoTemplate._id
@@ -138,7 +138,7 @@ const DimensionsBingoCard = ({
     handleNumValuesToPlayChange(75);
   }, []); */
 
-  //mantener actualizado el estado bingoCard con la config y enviarlo al padre "BingoConfig"
+  //mantener actualizado el estado bingo con la config y enviarlo al padre "BingoConfig"
   useEffect(() => {
     sendBingoCreated(bingo);
   }, [bingo]);
