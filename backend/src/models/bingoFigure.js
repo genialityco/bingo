@@ -10,6 +10,6 @@ const bingoFigureSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
 });
 
-const BingoFigure = mongoose.model("BingoFigure", bingoFigureSchema);
+const BingoFigure = mongoose.model("BingoFigures", bingoFigureSchema);
 
 export default BingoFigure;

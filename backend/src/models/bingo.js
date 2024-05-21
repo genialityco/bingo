@@ -75,7 +75,7 @@ const bingoSchema = new Schema({
   // Juego
   bingo_figure: {
     type: Schema.Types.ObjectId,
-    ref: "BingoFigure",
+    ref: "BingoFigures",
     required: false,
   },
   rules: { type: String, required: false },

@@ -26,7 +26,7 @@ class BingoServices {
     try {
       const query = {};
       query[fieldName] = value;
-      const bingo = await Bingo.findOne(query);
+      const bingo = await Bingo.findOne(query).populate("bingo_figure");
       if (!bingo) {
         throw new Error(`Bingo not found with ${fieldName}: ${value}`);
       }

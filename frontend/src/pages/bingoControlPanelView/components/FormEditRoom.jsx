@@ -47,7 +47,7 @@ export const FormEditRoom = ({ bingo, fetchBingoData }) => {
 
   return (
     <div className="flex flex-col">
-      <Button onClick={toggleDialog} className="rounded-l-lg rounded-r-none">
+      <Button onClick={toggleDialog} className="rounded-l-lg rounded-r-none normal-case">
         Configurar Bingo
       </Button>
 

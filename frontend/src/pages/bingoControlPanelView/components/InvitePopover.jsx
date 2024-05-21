@@ -31,7 +31,7 @@ const InvitePopover = ({ invitationLink, bingo }) => {
       placement="left"
     >
       <PopoverHandler>
-        <Button onClick={togglePopover} className="rounded-r-lg rounded-l-none">
+        <Button onClick={togglePopover} className="rounded-r-lg rounded-l-none normal-case">
           Invitar
         </Button>
       </PopoverHandler>
