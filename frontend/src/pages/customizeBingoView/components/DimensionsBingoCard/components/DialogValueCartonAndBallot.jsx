@@ -13,18 +13,7 @@ import {
   validationsEditInputsBallot,
   validationsEditInputsCarton,
 } from '../../../../../utils/validationsEditInputs';
-import { storage } from '../../../../../firebase';
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  uploadString,
-} from 'firebase/storage';
-import {
-  isBase64Url,
-  uploadBase64ImageToFirebase,
-} from '../../../../../utils/validationImageExternalUrl';
-import { v4 } from 'uuid';
+
 
 const DialogValueCartonAndBallot = ({
   openDialogValueCartonAndBallot,
@@ -365,19 +354,23 @@ const DialogValueCartonAndBallot = ({
 
   // Función para manejar el cambio de imagen desde un archivo local
   const handleImageChange = (e, type) => {
-    // console.log(e.target.files[0].name)
     const file = e.target.files[0];
     if (file) {
-      if (type === 'carton') {
-        setNewCustomValueCartonImageFile(file);
-      } else if (type === 'balota') {
-        setNewCustomValueBallotImageFile(file);
-      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (type === 'carton') {
+          setNewCustomValueCartonImageFile(reader.result);
+        } else if (type === 'balota') {
+          setNewCustomValueBallotImageFile(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
 
-  //guarda el valores editados en el estado "bingo"
+
+  //guarda los valores editados en el estado "bingo"
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
       const updatedBingoValues = [...bingo.bingo_values];
@@ -385,116 +378,39 @@ const DialogValueCartonAndBallot = ({
       editedItem.carton_type = selectedCartonType;
       editedItem.ballot_type = selectedBallotType;
 
-      // Actualizar el valor del cartón según el tipo seleccionado
+     // Actualizar el valor del cartón según el tipo seleccionado
       if (selectedCartonType === 'default') {
         editedItem.carton_value = editInputsCarton.number;
       }
       if (selectedCartonType === 'text') {
         editedItem.carton_value = editInputsCarton.text;
       }
-      if (selectedCartonType === 'image' && editInputsCarton.imageUrl) {
-        const validationFormatUrl = isBase64Url(editInputsCarton.imageUrl);
-        if (validationFormatUrl) {
-          uploadBase64ImageToFirebase(editInputsCarton.imageUrl, v4())
-          .then((url) => {
-            editedItem.carton_value = url;
-            updateBingo((prevState) => ({
-              ...prevState,
-              bingo_values: updatedBingoValues,
-            }));
-          })
-          .catch((error) => {
-            console.error('Error al subir el archivo:', error);
-          });
-        }
-        editedItem.carton_value = editInputsCarton.imageUrl;
-      } else if (selectedCartonType === 'image') {
-        // Obtener una referencia al bucket de almacenamiento de Firebase
-        const storageRef = ref(
-          storage,
-          `images/${newCustomValueCartonImageFile.name}`
-        );
+      if (selectedCartonType === 'image') {
+      
+        editedItem.carton_value = editInputsCarton.imageUrl || newCustomValueCartonImageFile;
+      } 
+      
 
-        // Subir el archivo al bucket de almacenamiento
-        uploadBytes(storageRef, newCustomValueCartonImageFile)
-          .then((snapshot) => {
-            console.log('Uploaded a blob or file!', snapshot);
-            return getDownloadURL(ref(storageRef));
-          })
-          .then((url) => {
-            console.log('retorna url: ', url);
-            editedItem.carton_value = url;
-            updateBingo((prevState) => ({
-              ...prevState,
-              bingo_values: updatedBingoValues,
-            }));
-          })
-
-          .catch((error) => {
-            console.error('Error al subir el archivo:', error);
-          });
-      }
-
-      // Actualizar el valor de la balota según el tipo seleccionado
+     // Actualizar el valor de la balota según el tipo seleccionado
       if (selectedBallotType === 'default') {
         editedItem.ballot_value = editInputsBallot.number;
       }
       if (selectedBallotType === 'text') {
         editedItem.ballot_value = editInputsBallot.text;
       }
-      if (selectedBallotType === 'image' && editInputsBallot.imageUrl) {
-        const validationFormatUrl = isBase64Url(editInputsBallot.imageUrl);
-        if (validationFormatUrl) {
-          uploadBase64ImageToFirebase(editInputsBallot.imageUrl, v4())
-          .then((url) => {
-            editedItem.ballot_value = url;
-            updateBingo((prevState) => ({
-              ...prevState,
-              bingo_values: updatedBingoValues,
-            }));
-          })
-          .catch((error) => {
-            console.error('Error al subir el archivo:', error);
-          });
-        }
+      if (selectedBallotType === 'image' ) {
+      
+        editedItem.ballot_value = editInputsBallot.imageUrl || newCustomValueBallotImageFile;
 
-        editedItem.ballot_value = editInputsBallot.imageUrl;
-
-      } else if (selectedBallotType === 'image') {
-        // Obtener una referencia al bucket de almacenamiento de Firebase
-        const storageRef = ref(
-          storage,
-          `images/${newCustomValueBallotImageFile.name}`
-        );
-
-        // Subir el archivo al bucket de almacenamiento
-        uploadBytes(storageRef, newCustomValueBallotImageFile)
-          .then((snapshot) => {
-            console.log('Uploaded a blob or file!', snapshot);
-
-            getDownloadURL(ref(storageRef)).then((url) => {
-              console.log('retorna url: ', url);
-              editedItem.ballot_value = url;
-
-              updateBingo((prevState) => ({
-                ...prevState,
-                bingo_values: updatedBingoValues,
-              }));
-            });
-          })
-          .catch((error) => {
-            console.error('Error al subir el archivo:', error);
-          });
-      }
-
-      // Actualizar el estado con los nuevos valores
+      } 
+     // Actualizar el estado con los nuevos valores
       updateBingo((prevState) => ({
         ...prevState,
         bingo_values: updatedBingoValues,
       }));
     }
 
-    // Limpiar el índice de edición y cerrar el diálogo
+   // Limpiar el índice de edición y cerrar el diálogo
     setEditIndex(null);
     setOpenDialogValueCartonAndBallot(false);
   };

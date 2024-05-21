@@ -57,35 +57,8 @@ const DialogGenerateBallots = ({
             value={generateBallots}
           />
         </div>
-        {/* establecer el tema */}
-        {/* <Typography className="mb-3 " color="gray" variant="lead">
-          Tema del Cartón
-        </Typography> */}
+       
         <div className="grid grid-cols-3 gap-3">
-          {/* Numeros */}
-          {/* <Button
-            className={`bg-gray-200 cursor-pointer text-gray-700  text-center`}
-            name="default"
-            // onClick={(e) => handleCreateNewBingo(e, 'default')}
-          >
-            <h6>Numeros</h6>
-          </Button> */}
-          {/* Texto */}
-          {/* <Button
-            className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center `}
-            name="text"
-            // onClick={(e) => handleCreateNewBingo(e, 'text')}
-          >
-            <h6>Texto</h6>
-          </Button> */}
-          {/* Imagenes */}
-          {/* <Button
-            className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center `}
-            name="image"
-            // onClick={(e) => handleCreateNewBingo(e, 'image')}
-          >
-            <h6>Imagenes</h6>
-          </Button> */}
           <Button
             className={`h-10 mt-3  cursor-pointer text-white  text-center `}
             name="image"

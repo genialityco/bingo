@@ -1,17 +1,18 @@
-import { Typography } from "@material-tailwind/react";
-import DimensionsBingoCard from "./components/DimensionsBingoCard/DimensionsBingoCard";
-import AppearanceCard from "./components/AppearanceBingo/AppearanceCard";
-import CardAssigment from "./components/CardAssigment/CardAssigment";
+import { Typography } from '@material-tailwind/react';
+import DimensionsBingoCard from './components/DimensionsBingoCard/DimensionsBingoCard';
+import AppearanceCard from './components/AppearanceBingo/AppearanceCard';
+import CardAssigment from './components/CardAssigment/CardAssigment';
 
 // Importaciones de servicios
-import bingoServices from "../../services/bingoService";
-import bingoTemplateServices from "../../services/bingoTemplateService";
+import bingoServices from '../../services/bingoService';
+import bingoTemplateServices from '../../services/bingoTemplateService';
 
-import { useState, useContext, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { NewBingoContext } from "./context/NewBingoContext";
-import { CustomBingoViewHeader } from "./components/CustomBingoViewHeader";
-import { CustomBingoTabs } from "./components/CustomBingoTabs";
+import { useState, useContext, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { NewBingoContext } from './context/NewBingoContext';
+import { CustomBingoViewHeader } from './components/CustomBingoViewHeader';
+import { CustomBingoTabs } from './components/CustomBingoTabs';
+import { handleAppearanceImageUploads, handleBingoValuesImageUploads } from '../../utils/imageUploadHelpers';
 
 const BingoConfig = () => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
@@ -20,21 +21,20 @@ const BingoConfig = () => {
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const bingoId = searchParams.get("bingoId");
-  const isTemplate = searchParams.get("isTemplate");
+  const bingoId = searchParams.get('bingoId');
+  const isTemplate = searchParams.get('isTemplate');
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const getTemplateByIdToEdit = async () => {
       let response;
-      if (isTemplate === "true") {
+      if (isTemplate === 'true') {
         response = await bingoTemplateServices.getTemplateById(bingoId);
       } else {
         response = await bingoServices.getBingoById(bingoId);
       }
       updateBingo(response);
-      setModifiedBingoTemplate(response);
     };
 
     if (bingoId) {
@@ -45,63 +45,46 @@ const BingoConfig = () => {
   }, [bingoId]);
 
   const sendBingoCreated = (customBingo) => {
-    setNewBingoCreated(customBingo);
+    setModifiedBingoTemplate(customBingo);
   };
 
-  //crear una config de bingo desde cero o modificar sobre un template de bingo
-  const newBingoData = newBingoCreated
-    ? newBingoCreated
-    : modifiedBingoTemplate;
-  // console.log(newBingoData);
+  //envia la info de la apariencia del carton
+  const appearanceBingoCarton = (appearance) => {
+    const customAppearance = appearance;
+    setModifiedBingoTemplate({
+      ...modifiedBingoTemplate,
+      bingo_appearance: customAppearance,
+    });
+  };
 
-  //Envia los datos del objeto del carton bingo creado
+  //crea un template del bingo
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
-      // const updatedBingoData = { ...newBingoData };
+      
+      // copia del objeto bingo para realizar cambios sin mutarlo directamente
+      let updatedBingo = { ...modifiedBingoTemplate };
 
-      // Iterar sobre cada valor de cartón en el array de bingo_values
-      // updatedBingoData.bingo_values.forEach(async (bingo, index) => {
-      //   if (bingo.carton_type === 'image') {
-      //     const firebaseUrl = isBase64Url(bingo.carton_value);
-      //     if (firebaseUrl) {
-      //       try {
-      //         const url = await uploadBase64ImageToFirebase(bingo.carton_value, v4());
-      //         updatedBingoData.bingo_values[index].carton_value = url;
-      //       } catch (error) {
-      //         console.error('Error al cargar la imagen del cartón:', error);
-      //       }
-      //     }
-      //   }
-      //   if (bingo.ballot_type === 'image') {
-      //     const firebaseUrl = isBase64Url(bingo.ballot_value);
-      //     if (firebaseUrl) {
-      //       try {
-      //         const url = await uploadBase64ImageToFirebase(bingo.ballot_value, v4());
-      //         updatedBingoData.bingo_values[index].ballot_value = url;
-      //       } catch (error) {
-      //         console.error('Error al cargar la imagen de la balota:', error);
-      //       }
-      //     }
-      //   }
-      // });
+      // Promesas para cargar imágenes de apariencia
+      await handleAppearanceImageUploads(updatedBingo.bingo_appearance);
 
-      // Actualizar el estado del contexto con el nuevo objeto bingo
-      // setNewBingoCreated(updatedBingoData);
+      // Promesas para cargar imágenes de cartón y balota
+      await handleBingoValuesImageUploads(updatedBingo.bingo_values);
+      
 
-      // const response = await bingoTemplateServices.createBingo(newBingoData);
+      const response = await bingoTemplateServices.createBingo(
+        modifiedBingoTemplate
+      );
+      const { status, message } = response;
 
-      const response = await bingoTemplateServices.createBingo(newBingoCreated);
-      const { status, message, data } = response;
-
-      if (status === "success") {
+      if (status === 'success') {
         alert(message);
       }
-      navigate("/list-bingos");
+      navigate('/list-bingos');
     } catch (error) {
-      console.log("Error en el envio de la configuración del bingo", error);
+      console.log('Error en el envio de la configuración del bingo', error);
       alert(
-        "Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente."
+        'Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente.'
       );
     }
   };
@@ -110,9 +93,19 @@ const BingoConfig = () => {
   const handleSendUpdateTemplateBingo = async (e) => {
     e.preventDefault();
     try {
+         
+      // copia del objeto bingo para realizar cambios sin mutarlo directamente
+      let updatedBingo = { ...modifiedBingoTemplate };
+
+      // Promesas para cargar imágenes de apariencia
+      await handleAppearanceImageUploads(updatedBingo.bingo_appearance);
+
+      // Promesas para cargar imágenes de cartón y balota
+      await handleBingoValuesImageUploads(updatedBingo.bingo_values);
+
       let response;
 
-      if (isTemplate === "true") {
+      if (isTemplate === 'true') {
         response = await bingoTemplateServices.updateTemplate(
           modifiedBingoTemplate._id,
           modifiedBingoTemplate
@@ -125,13 +118,13 @@ const BingoConfig = () => {
       }
       const { status, message } = response;
 
-      if (status === "Success") {
+      if (status === 'Success') {
         alert(message);
       }
     } catch (error) {
-      console.log("Error en el envio de la configuración del bingo", error);
+      console.log('Error en el envio de la configuración del bingo', error);
       alert(
-        "Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente."
+        'Hubo un error al enviar la configuración del bingo. Por favor, intenta nuevamente.'
       );
     }
   };
@@ -141,36 +134,25 @@ const BingoConfig = () => {
     const updateIsPublic = {
       ...modifiedBingoTemplate,
       is_public: status,
-    }
+    };
     setModifiedBingoTemplate(updateIsPublic);
-  };
-
-  // Función para manejar los cambios en la configuración del bingo
-  const handleBingoConfigChange = (updatedConfig) => {
-    setModifiedBingoTemplate(updatedConfig);
   };
 
   //Taps de los componentes que renderiza este componente BingoConfig
   const data = [
     {
-      label: "Configurar Bingo",
-      value: "configurar bingo",
-      desc: (
-        <DimensionsBingoCard
-          sendBingoCreated={sendBingoCreated}
-          modifiedBingoTemplate={modifiedBingoTemplate}
-          onConfigChange={handleBingoConfigChange}
-        />
-      ),
+      label: 'Configurar Bingo',
+      value: 'configurar bingo',
+      desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} />,
     },
     {
-      label: "Apariencia del cartón",
-      value: "apariencia del cartón",
-      desc: <AppearanceCard />,
+      label: 'Apariencia del cartón',
+      value: 'apariencia del cartón',
+      desc: <AppearanceCard appearanceBingoCarton={appearanceBingoCarton} />,
     },
     {
-      label: "Asignación de cartones",
-      value: "asignación de cartones",
+      label: 'Asignación de cartones',
+      value: 'asignación de cartones',
       desc: <CardAssigment />,
     },
   ];

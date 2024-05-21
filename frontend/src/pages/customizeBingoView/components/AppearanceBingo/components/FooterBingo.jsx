@@ -10,6 +10,17 @@ const FooterBingo = ({ customBingoCard }) => {
 
   const fileInputRef = useRef(null);
 
+  useEffect(() => {
+    if (bingo.bingo_appearance && bingo.bingo_appearance.footer) {
+      setImageFooter(bingo.bingo_appearance.footer);
+    }
+  }, [bingo]);
+
+  //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
+  useEffect(() => {
+    customBingoCard(bingo);
+  }, [bingo]);
+
   const handleHeaderUpload = () => {
     fileInputRef.current.click();
   };
@@ -33,11 +44,6 @@ const FooterBingo = ({ customBingoCard }) => {
 
     reader.readAsDataURL(file);
   };
-
-  //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
-  useEffect(() => {
-    customBingoCard(bingo);
-  }, [bingo]);
 
   return (
     <Card className="mt-6 w-60 h-80">

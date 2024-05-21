@@ -28,12 +28,13 @@ class BingoServices {
       query[fieldName] = value;
       const bingo = await Bingo.findOne(query).populate("bingo_figure");
       if (!bingo) {
-        throw new Error(`Bingo not found with ${fieldName}: ${value}`);
+        // Devuelve null para indicar que no se encontró el bingo
+        return null;
       }
       return bingo;
     } catch (error) {
       console.error(`Error finding bingo by ${fieldName}:`, error);
-      return error;
+      throw new Error(`Error finding bingo: ${error.message}`);
     }
   }
 

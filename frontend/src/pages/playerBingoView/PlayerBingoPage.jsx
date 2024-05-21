@@ -44,8 +44,8 @@ export const PlayerBingoPage = () => {
   // Estados iniciales
   const [bingoConfig, setBingoConfig] = useState(null);
   const [bingoCard, setBingoCard] = useState(
-    JSON.parse(localStorage.getItem("bingo_card"))
-      ? JSON.parse(localStorage.getItem("bingo_card"))
+    JSON.parse(localStorage.getItem("bingoCard"))
+      ? JSON.parse(localStorage.getItem("bingoCard"))
       : ""
   );
   const [rows, setRows] = useState();
@@ -167,7 +167,7 @@ export const PlayerBingoPage = () => {
       });
 
       setBingoCard(card);
-      // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
+      localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
     };
 
     const getBingo = async () => {
@@ -551,6 +551,7 @@ export const PlayerBingoPage = () => {
     await bingoCardboardService.updateCardboard(cardboardId, {
       game_card_values: updatedMarks,
     });
+    localStorage.setItem("bingoCard", JSON.stringify(updatedMarks));
   };
 
   const getBallotsHistory = async () => {
@@ -592,10 +593,7 @@ export const PlayerBingoPage = () => {
             <Alert
               color={alertData.color}
               onClose={() => setShowAlert(false)}
-              animate={{
-                mount: { y: 0 },
-                unmount: { y: 100 },
-              }}
+              className="fixed w-11/12 bottom-5 left-1/2 transform -translate-x-1/2 z-50 shadow"
             >
               {alertData.message}
             </Alert>

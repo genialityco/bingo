@@ -5,10 +5,6 @@ import {
   TabsBody,
   Tab,
   TabPanel,
-  Card,
-  CardBody,
-  Typography,
-  Button,
 } from "@material-tailwind/react";
 
 export const CustomBingoTabs = ({ data }) => {

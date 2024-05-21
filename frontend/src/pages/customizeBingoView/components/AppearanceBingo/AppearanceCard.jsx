@@ -1,58 +1,65 @@
 import {
-  Card,
-  Chip,
+  Typography
 } from '@material-tailwind/react';
-
+import BackgroundColor from './components/BackgroundColor';
 import BannerBingo from './components/BannerBingo';
 import FooterBingo from './components/FooterBingo';
 import BackgroundImage from './components/BackgroundImage';
 import MarkerImage from './components/MarkerImage';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NewBingoContext } from '../../context/NewBingoContext';
 
 
-const AppearanceCard = () => {
 
-  
+const AppearanceCard = ({ appearanceBingoCarton }) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
+  const [appearance, setAppearance] = useState({});
+ 
 
-
-  const customBingoCard=(customBingo)=>{
-    
-    
-  }
+  const customBingoCard = (customBingo) => {
+    setAppearance(customBingo.bingo_appearance);
+  };
+  useEffect(() => {
+    appearanceBingoCarton(appearance);
+  }, [appearance]);
 
   return (
     <div>
       {/* Color */}
-      <Card className="p-5 bg-gray-50 flex flex-row items-center gap-3">
-        <div className="p-5 bg-blue-500 h-20 w-20 rounded-full"></div>
-        <Chip
-          size="sm"
-          variant="ghost"
-          value="HEX #00BCD4"
-          className="w-24 p-2 cursor-pointer"
-        />
-        <Chip
-          size="sm"
-          variant="ghost"
-          value="RGB (0,188,212)"
-          className="w-28 p-2 cursor-pointer"
-        />
-      </Card>
+      <BackgroundColor/>
 
       <div className="p-5 bg-blue-100 mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 content-center justify-items-center">
         {/* HEADER */}
-        <BannerBingo customBingoCard={customBingoCard} />
+        <div>
+          <Typography variant="h5" className="pb-3 text-center">
+            Imagen del Banner
+          </Typography>
+          <BannerBingo customBingoCard={customBingoCard} />
+        </div>
 
         {/* Imagen de fondo  */}
-        <BackgroundImage  customBingoCard={customBingoCard} />
+        <div>
+          <Typography variant="h5" className="pb-3 text-center">
+            Imagen de Fondo
+          </Typography>
+          <BackgroundImage customBingoCard={customBingoCard} />
+        </div>
 
         {/* Imagen de marcación */}
-        <MarkerImage customBingoCard={customBingoCard} />
+        <div>
+          <Typography variant="h5" className="pb-3 text-center">
+            Imagen de Marcación
+          </Typography>
+          <MarkerImage customBingoCard={customBingoCard} />
+        </div>
 
         {/*  Footer*/}
-        <FooterBingo customBingoCard={customBingoCard} />
+        <div>
+          <Typography variant="h5" className="pb-3 text-center">
+            Imagen de Footer
+          </Typography>
+          <FooterBingo customBingoCard={customBingoCard} />
+        </div>
       </div>
     </div>
   );

@@ -1,15 +1,18 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@material-tailwind/react";
+import { Input, Alert } from "@material-tailwind/react";
 import bingoServices from "../services/bingoService";
-import { useState, useEffect } from "react";
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  // const [publicBingos, setPublicBingos] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
 
-  // useEffect(() => {
-  //   getAllPublicBingos();
-  // }, []);
+  const triggerAlert = () => {
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 3000);
+  };
 
   const getBingo = async (bingoCode) => {
     try {
@@ -19,19 +22,9 @@ export const HomePage = () => {
       );
       return response;
     } catch (error) {
-      console.error(error);
-      return null;
+      console.error(error.response.data);
     }
   };
-
-  // const getAllPublicBingos = async () => {
-  //   try {
-  //     const response = await bingoServices.getAllBingos();
-  //     setPublicBingos(response);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const goToBingo = async (e) => {
     e.preventDefault();
@@ -40,12 +33,22 @@ export const HomePage = () => {
     if (bingoResponse) {
       navigate(`/bingo-game/${bingoCode}/${bingoResponse.data._id}`);
     } else {
-      alert("Bingo no encotrado. Por favor, verifica el código.");
+      triggerAlert();
     }
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      {showAlert && (
+        <Alert
+          className="fixed w-11/12 bottom-5 left-1/2 transform -translate-x-1/2 z-50"
+          color="red"
+          onClose={() => setShowAlert(false)}
+        >
+          Bingo no encontrado. Por favor, verifica el código.
+        </Alert>
+      )}
+
       <section className="flex flex-col justify-end items-center min-h-[340px] bg-[url('https://i.ibb.co/3vMvMkM/DALL-E-2024-04-02-18-56-52-Create-an-engaging-background-image-suitable-for-a-bingo-banner-section-T.webp')] bg-no-repeat bg-cover p-8">
         <div className="w-72 bg-black p-5 rounded-lg shadow-2xl" align="center">
           <form onSubmit={goToBingo}>
@@ -61,36 +64,6 @@ export const HomePage = () => {
           </form>
         </div>
       </section>
-
-      {/* Sección para mostrar bingos públicos */}
-      {/* <section className="flex flex-col items-center mt-8">
-        <h2 className="text-xl font-bold">Bingos públicos</h2>
-        <ul className="mt-4 w-full max-w-lg space-y-4">
-          {publicBingos.length === 0 ? (
-            <li className="text-center text-gray-500">
-              No hay bingos disponibles.
-            </li>
-          ) : (
-            publicBingos.map((bingo) => (
-              <li key={bingo._id} className="bg-white p-4 rounded-lg shadow-md">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">{bingo.name}</span>
-                  <button
-                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-400"
-                    // onClick={() =>
-                    //   navigate(`/room-game/${bingo.roomCode}`, {
-                    //     state: { roomId: bingo._id, bingoId: bingo.bingoId },
-                    //   })
-                    // }
-                  >
-                    Personalizar
-                  </button>
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
-      </section> */}
     </div>
   );
 };

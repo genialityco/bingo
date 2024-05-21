@@ -63,7 +63,7 @@ export function Header() {
   }, []);
 
   const goToAdminBingo = () => {
-    navigate("/play-bingo");
+    navigate("/list-bingos");
   };
 
   return (
@@ -81,12 +81,12 @@ export function Header() {
           <NavList />
         </div>
         <div className="hidden gap-2 lg:flex">
-          <Button size="sm" color="blue-gray">
-            Iniciar Sesión
+          <Button size="sm" color="blue-gray" onClick={goToAdminBingo}>
+            Dashboard Bingos
           </Button>
-          <Button variant="gradient" size="sm">
+          {/* <Button variant="gradient" size="sm">
             Registrarse
-          </Button>
+          </Button> */}
         </div>
         <IconButton
           variant="text"
