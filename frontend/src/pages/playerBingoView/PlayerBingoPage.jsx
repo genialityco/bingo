@@ -312,7 +312,7 @@ export const PlayerBingoPage = () => {
           ? "Alguien ha cantado bingo y es un ganador."
           : "Lo sentimos, no es un ganador esta vez."),
         (color = status === "Validando" ? "gray" : status ? "green" : "red");
-        setMessageLastBallot(message);
+      setMessageLastBallot(message);
     }
 
     setAlertData({ color, message });
@@ -383,7 +383,7 @@ export const PlayerBingoPage = () => {
   };
 
   // Función para resetear el juego
-  const resetGame = async () => {
+  const resetGame = async (localReset = false) => {
     // Pendiente solucionar al refrescar
     if (cardboardId) {
       const resetMarkedSquares = bingoCard.map((square) =>
@@ -391,9 +391,11 @@ export const PlayerBingoPage = () => {
       );
       setBingoCard(resetMarkedSquares);
       updateMarkSquare(resetMarkedSquares, cardboardId);
-      setMessageLastBallot(
-        "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
-      );
+      if (!localReset) {
+        setMessageLastBallot(
+          "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
+        );
+      }
       getBallotsHistory();
     } else {
       console.error("No existe cardbordId");
@@ -614,7 +616,12 @@ export const PlayerBingoPage = () => {
                   >
                     Cantar Bingo
                   </Button>
-                  <Button size="sm" className="px-2 md:px-4" color="blue">
+                  <Button
+                    size="sm"
+                    className="px-2 md:px-4"
+                    color="blue"
+                    onClick={() => resetGame(true)}
+                  >
                     Limpiar Cartón
                   </Button>
                   <Button size="sm" className="px-2 md:px-4" color="gray">
