@@ -7,7 +7,6 @@ export const HomePage = () => {
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
 
-  // Función para mostrar la alerta durante 3 segundos
   const triggerAlert = () => {
     setShowAlert(true);
     setTimeout(() => {
