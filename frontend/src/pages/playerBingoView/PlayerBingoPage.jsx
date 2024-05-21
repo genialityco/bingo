@@ -303,6 +303,7 @@ export const PlayerBingoPage = () => {
           ? "Felicidades! Eres el ganador del bingo."
           : "Lo sentimos, no has ganado, revisa las balotas.";
       color = status === "Validando" ? "gray" : status ? "green" : "red";
+      setMessageLastBallot(message);
     } else {
       (message =
         status === "Validando"
@@ -310,8 +311,8 @@ export const PlayerBingoPage = () => {
           : status
           ? "Alguien ha cantado bingo y es un ganador."
           : "Lo sentimos, no es un ganador esta vez."),
-        // setMessageLastBallot("Wao, que mala suerte, no ha sido un ganador");
         (color = status === "Validando" ? "gray" : status ? "green" : "red");
+        setMessageLastBallot(message);
     }
 
     setAlertData({ color, message });

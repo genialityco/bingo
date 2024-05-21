@@ -10,9 +10,9 @@ export const ShowLastBallot = ({
   const bingoRestartAudioRef = useRef(null);
   const bingoValidatingRef = useRef(null);
   const bingoNoWinRef = useRef(null);
+  const bingoWinnerRef = useRef(null);
 
   const getBallotValueForDom = (id) => {
-
     if (bingoConfig && lastBallot !== "") {
       const ballotData = bingoConfig.bingo_values.find(
         (objeto) => objeto._id === id
@@ -26,24 +26,38 @@ export const ShowLastBallot = ({
 
   useEffect(() => {
     if (messageLastBallot === "¡El bingo ha comenzado!") {
-      // bingoStartAudioRef.current.play();
+      bingoStartAudioRef.current.play();
     } else if (
       messageLastBallot ===
       "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
     ) {
       bingoRestartAudioRef.current.play();
     } else if (
-      messageLastBallot === "¡Alguien ha cantado bingo, estamos validando!"
+      messageLastBallot === "Estamos validando el bingo, ¡espera un momento!" ||
+      messageLastBallot === "Alguien ha cantado bingo, ¡espera un momento!"
     ) {
       bingoValidatingRef.current.play();
-    } 
+    } else if (
+      messageLastBallot === "Lo sentimos, no has ganado, revisa las balotas." ||
+      messageLastBallot === "Lo sentimos, no es un ganador esta vez."
+    ) {
+      bingoNoWinRef.current.play();
+    } else if (
+      messageLastBallot === "Felicidades! Eres el ganador del bingo." ||
+      messageLastBallot === "Alguien ha cantado bingo y es un ganador."
+    ) {
+      bingoWinnerRef.current.play();
+    }
   }, [messageLastBallot]);
 
   return (
     <div className="p-2">
-      <audio ref={bingoStartAudioRef} src="/audios/startBingo.mp3"></audio>
+      <audio ref={bingoStartAudioRef} src="/audios/startGame.mp3"></audio>
       <audio ref={bingoRestartAudioRef} src="/audios/restartBingo.mp3"></audio>
       <audio ref={bingoValidatingRef} src="/audios/validatingBingo.mp3"></audio>
+      <audio ref={bingoNoWinRef} src="/audios/noWinBingo.mp3"></audio>
+      <audio ref={bingoWinnerRef} src="/audios/winner.mp3"></audio>
+
       <Typography className="text-center">{messageLastBallot}</Typography>
       {lastBallot && lastBallot !== "" && (
         <Typography variant="h6" className="text-center">
