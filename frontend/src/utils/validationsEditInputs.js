@@ -1,8 +1,5 @@
-//expresión regular para valores numericos
-const pattern = /^\d+$/;
-
-//expresión regular para que no permita ingresar Url en el input de texto
-const notUrlRegex = /^(?!https?:\/\/.*\.(?:jpe?g|gif|png)$)(?!https?:\/\/)[^\s]+$/i;
+//no permite ingresar una cadena larga como una URL
+const notUrlRegex = /^[A-Za-zÀ-ÿ0-9\s]+$/;
 
 
 export const validationsEditInputsCarton = (input) => {

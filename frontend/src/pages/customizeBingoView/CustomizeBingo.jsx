@@ -12,6 +12,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { NewBingoContext } from "./context/NewBingoContext";
 import { CustomBingoViewHeader } from "./components/CustomBingoViewHeader";
 import { CustomBingoTabs } from "./components/CustomBingoTabs";
+import {
+  isBase64Url,
+  uploadBase64ImageToFirebase,
+} from '../../utils/validationImageExternalUrl';
+import { v4 } from 'uuid';
 
 const BingoConfig = () => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
@@ -34,7 +39,7 @@ const BingoConfig = () => {
         response = await bingoServices.getBingoById(bingoId);
       }
       updateBingo(response);
-      setModifiedBingoTemplate(response);
+     
     };
 
     if (bingoId) {
@@ -45,54 +50,84 @@ const BingoConfig = () => {
   }, [bingoId]);
 
   const sendBingoCreated = (customBingo) => {
-    setNewBingoCreated(customBingo);
+    setModifiedBingoTemplate(customBingo);
   };
 
-  //crear una config de bingo desde cero o modificar sobre un template de bingo
-  const newBingoData = newBingoCreated
-    ? newBingoCreated
-    : modifiedBingoTemplate;
-  // console.log(newBingoData);
+ //envia la info de la apariencia del carton
+ const appearanceBingoCarton = (appearance) => {
+  const customAppearance = appearance;
+  setModifiedBingoTemplate({
+    ...modifiedBingoTemplate,
+    bingo_appearance: customAppearance,
+  });
+};
 
   //Envia los datos del objeto del carton bingo creado
   const handleOnClickSendBingoCreated = async (e) => {
     e.preventDefault();
     try {
-      // const updatedBingoData = { ...newBingoData };
+     //copia del objeto bingo para realizar cambios sin mutarlo directamente
+     let updatedBingo = { ...modifiedBingoTemplate };
 
-      // Iterar sobre cada valor de cartón en el array de bingo_values
-      // updatedBingoData.bingo_values.forEach(async (bingo, index) => {
-      //   if (bingo.carton_type === 'image') {
-      //     const firebaseUrl = isBase64Url(bingo.carton_value);
-      //     if (firebaseUrl) {
-      //       try {
-      //         const url = await uploadBase64ImageToFirebase(bingo.carton_value, v4());
-      //         updatedBingoData.bingo_values[index].carton_value = url;
-      //       } catch (error) {
-      //         console.error('Error al cargar la imagen del cartón:', error);
-      //       }
-      //     }
-      //   }
-      //   if (bingo.ballot_type === 'image') {
-      //     const firebaseUrl = isBase64Url(bingo.ballot_value);
-      //     if (firebaseUrl) {
-      //       try {
-      //         const url = await uploadBase64ImageToFirebase(bingo.ballot_value, v4());
-      //         updatedBingoData.bingo_values[index].ballot_value = url;
-      //       } catch (error) {
-      //         console.error('Error al cargar la imagen de la balota:', error);
-      //       }
-      //     }
-      //   }
-      // });
+     // Promesas para cargar imágenes de apariencia
+     const appearancePromises = Object.entries(updatedBingo.bingo_appearance)
+       .slice(1)
+       .map(async ([clave, valor]) => {
+         if (valor !== '') {
+           const firebaseUrl = isBase64Url(valor);
+           if (firebaseUrl) {
+             try {
+               const url = await uploadBase64ImageToFirebase(valor, v4());
+               updatedBingo.bingo_appearance[clave] = url;
+             } catch (error) {
+               console.error(
+                 'Error al cargar la imagen de la apariencia:',
+                 error
+               );
+             }
+           }
+         }
+       });
 
-      // Actualizar el estado del contexto con el nuevo objeto bingo
-      // setNewBingoCreated(updatedBingoData);
+     // Promesas para cargar imágenes de cartón y balota
+     const bingoPromises = updatedBingo.bingo_values.map(
+       async (bingo, index) => {
+         if (bingo.carton_type === 'image') {
+           const firebaseUrl = isBase64Url(bingo.carton_value);
+           if (firebaseUrl) {
+             try {
+               const url = await uploadBase64ImageToFirebase(
+                 bingo.carton_value,
+                 v4()
+               );
+               updatedBingo.bingo_values[index].carton_value = url;
+             } catch (error) {
+               console.error('Error al cargar la imagen del cartón:', error);
+             }
+           }
+         }
+         if (bingo.ballot_type === 'image') {
+           const firebaseUrl = isBase64Url(bingo.ballot_value);
+           if (firebaseUrl) {
+             try {
+               const url = await uploadBase64ImageToFirebase(
+                 bingo.ballot_value,
+                 v4()
+               );
+               updatedBingo.bingo_values[index].ballot_value = url;
+             } catch (error) {
+               console.error('Error al cargar la imagen de la balota:', error);
+             }
+           }
+         }
+       }
+     );
 
-      // const response = await bingoTemplateServices.createBingo(newBingoData);
+     // Esperar a que se completen todas las promesas
+     await Promise.all([...appearancePromises, ...bingoPromises]);
 
-      const response = await bingoTemplateServices.createBingo(newBingoCreated);
-      const { status, message, data } = response;
+      const response = await bingoTemplateServices.createBingo(modifiedBingoTemplate);
+      const { status, message } = response;
 
       if (status === "success") {
         alert(message);
@@ -110,6 +145,68 @@ const BingoConfig = () => {
   const handleSendUpdateTemplateBingo = async (e) => {
     e.preventDefault();
     try {
+       //copia del objeto bingo para realizar cambios sin mutarlo directamente
+      let updatedBingo = { ...modifiedBingoTemplate};
+
+      // Promesas para cargar imágenes de apariencia
+      const appearancePromises = Object.entries(updatedBingo.bingo_appearance)
+        .slice(1)
+        .map(async ([clave, valor]) => {
+          if (valor !== '') {
+            const firebaseUrl = isBase64Url(valor);
+            if (firebaseUrl) {
+              try {
+                const url = await uploadBase64ImageToFirebase(valor, v4());
+                updatedBingo.bingo_appearance[clave] = url;
+              } catch (error) {
+                console.error(
+                  'Error al cargar la imagen de la apariencia:',
+                  error
+                );
+              }
+            }
+          }
+        });
+
+      // Promesas para cargar imágenes de cartón y balota
+      const bingoPromises = updatedBingo.bingo_values.map(
+        async (bingo, index) => {
+          if (bingo.carton_type === 'image') {
+            const firebaseUrl = isBase64Url(bingo.carton_value);
+            if (firebaseUrl) {
+              try {
+                const url = await uploadBase64ImageToFirebase(
+                  bingo.carton_value,
+                  v4()
+                );
+                updatedBingo.bingo_values[index].carton_value = url;
+              } catch (error) {
+                console.error('Error al cargar la imagen del cartón:', error);
+              }
+            }
+          }
+          if (bingo.ballot_type === 'image') {
+            const firebaseUrl = isBase64Url(bingo.ballot_value);
+            if (firebaseUrl) {
+              try {
+                const url = await uploadBase64ImageToFirebase(
+                  bingo.ballot_value,
+                  v4()
+                );
+                updatedBingo.bingo_values[index].ballot_value = url;
+              } catch (error) {
+                console.error('Error al cargar la imagen de la balota:', error);
+              }
+            }
+          }
+        }
+      );
+
+      // Esperar a que se completen todas las promesas
+      await Promise.all([...appearancePromises, ...bingoPromises]);
+
+      
+
       let response;
 
       if (isTemplate === "true") {
@@ -145,10 +242,7 @@ const BingoConfig = () => {
     setModifiedBingoTemplate(updateIsPublic);
   };
 
-  // Función para manejar los cambios en la configuración del bingo
-  const handleBingoConfigChange = (updatedConfig) => {
-    setModifiedBingoTemplate(updatedConfig);
-  };
+
 
   //Taps de los componentes que renderiza este componente BingoConfig
   const data = [
@@ -158,15 +252,14 @@ const BingoConfig = () => {
       desc: (
         <DimensionsBingoCard
           sendBingoCreated={sendBingoCreated}
-          modifiedBingoTemplate={modifiedBingoTemplate}
-          onConfigChange={handleBingoConfigChange}
+             
         />
       ),
     },
     {
       label: "Apariencia del cartón",
       value: "apariencia del cartón",
-      desc: <AppearanceCard />,
+      desc: <AppearanceCard appearanceBingoCarton={appearanceBingoCarton} />,
     },
     {
       label: "Asignación de cartones",
@@ -184,6 +277,7 @@ const BingoConfig = () => {
       {modifiedBingoTemplate && (
         <CustomBingoViewHeader
           handleSendUpdateTemplateBingo={handleSendUpdateTemplateBingo}
+          handleOnClickSendBingoCreated={handleOnClickSendBingoCreated}
           isPublish={modifiedBingoTemplate.is_public}
           publishTemplate={publishTemplate}
           bingoId={bingoId}

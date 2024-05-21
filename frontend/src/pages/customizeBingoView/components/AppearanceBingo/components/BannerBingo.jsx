@@ -3,13 +3,23 @@ import { useContext, useRef, useState, useEffect } from 'react';
 import bingoHeader from '../../../../../assets/bingoHeader.png';
 import { NewBingoContext } from '../../../context/NewBingoContext';
 
-const BannerBingo = ({customBingoCard}) => {
-
+const BannerBingo = ({ customBingoCard }) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
 
-  const[imageBanner, setImageBanner]=useState(null)
- 
+  const [imageBanner, setImageBanner] = useState(null);
+
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (bingo.bingo_appearance && bingo.bingo_appearance.banner) {
+      setImageBanner(bingo.bingo_appearance.banner);
+    }
+  }, [bingo]);
+
+  //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
+  useEffect(() => {
+    customBingoCard(bingo);
+  }, [bingo]);
 
   const handleHeaderUpload = () => {
     fileInputRef.current.click();
@@ -19,25 +29,17 @@ const BannerBingo = ({customBingoCard}) => {
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
-      const image = reader.result; 
+      const image = reader.result;
       setImageBanner(image);
-      
+
       // Actualizar el estado del contexto con la URL base64
       updateBingo((prevState) => ({
         ...prevState,
-        bingo_appearance: { ...prevState.bingo_appearance, banner: image }
+        bingo_appearance: { ...prevState.bingo_appearance, banner: image },
       }));
     };
     reader.readAsDataURL(file);
-   
-   
   };
-
-   //mantener actualizado el estado bingo con la config y enviarlo al padre "AppearenceBingo"
-   useEffect(() => {
-    customBingoCard(bingo);
-  }, [bingo]);
-
 
   return (
     <Card className="mt-6 w-60 h-80">
@@ -52,7 +54,7 @@ const BannerBingo = ({customBingoCard}) => {
         className="relative h-56 flex justify-center items-center bg-blue-gray-100 border-dashed border-3 cursor-pointer"
         onClick={handleHeaderUpload}
       >
-        <img src={!imageBanner ?bingoHeader : imageBanner} alt="header" />
+        <img src={!imageBanner ? bingoHeader : imageBanner} alt="header" />
       </CardHeader>
       <CardFooter className="pt-10 m-auto">
         <Button className="flex items-center gap-3">

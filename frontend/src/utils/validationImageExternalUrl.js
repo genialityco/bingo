@@ -14,10 +14,12 @@ export function isBase64Url(url) {
   return false;
 }
 
-// Función para subir una imagen base64 a Firebase Storage
+// subir una imagen base64 a Firebase Storage y la transforma a URL
 export const uploadBase64ImageToFirebase = async (base64Image, fileName) => {
   const storageRef = ref(storage, `images/${fileName}`);
   const snapshot = await uploadString(storageRef, base64Image, 'data_url');
   console.log('Uploaded a blob or file!', snapshot);
   return await getDownloadURL(ref(storageRef));
 };
+
+

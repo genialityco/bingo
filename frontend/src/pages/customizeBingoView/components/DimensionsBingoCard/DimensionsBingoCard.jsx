@@ -10,7 +10,6 @@ import {
 import { NewBingoContext } from '../../context/NewBingoContext';
 import SizeBingoCard from './components/SizeBingoCard';
 import DialogValueCartonAndBallot from './components/DialogValueCartonAndBallot';
-import TemplateBingos from './components/TemplateBingos';
 import DialogGenerateBallots from './components/DialogGenerateBallots';
 
 const TABLE_HEAD = [
@@ -22,19 +21,8 @@ const TABLE_HEAD = [
   '-',
 ];
 
-const DimensionsBingoCard = ({
-  sendBingoCreated,
-  modifiedBingoTemplate,
-  onConfigChange,
-}) => {
-
+const DimensionsBingoCard = ({ sendBingoCreated }) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
-  // console.log(bingo)
-
- /*  const deleteIdBingoModified = modifiedBingoTemplate
-    ? delete modifiedBingoTemplate._id
-    : modifiedBingoTemplate; */
-
 
   const [numValuesToPlay, setNumValuesToPlay] = useState('');
   //establecer el nuevo valor de objetos que tendra el array bingoValues
@@ -53,15 +41,10 @@ const DimensionsBingoCard = ({
   const [positionsDisabled, setPostionDisabled] = useState([]);
   const [dimension, setDimension] = useState(null);
 
-  //Loading de carga de imagenes
-  const [isLoadingCartonImage, setIsLoadingCartonImage] = useState(false);
-  const [isLoadingBallotImage, setIsLoadingBallotImage] = useState(false);
-
   //captura  el titulo y las reglas
   const handleCreateNewBingo = (e) => {
     const { name, value } = e.target;
     updateBingo({ ...bingo, [name]: value });
-    onConfigChange({ ...modifiedBingoTemplate, [name]: value });
   };
 
   const handleNumValuesToPlayChange = (value) => {
@@ -74,17 +57,13 @@ const DimensionsBingoCard = ({
       positions: [],
     }));
 
-    updatedBi((prevState) => ({
+    updateBingo((prevState) => ({
       ...prevState,
       bingo_values: [...newBingoValues, ...prevState.bingo_values],
     }));
-    onConfigChange((prevState) => ({
-      ...prevState,
-      bingo_values: [...newBingoValues, ...prevState.bingo_values],
-    }));
+
     setSelectedNumValues(value);
   };
-
 
   //maneja cerrar o abrir el Dialog
   const handleOpenDialogValueCartonAndBallot = (index) => {
@@ -104,24 +83,14 @@ const DimensionsBingoCard = ({
 
     updateBingo((prevState) => ({
       ...prevState,
-      bingo_values: [newBalota,...prevState.bingo_values],
-    }));
-    onConfigChange((prevState) => ({
-      ...prevState,
-      bingo_values: [newBalota,...prevState.bingo_values],
+      bingo_values: [newBalota, ...prevState.bingo_values],
     }));
   };
 
   //elimina un objeto dentro del array bingoValues
   const handleDeleteValueInBingoValues = (index) => {
-    const updatedBingoValues = bingo.bingo_values.filter(
-      (_, i) => i !== index
-    );
+    const updatedBingoValues = bingo.bingo_values.filter((_, i) => i !== index);
     updateBingo((prevState) => ({
-      ...prevState,
-      bingo_values: updatedBingoValues,
-    }));
-    onConfigChange((prevState) => ({
       ...prevState,
       bingo_values: updatedBingoValues,
     }));
@@ -133,10 +102,6 @@ const DimensionsBingoCard = ({
     setDimension(sizeCarton);
   };
 
-  //inicialmente aparezcan 75 filas en la tabla para personalizar
- /*  useEffect(() => {
-    handleNumValuesToPlayChange(75);
-  }, []); */
 
   //mantener actualizado el estado bingo con la config y enviarlo al padre "BingoConfig"
   useEffect(() => {
@@ -146,13 +111,14 @@ const DimensionsBingoCard = ({
   useEffect(() => {
     updateBingo((prevState) => ({
       ...prevState,
+      bingo_values: [],
       positions_disabled: [],
     }));
   }, []);
 
   return (
     <div className=" flex flex-col lg:flex-row gap-3 ">
-      {/* 1st Card: Tittle,  Dimentions and Rules */}
+      {/* 1st Card: Titulo, Dimensiones y Reglas */}
       <Card className="w-2/5 bg-white p-5 flex justify-center items-center gap-3 border-gray-50 border-2 text-center">
         <Typography variant="h5" className="self-start">
           Nombre
@@ -174,10 +140,10 @@ const DimensionsBingoCard = ({
 
         <SizeBingoCard
           getPositionsDisablesAndDimension={getPositionsDisablesAndDimension}
-          onConfigChange={onConfigChange}
+          
         />
 
-       {/*  <TemplateBingos /> */}
+        {/*  <TemplateBingos /> */}
 
         <div className="w-80">
           <Typography variant="h5" className="text-left my-2">
@@ -192,7 +158,7 @@ const DimensionsBingoCard = ({
         </div>
       </Card>
 
-      {/* 2nd Card Bingo personalizar el contenido del carton */}
+      {/* 2nd Card:  personalizar el contenido del carton */}
       <Card className="w-full bg-blue-gray-100 p-5 border-2 hover:shadow-2xl">
         <Typography variant="h5" className="mb-3">
           Valores del Bingo
@@ -245,7 +211,7 @@ const DimensionsBingoCard = ({
           </Button>
         </div>
 
-        {/* Table del contenido del bingo*/}
+        {/* Tabla del contenido del bingo*/}
         <Card className="m-auto h-[600px] w-11/12 overflow-scroll overflow-y-auto">
           <table className="w-full min-w-max table-auto text-center">
             <thead>
@@ -335,7 +301,6 @@ const DimensionsBingoCard = ({
                   {/* valor balota */}
                   <td className="p-4">
                     {item.ballot_type === 'image' ? (
-                      
                       <img
                         className="m-auto"
                         src={item.ballot_value}
