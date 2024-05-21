@@ -13,9 +13,8 @@ import { NewBingoContext } from '../../context/NewBingoContext';
 
 const AppearanceCard = ({ appearanceBingoCarton }) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
-  console.log(bingo);
   const [appearance, setAppearance] = useState({});
-  console.log(appearance);
+ 
 
   const customBingoCard = (customBingo) => {
     setAppearance(customBingo.bingo_appearance);

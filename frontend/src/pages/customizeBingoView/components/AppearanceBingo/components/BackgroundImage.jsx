@@ -31,10 +31,10 @@ const BackgroundImage = ({ customBingoCard }) => {
     reader.onloadend = () => {
       const image = reader.result;
 
-      // Establecer la URL base64 en el estado backgroundImage
+      
       setBackgroundImage(image);
 
-      // Actualizar el estado del contexto con la URL base64
+      
       updateBingo((prevState) => ({
         ...prevState,
         bingo_appearance: {

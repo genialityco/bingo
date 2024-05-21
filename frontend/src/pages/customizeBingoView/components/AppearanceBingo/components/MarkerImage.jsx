@@ -32,7 +32,7 @@ const MarkerImage = ({ customBingoCard }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     const fileName = event.target.files[0].name;
-    console.log(fileName)
+    // console.log(fileName)
     const reader = new FileReader();
     reader.onloadend = () => {
       const image = reader.result;

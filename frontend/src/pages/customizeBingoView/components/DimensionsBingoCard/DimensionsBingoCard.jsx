@@ -143,7 +143,6 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
           
         />
 
-        {/*  <TemplateBingos /> */}
 
         <div className="w-80">
           <Typography variant="h5" className="text-left my-2">
