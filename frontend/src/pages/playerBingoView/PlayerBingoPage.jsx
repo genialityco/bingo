@@ -268,7 +268,7 @@ export const PlayerBingoPage = () => {
       }
 
       // Si se detectan cambios en 'bingoFigure'
-      if (updatedFields.bingoFigure) {
+      if (updatedFields.bingo_figure) {
         getBallotsHistory();
       }
     }
@@ -395,7 +395,7 @@ export const PlayerBingoPage = () => {
       );
       getBallotsHistory();
     } else {
-      console.log("No existe cardbordId");
+      console.error("No existe cardbordId");
     }
   };
 
@@ -555,12 +555,14 @@ export const PlayerBingoPage = () => {
   };
 
   const getBallotsHistory = async () => {
-    const { history_of_ballots } = await bingoServices.getBingoById(bingoId);
-    setBallotsHistory(history_of_ballots);
+    const response = await bingoServices.getBingoById(bingoId);
+    setBingoConfig(response);
+    setBallotsHistory(response.history_of_ballots);
 
     // Asignar la última balota del historial a lastBallot
-    if (history_of_ballots.length > 0) {
-      const lastBallotId = history_of_ballots[history_of_ballots.length - 1];
+    if (response.history_of_ballots.length > 0) {
+      const lastBallotId =
+        response.history_of_ballots[response.history_of_ballots.length - 1];
       setLastBallot(lastBallotId);
       setMessageLastBallot("¡El bingo ha comenzado!");
     }
