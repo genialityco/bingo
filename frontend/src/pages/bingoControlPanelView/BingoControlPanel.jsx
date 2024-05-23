@@ -35,7 +35,7 @@ export const BingoControlPanel = () => {
 
   const [invitationLink, setInvitationLink] = useState("");
 
-  const [isInputDialogOpen ,setIsInputDialogOpen] = useState(false);
+  const [isInputDialogOpen, setIsInputDialogOpen] = useState(false);
 
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
@@ -159,8 +159,18 @@ export const BingoControlPanel = () => {
     }
   };
 
+  //
+
+  const backgroundStyle = {
+    backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2F4d2727bd-871a-4000-ab26-8b88eebb534e?alt=media&token=d436ab50-9b3a-4a03-8c9b-e5b0807ae293')`,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center center",
+    backgroundSize: "cover",
+    minHeight: "100vh",
+  };
+
   return (
-    <div className="flex flex-col w-full bg-gray-300 p-2">
+    <div className="flex flex-col w-full bg-gray-300 p-2" style={backgroundStyle}>
       <section className="mb-1 text-center">
         <Card className="w-full">
           <CardBody className="flex flex-col items-center justify-center">
@@ -282,10 +292,15 @@ export const BingoControlPanel = () => {
             <CardFooter>
               <ButtonGroup className="flex justify-center">
                 <FormEditRoom bingo={bingo} fetchBingoData={fetchInitialData} />
-                <Button className="normal-case" onClick={() => setIsInputDialogOpen(true)}>
+                <Button
+                  className="normal-case"
+                  onClick={() => setIsInputDialogOpen(true)}
+                >
                   Buscar Cartón
                 </Button>
-                <Button className="normal-case"  onClick={restartBingo}>Reiniciar/Limpiar bingo</Button>
+                <Button className="normal-case" onClick={restartBingo}>
+                  Reiniciar/Limpiar bingo
+                </Button>
                 <InvitePopover invitationLink={invitationLink} bingo={bingo} />
               </ButtonGroup>
               {isInputDialogOpen && (

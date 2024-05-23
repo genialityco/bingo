@@ -66,7 +66,7 @@ const bingoServices = {
       const response = await apiBingo.put(`/${id}/capacity`, {
         capacity,
       });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -86,14 +86,14 @@ const bingoServices = {
   updateBingo: async (id, updateData) => {
     try {
       const response = await apiBingo.put(`/${id}`, updateData);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw error;
     }
   },
 
   // Eliminar un bingo
-  deleteRoom: async (id) => {
+  deleteBingo: async (id) => {
     try {
       const response = await apiBingo.delete(`/${id}`);
       return response.data;

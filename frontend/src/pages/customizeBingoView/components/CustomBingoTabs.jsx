@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Tabs,
   TabsHeader,
@@ -8,8 +8,11 @@ import {
 } from "@material-tailwind/react";
 
 export const CustomBingoTabs = ({ data }) => {
+
+  const [activeTab, setActiveTab] = useState(data[0].value);
+
   return (
-    <Tabs value="html" className="w-full ">
+    <Tabs value={activeTab} onChange={(newValue) => setActiveTab(newValue)} className="w-full">
       <TabsHeader
         className="bg-gray-200 flex justify-center items-center"
         indicatorProps={{
