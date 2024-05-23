@@ -67,7 +67,6 @@ server.listen(PORT, () => {
 });
 
 io.on("connection", (socket) => {
-
   // Nuevo evento para recibir el nombre del usuario
   socket.on("setPlayerName", (data) => {
     console.log(`${data.playerName} se ha conectado`);
@@ -89,6 +88,10 @@ io.on("connection", (socket) => {
       console.log("No hay ganador esta vez en sangBingo.");
     }
     socket.emit("sangBingo", isWinner);
+  });
+
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {

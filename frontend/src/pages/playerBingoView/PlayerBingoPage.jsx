@@ -11,7 +11,7 @@ import { TabsSection } from "./components/TabsSetion";
 import { MessageDialog } from "./components/MessageDialog";
 import { LiveStream } from "./components/LiveStream";
 
-import { signInAnonymously, updateProfile } from "firebase/auth";
+import { signInAnonymously, updateProfile,onAuthStateChanged, getAuth } from "firebase/auth";
 import { auth } from "../../firebase";
 
 async function generateRandomAlphanumeric(length) {
@@ -63,11 +63,7 @@ export const PlayerBingoPage = () => {
       ? JSON.parse(localStorage.getItem("cardboard_code"))
       : ""
   );
-  const [cardboardId, setCardboardId] = useState(
-    JSON.parse(localStorage.getItem("cardboard_id"))
-      ? JSON.parse(localStorage.getItem("cardboard_id"))
-      : ""
-  );
+  const [cardboardId, setCardboardId] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
     color: "lightBlue",
@@ -80,6 +76,27 @@ export const PlayerBingoPage = () => {
 
   const [logs, setLogs] = useState([]);
 
+  const [message, setMessage] = useState("");
+  const [chat, setChat] = useState([]);
+
+  const socket = io(SOCKET_SERVER_URL);
+
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      alert( user)
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        // ...
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+  }, []);
+
   // Efecto para obtener la configuración del bingo
   useEffect(() => {
     const generateBingoCard = (values, dimensions, positionsDisabled) => {
@@ -87,7 +104,7 @@ export const PlayerBingoPage = () => {
 
       setRows(rows);
 
-      if (cardboardId !== "") {
+      if (cardboardCode !== "") {
         getExistingCardboard();
         return;
       }
@@ -167,7 +184,7 @@ export const PlayerBingoPage = () => {
       });
 
       setBingoCard(card);
-      localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
+      // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
     };
 
     const getBingo = async () => {
@@ -193,8 +210,6 @@ export const PlayerBingoPage = () => {
   // Efecto para configurar los eventos de socket.io
   useEffect(() => {
     if (storageUserId) {
-      const socket = io(SOCKET_SERVER_URL);
-
       socket.emit("setPlayerName", { playerName: storageUserId });
 
       socket.on("userConnected", (data) => {
@@ -204,13 +219,23 @@ export const PlayerBingoPage = () => {
       socket.on("ballotUpdate", handleBallotUpdate);
       socket.on("sangBingo", handleSocketSangBingo);
 
+      socket.on("chat message", (msg) => {
+        setChat([...chat, msg]);
+      });
+
       return () => {
         socket.off("ballotUpdate", handleBallotUpdate);
         socket.off("sangBingo", handleSocketSangBingo);
         socket.disconnect();
       };
     }
-  }, [storageUserId]);
+  }, [storageUserId, chat]);
+
+  const sendChat = (e) => {
+    e.preventDefault();
+    socket.emit("chat message", message);
+    setMessage("");
+  };
 
   const handleSocketSangBingo = (data) => {
     handleSangBingo(data);
@@ -373,10 +398,10 @@ export const PlayerBingoPage = () => {
       setCardboardCode(cardboard_code);
       setStorageUserId(playerName);
       localStorage.setItem("cardboard_code", JSON.stringify(cardboard_code));
-      localStorage.setItem(
-        "cardboard_id",
-        JSON.stringify(cardboardSaved.data._id)
-      );
+      // localStorage.setItem(
+      //   "cardboard_id",
+      //   JSON.stringify(cardboardSaved.data._id)
+      // );
     } catch (error) {
       console.error("Error saving cardboard:", error);
     }
@@ -384,7 +409,7 @@ export const PlayerBingoPage = () => {
 
   // Función para resetear el juego
   const resetGame = async (localReset = false) => {
-    // Pendiente solucionar al refrescar
+    console.log(cardboardId);
     if (cardboardId) {
       const resetMarkedSquares = bingoCard.map((square) =>
         square.value === "Disabled" ? square : { ...square, isMarked: false }
@@ -421,7 +446,7 @@ export const PlayerBingoPage = () => {
       //   "cardboard_code",
       //   JSON.stringify(response.data.cardboard_code)
       // );
-      localStorage.setItem("cardboard_id", JSON.stringify(response.data._id));
+      // localStorage.setItem("cardboard_id", JSON.stringify(response.data._id));
     }
   };
 
@@ -554,7 +579,7 @@ export const PlayerBingoPage = () => {
     await bingoCardboardService.updateCardboard(cardboardId, {
       game_card_values: updatedMarks,
     });
-    localStorage.setItem("bingoCard", JSON.stringify(updatedMarks));
+    // localStorage.setItem("bingoCard", JSON.stringify(updatedMarks));
   };
 
   const getBallotsHistory = async () => {
@@ -624,9 +649,9 @@ export const PlayerBingoPage = () => {
                   >
                     Limpiar Cartón
                   </Button>
-                  <Button size="sm" className="px-2 md:px-4" color="gray">
+                  {/* <Button size="sm" className="px-2 md:px-4" color="gray">
                     Chat
-                  </Button>
+                  </Button> */}
                 </div>
                 <div className="w-full h-full">
                   {bingoConfig && (
@@ -652,6 +677,20 @@ export const PlayerBingoPage = () => {
                     cardboardCode={cardboardCode}
                     logs={logs}
                   />
+                  {/* <div>
+                    <form onSubmit={sendChat}>
+                      <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Escribe un mensaje"
+                      />
+                      <button type="submit">Enviar</button>
+                    </form>
+                    {chat.map((msg, index) => (
+                      <p key={index}>{msg}</p>
+                    ))}
+                  </div> */}
                 </CardBody>
               </Card>
             </div>

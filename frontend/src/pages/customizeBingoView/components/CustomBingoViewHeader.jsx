@@ -14,6 +14,8 @@ export const CustomBingoViewHeader = ({
   publishTemplate,
   bingoId,
   isTemplate,
+  deleteBingo,
+  deleteTemplate
 }) => {
   const [publish, setPublish] = useState(isPublish);
 
@@ -22,6 +24,14 @@ export const CustomBingoViewHeader = ({
     setPublish(newPublishState);
     publishTemplate(newPublishState);
   };
+
+  const deleteTemplateOrBingo = () => {
+    if(isTemplate) {
+      deleteTemplate();
+    } else {
+      deleteBingo();
+    }
+  }
 
   return (
     <Card className="w-full shadow-none">
@@ -66,7 +76,7 @@ export const CustomBingoViewHeader = ({
           >
             Actualizar
           </Button>
-          <Button className="flex items-center gap-3">
+          <Button className="flex items-center gap-3" onClick={() => deleteTemplateOrBingo()}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
