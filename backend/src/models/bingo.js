@@ -43,7 +43,8 @@ const bingoPositionsDisabledSchema = new Schema({
   },
   default_image: {
     type: String,
-    required: false,
+    default:
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2F3060c998-30ac-4bea-80e1-eb6c23ef1d82?alt=media&token=b27ad368-8f41-4d13-90bf-d68c9f46a87e",
   },
 });
 
