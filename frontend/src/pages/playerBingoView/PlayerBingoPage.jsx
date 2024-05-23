@@ -81,21 +81,21 @@ export const PlayerBingoPage = () => {
 
   const socket = io(SOCKET_SERVER_URL);
 
-  useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      alert( user)
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const uid = user.uid;
-        // ...
-      } else {
-        // User is signed out
-        // ...
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   const auth = getAuth();
+  //   onAuthStateChanged(auth, (user) => {
+  //     alert( user)
+  //     if (user) {
+  //       // User is signed in, see docs for a list of available properties
+  //       // https://firebase.google.com/docs/reference/js/auth.user
+  //       const uid = user.uid;
+  //       // ...
+  //     } else {
+  //       // User is signed out
+  //       // ...
+  //     }
+  //   });
+  // }, []);
 
   // Efecto para obtener la configuración del bingo
   useEffect(() => {

@@ -22,6 +22,7 @@ export const ShowLastBallot = ({
         type: ballotData.ballot_type,
       };
     }
+    return { value: "", type: "text" }; // Devolver un valor predeterminado si no hay datos
   };
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export const ShowLastBallot = ({
   }, [messageLastBallot]);
 
   return (
-    <div className="p-2">
+    <div className="p-2 relative">
       <audio ref={bingoStartAudioRef} src="/audios/startGame.mp3"></audio>
       <audio ref={bingoRestartAudioRef} src="/audios/restartBingo.mp3"></audio>
       <audio ref={bingoValidatingRef} src="/audios/validatingBingo.mp3"></audio>
@@ -60,21 +61,26 @@ export const ShowLastBallot = ({
 
       <Typography className="text-center">{messageLastBallot}</Typography>
       {lastBallot && lastBallot !== "" && (
-        <Typography variant="h6" className="text-center">
-          Última balota sacada:{" "}
-          {getBallotValueForDom(lastBallot).type === "image" ? (
+        <div className="flex justify-center items-center">
+          <div className="h-24 w-24 rounded-full flex justify-center items-center relative">
             <img
-              src={getBallotValueForDom(lastBallot).value}
-              alt="Ballot"
-              style={{ width: "10", height: "10", objectFit: "contain" }}
-              className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50"
+              src="https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2Ffc34d411-a873-4bb7-b172-6f8f9397f932?alt=media&token=91fd632d-4093-4627-a64e-2d69b9bc80a0" // Ruta a la imagen de fondo
+              className="absolute top-0 left-0 w-full h-full object-cover rounded-full shadow-2xl"
+              alt="Background ballot"
             />
-          ) : (
-            <Typography className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12">
-              {getBallotValueForDom(lastBallot).value}
-            </Typography>
-          )}
-        </Typography>
+            {getBallotValueForDom(lastBallot).type === "image" ? (
+              <img
+                src={getBallotValueForDom(lastBallot).value}
+                alt="Ballot"
+                className="h-12 w-12 rounded-full z-50"
+              />
+            ) : (
+              <Typography className="text-black text-xl z-50">
+                {getBallotValueForDom(lastBallot).value}
+              </Typography>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
