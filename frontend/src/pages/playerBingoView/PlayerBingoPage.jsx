@@ -12,7 +12,7 @@ import { MessageDialog } from "./components/MessageDialog";
 import { LiveStream } from "./components/LiveStream";
 
 import { signInAnonymously, updateProfile,onAuthStateChanged, getAuth } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth } from "../../firebase-config";
 
 async function generateRandomAlphanumeric(length) {
   const characters =
