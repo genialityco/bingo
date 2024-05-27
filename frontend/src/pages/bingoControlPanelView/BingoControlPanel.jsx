@@ -21,11 +21,13 @@ import InvitePopover from "./components/InvitePopover";
 import { FormEditRoom } from "./components/FormEditRoom";
 import { BingoRequestTable } from "./components/BingoRequestTable";
 import { BingoCardInputDialog } from "./components/BingoCardInputDialog";
+import { useLoading } from "../../context/LoadingContext";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
 export const BingoControlPanel = () => {
   const { bingoId } = useParams();
+  const { showLoading, hideLoading } = useLoading();
   const [currentBallot, setCurrentBallot] = useState(null);
   const [announcedBallots, setAnnouncedBallots] = useState([]);
   const [bingo, setBingo] = useState(null);
@@ -170,7 +172,10 @@ export const BingoControlPanel = () => {
   };
 
   return (
-    <div className="flex flex-col w-full bg-gray-300 p-2" style={backgroundStyle}>
+    <div
+      className="flex flex-col w-full bg-gray-300 p-2"
+      style={backgroundStyle}
+    >
       <section className="mb-1 text-center">
         <Card className="w-full">
           <CardBody className="flex flex-col items-center justify-center">
@@ -239,7 +244,7 @@ export const BingoControlPanel = () => {
               />
             </CardBody>
           </Card>
-        </div> */}
+        </div> 
 
         {/* Sección derecha para solicitudes de Bingo y validador de cartones */}
         <div className="w-full md:w-2/6 flex flex-col items-center mb-1">

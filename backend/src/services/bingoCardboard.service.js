@@ -22,11 +22,13 @@ class BingoCardboardServices {
     }
   }
 
-  async findCardboardByField(fieldName, value) {
+  async findCardboardByField(params) {
     const query = {};
-    query[fieldName] = value;
-    const cardboard = await BingoCardboard.findOne(query);
-    return cardboard;
+    Object.keys(params).forEach(key => {
+      query[key] = params[key];
+    });
+    const cardboards = await BingoCardboard.find(query);
+    return cardboards;
   }
 
   async getAllCardboards() {

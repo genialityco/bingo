@@ -10,9 +10,11 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import bingoService from "../../../services/bingoService";
+import { useLoading } from "../../../context/LoadingContext";
 
 export const FormEditRoom = ({ bingo, fetchBingoData }) => {
   const { _id, name, bingo_code, capacity } = bingo;
+  const { showLoading, hideLoading } = useLoading();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bingoName, setBingoName] = useState(name);
   const [bingoCodeForm, setBingoCodeForm] = useState(bingo_code);
@@ -34,7 +36,7 @@ export const FormEditRoom = ({ bingo, fetchBingoData }) => {
           bingo_code: bingoCodeForm,
           capacity: bingoCapacity,
         };
-        await bingoService.updateBingo(_id, updateData);
+        await bingoService.updateBingo(_id, updateData, showLoading, hideLoading);
         fetchBingoData();
         toggleDialog();
       } catch (error) {
@@ -47,7 +49,10 @@ export const FormEditRoom = ({ bingo, fetchBingoData }) => {
 
   return (
     <div className="flex flex-col">
-      <Button onClick={toggleDialog} className="rounded-l-lg rounded-r-none normal-case">
+      <Button
+        onClick={toggleDialog}
+        className="rounded-l-lg rounded-r-none normal-case"
+      >
         Configurar Bingo
       </Button>
 

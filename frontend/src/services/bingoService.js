@@ -22,7 +22,8 @@ const bingoServices = {
   },
 
   // Buscar un bingo por un campo específico
-  findBingoByField: async (field, value) => {
+  findBingoByField: async (field, value, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.get(
         `/search?field=${encodeURIComponent(field)}&value=${encodeURIComponent(
@@ -33,6 +34,8 @@ const bingoServices = {
       return response.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 
@@ -73,22 +76,28 @@ const bingoServices = {
   },
 
   // Obtener todas los bingo
-  getAllBingos: async () => {
+  getAllBingos: async (showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.get("/");
       return response.data.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 
   // Actualizar los detalles de un bingo
-  updateBingo: async (id, updateData) => {
+  updateBingo: async (id, updateData, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.put(`/${id}`, updateData);
       return response.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 

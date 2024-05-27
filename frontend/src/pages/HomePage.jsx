@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Alert } from "@material-tailwind/react";
 import bingoServices from "../services/bingoService";
+import { useLoading } from "../context/LoadingContext";
 
 export const HomePage = () => {
+  const { showLoading, hideLoading } = useLoading();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
 
@@ -18,7 +20,9 @@ export const HomePage = () => {
     try {
       const response = await bingoServices.findBingoByField(
         "bingo_code",
-        bingoCode
+        bingoCode,
+        showLoading,
+        hideLoading
       );
       return response;
     } catch (error) {

@@ -26,25 +26,23 @@ class BingoFigureController {
   // GET /rooms/search - Buscar una sala por un campo específico
   async findCardboardByField(req, res) {
     try {
-      const { field, value } = req.query;
-      if (!field || !value) {
-        return sendResponse(
-          res,
-          400,
-          null,
-          "Missing field or value in query parameters."
-        );
+      const params = req.query;
+      // Comprobar si el objeto params está vacío
+      if (Object.keys(params).length === 0) {
+        return sendResponse(res, 400, null, "Missing query parameters.");
       }
-      const cardboard = await BingoCardboardService.findCardboardByField(field, value);
-      if (!cardboard) {
+      const cardboards = await BingoCardboardService.findCardboardByField(
+        params
+      );
+      if (cardboards.length === 0) {
         return sendResponse(
           res,
           404,
           null,
-          `Cardboard not found with ${field}: ${value}`
+          "No cardboards found with the provided criteria"
         );
       }
-      sendResponse(res, 200, cardboard, "Cardboard found successfully");
+      sendResponse(res, 200, cardboards, "Cardboards found successfully");
     } catch (error) {
       sendResponse(res, 500, null, error.message);
     }

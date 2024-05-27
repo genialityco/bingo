@@ -13,6 +13,7 @@ import {
   Option,
 } from "@material-tailwind/react";
 import { useEffect, useState, useCallback } from "react";
+import { useLoading } from "../../context/LoadingContext";
 import { Link } from "react-router-dom";
 
 // Importaciones de servicios
@@ -37,26 +38,34 @@ const BingoList = () => {
     templateId: "",
   });
 
+  const { isLoading, showLoading, hideLoading } = useLoading();
+
   // Funciones para obtener listas
   const fetchBingos = useCallback(async () => {
     try {
-      const response = await bingoServices.getAllBingos();
+      const response = await bingoServices.getAllBingos(
+        showLoading,
+        hideLoading
+      );
       setBingos(response);
     } catch (err) {
       setErrorBingos("Error al obtener la lista de bingos");
     } finally {
-      setLoadingBingos(false);
+      setLoadingBingos(isLoading);
     }
   }, []);
 
   const fetchTemplates = useCallback(async () => {
     try {
-      const { data } = await bingoTemplateServices.listAllTemplates();
+      const { data } = await bingoTemplateServices.listAllTemplates(
+        showLoading,
+        hideLoading
+      );
       setTemplates(data);
     } catch (err) {
       setErrorTemplates("Error al obtener la lista de plantillas");
     } finally {
-      setLoadingTemplates(false);
+      setLoadingTemplates(isLoading);
     }
   }, []);
 
@@ -127,7 +136,8 @@ const BingoList = () => {
         is_public: false,
         is_template: true,
       };
-      const response = await bingoTemplateServices.createTemplate(newTemplate);
+      await bingoTemplateServices.createTemplate(newTemplate,    showLoading,
+        hideLoading);
       fetchTemplates();
     } catch (error) {
       console.error(error);

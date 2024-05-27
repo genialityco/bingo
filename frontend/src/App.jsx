@@ -1,29 +1,35 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
 import { Layout } from "./components/Layout";
 import { DialogForName } from "./components/DialogForName";
 import routesConfig from "./routes/routesConfig";
+import { CustomLoading } from "./components/CustomLoading";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { user, userName, loading } = useAuth();
+
+  if (loading) {
+    return <CustomLoading />;
+  }
+
   return (
-    <AuthProvider>
-      <Router>
-        <Layout>
-          <DialogForName />
-          <Routes>
-            {routesConfig.map((route, index) => (
-              <Route
-                key={index}
-                path={route.path}
-                element={<route.component />}
-                exact={route.exact}
-              />
-            ))}
-          </Routes>
-        </Layout>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Layout>
+        <CustomLoading />
+        {!user && !userName && <DialogForName />}
+        <Routes>
+          {routesConfig.map((route, index) => (
+            <Route
+              key={index}
+              path={route.path}
+              element={<route.component />}
+              exact={route.exact}
+            />
+          ))}
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 

@@ -44,7 +44,7 @@ yarn.lock
 coverage/
 
 # Archivos de configuración personalizados
-firebase-config.js
+# firebase-config.js
 
 # Carpeta de archivos estáticos generados
 /public/hashed/

@@ -42,12 +42,15 @@ const bingoTemplateServices = {
   },
 
   // Listar todos los juegos de bingo
-  listAllTemplates: async () => {
+  listAllTemplates: async (showLoading, hideLoading) => {
+    showLoading()
     try {
       const response = await apiBingoTemplate.get("/");
       return response.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 };

@@ -2,18 +2,25 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { loginAnonymously, logout } from "../services/authFirebaseService";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase-config";
+import { useLoading } from "./LoadingContext";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setUserName(currentUser.displayName);
+      setUserName(currentUser ? currentUser.displayName : null);
+      setLoading(false);
     });
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      setLoading(true);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -34,6 +41,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         userName,
+        loading,
         setUser,
         auth,
         handleLogout,
