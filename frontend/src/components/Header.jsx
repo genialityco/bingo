@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Navbar,
   Collapse,
@@ -7,9 +7,14 @@ import {
   IconButton,
   List,
   ListItem,
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function NavList() {
   return (
@@ -52,10 +57,11 @@ function NavList() {
 }
 
 export function Header() {
-  const [openNav, setOpenNav] = React.useState(false);
+  const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
+  const { user, userName, handleLogout } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false)
@@ -65,15 +71,18 @@ export function Header() {
   const goToAdminBingo = () => {
     navigate("/list-bingos");
   };
+  const gotToHome = () => {
+    navigate("/");
+  };
 
   return (
     <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg">
       <div className="flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
-          href="/"
           variant="h6"
           className="mr-4 cursor-pointer py-1.5 lg:ml-2"
+          onClick={gotToHome}
         >
           Powered Magnetic
         </Typography>
@@ -81,12 +90,37 @@ export function Header() {
           <NavList />
         </div>
         <div className="hidden gap-2 lg:flex">
-          <Button size="sm" color="blue-gray" onClick={goToAdminBingo}>
-            Dashboard Bingos
-          </Button>
-          {/* <Button variant="gradient" size="sm">
-            Registrarse
-          </Button> */}
+          {user && userName ? (
+            <Menu>
+              <MenuHandler>
+                <div className="flex items-center gap-2">
+                  <span>{userName}</span>
+                  <img
+                    src={
+                      user?.photoURL ||
+                      "https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector-PNG.png"
+                    }
+                    alt="Avatar"
+                    className="h-8 w-8 rounded-full"
+                  />
+                </div>
+              </MenuHandler>
+              <MenuList className="text-center">
+                <MenuItem onClick={goToAdminBingo}>Dashboard Bingos</MenuItem>
+                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem> //
+                Usar MenuItem para mantener consistencia
+              </MenuList>
+            </Menu>
+          ) : (
+            <>
+              <Button variant="outlined" size="sm" color="blue-gray">
+                Log In
+              </Button>
+              <Button variant="gradient" size="sm">
+                Sign In
+              </Button>
+            </>
+          )}
         </div>
         <IconButton
           variant="text"
@@ -106,12 +140,40 @@ export function Header() {
           <div>
             <NavList />
             <div className="flex min-w-full flex-nowrap items-center gap-2 lg:hidden">
-              <Button variant="outlined" size="sm" color="blue-gray" fullWidth>
-                Log In
-              </Button>
-              <Button variant="gradient" size="sm" fullWidth>
-                Sign In
-              </Button>
+              {user && userName ? (
+                <Menu>
+                  <MenuHandler>
+                    <div className="flex items-center gap-2">
+                      <span>{userName}</span>
+                      <img
+                        src={
+                          user?.photoURL ||
+                          "https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector-PNG.png"
+                        }
+                        alt="Avatar"
+                        className="h-8 w-8 rounded-full"
+                      />
+                    </div>
+                  </MenuHandler>
+                  <MenuList>
+                    <MenuItem onClick={goToAdminBingo}>
+                      Dashboard Bingos
+                    </MenuItem>
+                    <MenuItem>
+                      <Typography variant="lead"> Cerrar sesión</Typography>
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              ) : (
+                <>
+                  <Button variant="outlined" size="sm" color="blue-gray">
+                    Log In
+                  </Button>
+                  <Button variant="gradient" size="sm">
+                    Sign In
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}

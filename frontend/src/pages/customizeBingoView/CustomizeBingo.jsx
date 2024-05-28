@@ -7,9 +7,12 @@ import CardAssigment from "./components/CardAssigment/CardAssigment";
 import bingoServices from "../../services/bingoService";
 import bingoTemplateServices from "../../services/bingoTemplateService";
 
+// Contextos
+import { NewBingoContext } from "./context/NewBingoContext";
+import { useLoading } from "../../context/LoadingContext";
+
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { NewBingoContext } from "./context/NewBingoContext";
 import { CustomBingoViewHeader } from "./components/CustomBingoViewHeader";
 import { CustomBingoTabs } from "./components/CustomBingoTabs";
 import {
@@ -19,6 +22,7 @@ import {
 
 const BingoConfig = () => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
+  const { showLoading, hideLoading } = useLoading();
   const [newBingoCreated, setNewBingoCreated] = useState(null);
   const [modifiedBingoTemplate, setModifiedBingoTemplate] = useState(null);
 
@@ -122,12 +126,16 @@ const BingoConfig = () => {
       if (isTemplate === "true") {
         response = await bingoTemplateServices.updateTemplate(
           modifiedBingoTemplate._id,
-          modifiedBingoTemplate
+          modifiedBingoTemplate,
+          showLoading,
+          hideLoading
         );
       } else {
         response = await bingoServices.updateBingo(
           modifiedBingoTemplate._id,
-          modifiedBingoTemplate
+          modifiedBingoTemplate,
+          showLoading,
+          hideLoading
         );
       }
       const { status, message } = response;
@@ -171,7 +179,7 @@ const BingoConfig = () => {
     }
   };
 
-  const deleteTemplate =async () => {
+  const deleteTemplate = async () => {
     try {
       const { status } = await bingoTemplateServices.deleteTemplate(bingoId);
 

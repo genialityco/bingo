@@ -22,14 +22,17 @@ const bingoCardboardService = {
   },
 
   // Buscar un cartón por un campo específico
-  findCardboardByField: async (field, value) => {
+  findCardboardsByFields: async (params) => {
     try {
-      const response = await apiBingoCardboard.get(
-        `/search?field=${encodeURIComponent(field)}&value=${encodeURIComponent(
-          value
-        )}`
-      );
+      // Construir la cadena de consulta a partir de los parámetros
+      const queryString = Object.keys(params)
+        .map(
+          (key) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+        )
+        .join("&");
 
+      const response = await apiBingoCardboard.get(`/search?${queryString}`);
       return response.data;
     } catch (error) {
       return error;

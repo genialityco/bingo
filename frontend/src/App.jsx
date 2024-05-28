@@ -1,11 +1,23 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { DialogForName } from "./components/DialogForName";
 import routesConfig from "./routes/routesConfig";
+import { CustomLoading } from "./components/CustomLoading";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { user, userName, loading } = useAuth();
+
+  if (loading) {
+    return <CustomLoading />;
+  }
+
   return (
     <Router>
       <Layout>
+        <CustomLoading />
+        {!user && !userName && <DialogForName />}
         <Routes>
           {routesConfig.map((route, index) => (
             <Route

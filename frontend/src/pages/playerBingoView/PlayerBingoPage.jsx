@@ -8,11 +8,9 @@ import BingoCardStatic from "../../components/BingoCard";
 import bingoServices from "../../services/bingoService";
 import bingoCardboardService from "../../services/bingoCardboardService";
 import { TabsSection } from "./components/TabsSetion";
-import { MessageDialog } from "./components/MessageDialog";
 import { LiveStream } from "./components/LiveStream";
-
-import { signInAnonymously, updateProfile,onAuthStateChanged, getAuth } from "firebase/auth";
-import { auth } from "../../firebase";
+import { useAuth } from "../../context/AuthContext";
+import { useLoading } from "../../context/LoadingContext";
 
 async function generateRandomAlphanumeric(length) {
   const characters =
@@ -25,7 +23,7 @@ async function generateRandomAlphanumeric(length) {
       code += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     // Verificar si el código ya existe en la base de datos
-    existingCardboards = await bingoCardboardService.findCardboardByField(
+    existingCardboards = await bingoCardboardService.findCardboardsByFields(
       "cardboard_code",
       code
     );
@@ -37,11 +35,14 @@ async function generateRandomAlphanumeric(length) {
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
 export const PlayerBingoPage = () => {
+  const { user, userName } = useAuth();
+  const { showLoading, hideLoading } = useLoading();
   const { bingoCode, bingoId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
   // Estados iniciales
+  const [bingoCodeLocal, setBingoCodeLocal] = useState(null);
   const [bingoConfig, setBingoConfig] = useState(null);
   const [bingoCard, setBingoCard] = useState(
     JSON.parse(localStorage.getItem("bingoCard"))
@@ -49,11 +50,12 @@ export const PlayerBingoPage = () => {
       : ""
   );
   const [rows, setRows] = useState();
+  const [cols, setCols] = useState();
   const [markedSquares, setMarkedSquares] = useState([]);
   const [liveStreamPosition, setLiveStreamPosition] = useState({ x: 0, y: 0 });
   const [ballotsHistory, setBallotsHistory] = useState([]);
   const [lastBallot, setLastBallot] = useState("");
-  const [storageUserId, setStorageUserId] = useState(
+  const [userNickname, setUserNickname] = useState(
     JSON.parse(localStorage.getItem("userId"))
       ? JSON.parse(localStorage.getItem("userId"))
       : ""
@@ -81,136 +83,78 @@ export const PlayerBingoPage = () => {
 
   const socket = io(SOCKET_SERVER_URL);
 
-  // useEffect(() => {
-  //   const auth = getAuth();
-  //   onAuthStateChanged(auth, (user) => {
-  //     alert( user)
-  //     if (user) {
-  //       // User is signed in, see docs for a list of available properties
-  //       // https://firebase.google.com/docs/reference/js/auth.user
-  //       const uid = user.uid;
-  //       // ...
-  //     } else {
-  //       // User is signed out
-  //       // ...
-  //     }
-  //   });
-  // }, []);
-
-  // Efecto para obtener la configuración del bingo
   useEffect(() => {
-    const generateBingoCard = (values, dimensions, positionsDisabled) => {
-      const [rows, cols] = dimensions.split("x").map(Number);
-
-      setRows(rows);
-
-      if (cardboardCode !== "") {
-        getExistingCardboard();
-        return;
-      }
-
-      let card = Array.from({ length: rows * cols }, () => ({
-        value: null,
-        _id: null,
-        isMarked: false,
-        default_image: null,
-        type: null,
-      }));
-
-      // Aplicar posiciones deshabilitadas
-      positionsDisabled.forEach((disabled) => {
-        card[disabled.position] = {
-          ...card[disabled.position],
-          value: "Disabled",
-          default_image: disabled.default_image,
-          marked: true,
-        };
-      });
-
-      // Mezclar los valores antes de separarlos
-      let shuffledValues = shuffle(values);
-
-      // Separar los valores en dos grupos: con posiciones y sin posiciones
-      let valuesWithPositions = shuffledValues.filter(
-        (value) => value.positions.length > 0
-      );
-      let valuesWithoutPositions = shuffledValues.filter(
-        (value) => value.positions.length === 0
-      );
-
-      // Registro de valores ya asignados para evitar duplicados
-      let assignedValues = new Set();
-
-      // Asignar valores con posiciones específicas
-      valuesWithPositions.forEach((value) => {
-        value.positions.forEach((pos) => {
-          if (
-            pos >= 0 &&
-            pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
-            card[pos].value === null &&
-            !assignedValues.has(value.carton_value)
-          ) {
-            card[pos] = {
-              ...card[pos],
-              value: value.carton_value,
-              type: value.carton_type,
-              _id: value._id,
-            };
-            assignedValues.add(value.carton_value);
-          }
-        });
-      });
-
-      // Asignar valores sin posiciones específicas
-      valuesWithoutPositions.forEach((value) => {
-        let availablePositions = card.flatMap((cell, index) =>
-          cell.value === null ? index : []
-        );
-        if (availablePositions.length > 0) {
-          let chosenPosition =
-            availablePositions[
-              Math.floor(Math.random() * availablePositions.length)
-            ];
-          if (!assignedValues.has(value.carton_value)) {
-            card[chosenPosition] = {
-              ...card[chosenPosition],
-              value: value.carton_value,
-              type: value.carton_type,
-              _id: value._id,
-            };
-            assignedValues.add(value.carton_value);
-          }
-        }
-      });
-
-      setBingoCard(card);
-      // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
-    };
-
     const getBingo = async () => {
       if (bingoCode) {
         const response = await bingoServices.findBingoByField(
           "bingo_code",
-          bingoCode
+          bingoCode,
+          showLoading,
+          hideLoading
         );
         if (response.status === "Success") {
+          const [rows, cols] = response.data.dimensions.split("x").map(Number);
+
           setBingoConfig(response.data);
-          generateBingoCard(
-            response.data.bingo_values,
-            response.data.dimensions,
-            response.data.positions_disabled
-          );
           getBallotsHistory(response.data.history_of_ballots);
+          setRows(rows);
+          setCols(cols);
+
+          if (user && userName) {
+            setUserNickname(userName);
+            initialValidation(response.data, rows, cols);
+          } else {
+            setShowAlert(true);
+            setAlertData({
+              color: "red",
+              message: "Debes iniciar sesión para poder jugar",
+            });
+            setTimeout(() => {
+              setShowAlert(false);
+            }, 1000);
+          }
         }
       }
     };
     getBingo();
-  }, [bingoCode]);
+  }, [user, userName, bingoId]);
+
+  // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
+  const initialValidation = async (bingo, rows, cols) => {
+    const result = await bingoCardboardService.findCardboardsByFields({
+      userId: user.uid,
+      bingoId: bingoId,
+    });
+    if (result.status === "Success") {
+      setUserNickname(result.data[0].playerName);
+      setCardboardCode(result.data[0].cardboard_code);
+      setCardboardId(result.data[0]._id);
+      setBingoCard(result.data[0].game_card_values);
+
+      setShowAlert(true);
+      setAlertData({
+        color: "green",
+        message: "¡Ya puedes empezar a jugar!",
+      });
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
+    } else {
+      // generar un cartón nuevo
+      generateBingoCard(
+        bingo._id,
+        bingo.bingo_values,
+        bingo.positions_disabled,
+        rows,
+        cols
+      );
+    }
+  };
 
   // Efecto para configurar los eventos de socket.io
   useEffect(() => {
-    if (storageUserId) {
-      socket.emit("setPlayerName", { playerName: storageUserId });
+    if (userNickname) {
+      socket.emit("setPlayerName", { playerName: userNickname });
 
       socket.on("userConnected", (data) => {
         addLog(data.message);
@@ -229,7 +173,7 @@ export const PlayerBingoPage = () => {
         socket.disconnect();
       };
     }
-  }, [storageUserId, chat]);
+  }, [userNickname, chat]);
 
   const sendChat = (e) => {
     e.preventDefault();
@@ -301,7 +245,7 @@ export const PlayerBingoPage = () => {
 
   const addBingoSingingLog = (data) => {
     const { userId, status } = data;
-    if (userId === storageUserId) {
+    if (userId === userNickname) {
       status === "Validando"
         ? addLog(`¡Has cantado bingo!`)
         : status
@@ -319,7 +263,7 @@ export const PlayerBingoPage = () => {
   const handleSangBingo = (data) => {
     const { userId, status } = data;
     let message, color;
-    if (userId === storageUserId) {
+    if (userId === userNickname) {
       setMessageLastBallot("¡Alguien ha cantado bingo, estamos validando!");
       message =
         status === "Validando"
@@ -350,7 +294,7 @@ export const PlayerBingoPage = () => {
       await bingoServices.sangBingo(
         bingoCard,
         bingoConfig._id,
-        storageUserId,
+        userNickname,
         cardboardCode
       );
     } catch (error) {
@@ -358,50 +302,22 @@ export const PlayerBingoPage = () => {
     }
   };
 
-  const authenticateAnonymously = async (playerName) => {
-    try {
-      const result = await signInAnonymously(auth);
-
-      // Actualizar el displayName con playerName después de la autenticación
-      await updateProfile(result.user, { displayName: playerName });
-
-      // setIsAuthenticated(true);
-
-      // Guardar el UID del usuario autenticado, si es necesario
-      // localStorage.setItem("userId", result.user.uid);
-
-      return result.user; // Retornar el usuario para usar en otra función
-    } catch (error) {
-      console.error("Error signing in anonymously:", error);
-    }
-  };
-
-  const saveCardboard = async (playerName) => {
-    const bingoId = bingoConfig._id;
+  const saveCardboard = async (id, card) => {
+    const bingoId = id;
     const cardboard_code = await generateRandomAlphanumeric(6);
-    const game_card_values = bingoCard;
+    const game_card_values = card;
 
     try {
-      // Autenticarse anónimamente y obtener el usuario
-      const user = await authenticateAnonymously(playerName);
-
-      // Crear cartón con UID del usuario
       const cardboardSaved = await bingoCardboardService.createCardboard({
-        playerName: user.displayName, // Asegurando que se use el displayName actualizado
+        playerName: userName,
         bingoId,
         cardboard_code,
         game_card_values,
-        userId: user.uid, // Usar el UID del usuario autenticado
+        userId: user.uid,
       });
 
       setCardboardId(cardboardSaved.data._id);
       setCardboardCode(cardboard_code);
-      setStorageUserId(playerName);
-      localStorage.setItem("cardboard_code", JSON.stringify(cardboard_code));
-      // localStorage.setItem(
-      //   "cardboard_id",
-      //   JSON.stringify(cardboardSaved.data._id)
-      // );
     } catch (error) {
       console.error("Error saving cardboard:", error);
     }
@@ -427,29 +343,6 @@ export const PlayerBingoPage = () => {
     }
   };
 
-  const getExistingCardboard = async () => {
-    if (cardboardCode) {
-      const response = await bingoCardboardService.findCardboardByField(
-        "cardboard_code",
-        cardboardCode
-      );
-      setStorageUserId(response.data.playerName);
-      setCardboardCode(response.data.cardboard_code);
-      setCardboardId(response.data._id);
-      setBingoCard(response.data.game_card_values);
-      // setMarkedSquares(response.data.game_marked_squares);
-      // localStorage.setItem(
-      //   "bingo_card",
-      //   JSON.stringify(response.data.game_card_values)
-      // );
-      // localStorage.setItem(
-      //   "cardboard_code",
-      //   JSON.stringify(response.data.cardboard_code)
-      // );
-      // localStorage.setItem("cardboard_id", JSON.stringify(response.data._id));
-    }
-  };
-
   /**
    * Genera los valores del cartón de bingo, priorizando posiciones deshabilitadas,
    * luego valores con posiciones asignadas y finalmente valores sin posiciones.
@@ -457,97 +350,84 @@ export const PlayerBingoPage = () => {
    * @param {*} dimensions
    * @param {*} positionsDisabled
    */
-  // const generateBingoCardd = (values, dimensions, positionsDisabled) => {
-  //   const [rows, cols] = dimensions.split("x").map(Number);
+  const generateBingoCard = (id, values, positionsDisabled, rows, cols) => {
+    let card = Array.from({ length: rows * cols }, () => ({
+      value: null,
+      _id: null,
+      isMarked: false,
+      default_image: null,
+      type: null,
+    }));
 
-  //   setRows(rows);
+    // Aplicar posiciones deshabilitadas
+    positionsDisabled.forEach((disabled) => {
+      card[disabled.position] = {
+        ...card[disabled.position],
+        value: "Disabled",
+        default_image: disabled.default_image,
+        marked: true,
+      };
+    });
 
-  //   if (cardboardId !== "") {
-  //     getExistingCardboard();
-  //     return;
-  //   }
+    // Mezclar los valores antes de separarlos
+    let shuffledValues = shuffle(values);
 
-  //   let card = Array.from({ length: rows * cols }, () => ({
-  //     value: null,
-  //     _id: null,
-  //     isMarked: false,
-  //     default_image: null,
-  //     type: null,
-  //   }));
+    // Separar los valores en dos grupos: con posiciones y sin posiciones
+    let valuesWithPositions = shuffledValues.filter(
+      (value) => value.positions.length > 0
+    );
+    let valuesWithoutPositions = shuffledValues.filter(
+      (value) => value.positions.length === 0
+    );
 
-  //   // let markedSquares = Array(rows * cols).fill({ isMarked: false, value: "" });
+    // Registro de valores ya asignados para evitar duplicados
+    let assignedValues = new Set();
 
-  //   // Aplicar posiciones deshabilitadas
-  //   positionsDisabled.forEach((disabled) => {
-  //     card[disabled.position] = {
-  //       ...card[disabled.position],
-  //       value: "Disabled",
-  //       default_image: disabled.default_image,
-  //       marked: true,
-  //     };
-  //     // markedSquares[disabled.position] = { isMarked: true, value: "Disabled" };
-  //   });
+    // Asignar valores con posiciones específicas
+    valuesWithPositions.forEach((value) => {
+      value.positions.forEach((pos) => {
+        if (
+          pos >= 0 &&
+          pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
+          card[pos].value === null &&
+          !assignedValues.has(value.carton_value)
+        ) {
+          card[pos] = {
+            ...card[pos],
+            value: value.carton_value,
+            type: value.carton_type,
+            _id: value._id,
+          };
+          assignedValues.add(value.carton_value);
+        }
+      });
+    });
 
-  //   // Mezclar los valores antes de separarlos
-  //   let shuffledValues = shuffle(values);
+    // Asignar valores sin posiciones específicas
+    valuesWithoutPositions.forEach((value) => {
+      let availablePositions = card.flatMap((cell, index) =>
+        cell.value === null ? index : []
+      );
+      if (availablePositions.length > 0) {
+        let chosenPosition =
+          availablePositions[
+            Math.floor(Math.random() * availablePositions.length)
+          ];
+        if (!assignedValues.has(value.carton_value)) {
+          card[chosenPosition] = {
+            ...card[chosenPosition],
+            value: value.carton_value,
+            type: value.carton_type,
+            _id: value._id,
+          };
+          assignedValues.add(value.carton_value);
+        }
+      }
+    });
 
-  //   // Separar los valores en dos grupos: con posiciones y sin posiciones
-  //   let valuesWithPositions = shuffledValues.filter(
-  //     (value) => value.positions.length > 0
-  //   );
-  //   let valuesWithoutPositions = shuffledValues.filter(
-  //     (value) => value.positions.length === 0
-  //   );
-
-  //   // Registro de valores ya asignados para evitar duplicados
-  //   let assignedValues = new Set();
-
-  //   // Asignar valores con posiciones específicas
-  //   valuesWithPositions.forEach((value) => {
-  //     value.positions.forEach((pos) => {
-  //       if (
-  //         pos >= 0 &&
-  //         pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
-  //         card[pos].value === null &&
-  //         !assignedValues.has(value.carton_value)
-  //       ) {
-  //         card[pos] = {
-  //           ...card[pos],
-  //           value: value.carton_value,
-  //           type: value.carton_type,
-  //           _id: value._id,
-  //         };
-  //         assignedValues.add(value.carton_value);
-  //       }
-  //     });
-  //   });
-
-  //   // Asignar valores sin posiciones específicas
-  //   valuesWithoutPositions.forEach((value) => {
-  //     let availablePositions = card.flatMap((cell, index) =>
-  //       cell.value === null ? index : []
-  //     );
-  //     if (availablePositions.length > 0) {
-  //       let chosenPosition =
-  //         availablePositions[
-  //           Math.floor(Math.random() * availablePositions.length)
-  //         ];
-  //       if (!assignedValues.has(value.carton_value)) {
-  //         card[chosenPosition] = {
-  //           ...card[chosenPosition],
-  //           value: value.carton_value,
-  //           type: value.carton_type,
-  //           _id: value._id,
-  //         };
-  //         assignedValues.add(value.carton_value);
-  //       }
-  //     }
-  //   });
-
-  //   setBingoCard(card);
-  //   // setMarkedSquares(markedSquares);
-  //   // localStorage.setItem("bingoCard", JSON.stringify(bingoCard));
-  // };
+    setBingoCard(card);
+    saveCardboard(id, card);
+  };
 
   const handleMarkSquare = (item, index) => {
     if (item.value !== "Disabled") {
@@ -673,7 +553,7 @@ export const PlayerBingoPage = () => {
                 <CardBody className="relative h-auto">
                   <LiveStream
                     bingoConfig={bingoConfig}
-                    playerName={storageUserId}
+                    playerName={userNickname}
                     cardboardCode={cardboardCode}
                     logs={logs}
                   />
@@ -698,10 +578,6 @@ export const PlayerBingoPage = () => {
           <DraggableLiveStream position={liveStreamPosition} />
         </div>
       </DndContext>
-      <MessageDialog
-        onSaveCardboard={saveCardboard}
-        getExistingCardboard={getExistingCardboard}
-      />
     </>
   );
 };

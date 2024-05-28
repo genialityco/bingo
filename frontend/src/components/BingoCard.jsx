@@ -5,7 +5,6 @@ const BingoCardStatic = ({
   bingoCard,
   rows,
   bingoAppearance,
-  markedSquares,
   onMarkSquare,
 }) => {
   if (!bingoCard) {
@@ -34,7 +33,9 @@ const BingoCardStatic = ({
             {bingoCard.map((cell, index) => (
               <div
                 key={index}
-                className="aspect-[1/0.6] bg-blue-100 rounded-md shadow-lg cursor-pointer flex justify-center items-center relative"
+                className={`aspect-[1/0.6] bg-blue-100 rounded-md shadow-lg cursor-pointer flex justify-center items-center relative ${
+                  cell.value === "Disabled" ? "opacity-70" : ""
+                }`}
                 style={{
                   textAlign: "center",
                   position: "relative",
@@ -77,10 +78,10 @@ const BingoCardStatic = ({
                   bingoCard[index].value != "Disabled" &&
                   (bingoAppearance.dial_image ? (
                     <img
-                    src={bingoAppearance.dial_image}
-                    alt="Marked Overlay"
-                    className="absolute opacity-25 rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
-                  />
+                      src={bingoAppearance.dial_image}
+                      alt="Marked Overlay"
+                      className="absolute opacity-25 rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
+                    />
                   ) : (
                     <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50 bg-black">
                       <Typography

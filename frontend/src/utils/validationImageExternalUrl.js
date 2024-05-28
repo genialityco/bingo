@@ -1,4 +1,4 @@
-import { storage } from '../firebase';
+import { storage } from '../firebase-config';
 import { ref,  getDownloadURL, uploadString } from 'firebase/storage';
 
 // Verifica si la URL comienza con el prefijo "data:image"

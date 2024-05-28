@@ -9,6 +9,7 @@ import {
   CardBody,
 } from "@material-tailwind/react";
 import bingoServices from "../../../services/bingoService";
+import { useLoading } from "../../../context/LoadingContext";
 
 export const SelectFigure = ({
   figures,
@@ -18,12 +19,18 @@ export const SelectFigure = ({
   dimensions,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { showLoading, hideLoading } = useLoading();
 
   const handleChangeFigure = async (figureId) => {
     try {
-      await bingoServices.updateBingo(bingo._id, {
-        bingo_figure: figureId,
-      });
+      await bingoServices.updateBingo(
+        bingo._id,
+        {
+          bingo_figure: figureId,
+        },
+        showLoading,
+        hideLoading
+      );
       setSelectedFigure(figureId);
       setIsDialogOpen(false);
     } catch (error) {
