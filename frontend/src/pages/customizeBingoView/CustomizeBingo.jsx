@@ -45,7 +45,7 @@ const BingoConfig = () => {
       if (isTemplate === "true") {
         response = await bingoTemplateServices.getTemplateById(bingoId);
       } else {
-        response = await bingoServices.getBingoById(bingoId);
+        response = await bingoServices.getBingoById(bingoId, showLoading, hideLoading );
       }
       updateBingo(response);
     };
@@ -164,7 +164,7 @@ const BingoConfig = () => {
 
   const deleteBingo = async () => {
     try {
-      const { status } = await bingoServices.deleteBingo(bingoId);
+      const { status } = await bingoServices.deleteBingo(bingoId, showLoading, hideLoading );
 
       if (status === "Success") {
         let color = "red";

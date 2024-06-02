@@ -80,11 +80,11 @@ export function Header() {
       <div className="flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
-          variant="h6"
+          variant="lead"
           className="mr-4 cursor-pointer py-1.5 lg:ml-2"
           onClick={gotToHome}
         >
-          Powered Magnetic
+          Power by Magnetic
         </Typography>
         <div className="hidden lg:block">
           <NavList />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Button,
@@ -9,106 +9,89 @@ import {
 } from "@material-tailwind/react";
 
 export function MessageDialog({ onSaveCardboard, getExistingCardboard }) {
-  const [open, setOpen] = React.useState(false);
-  const [userId, setUserId] = useState("");
+  const [open, setOpen] = useState(true);
   const [showInputCode, setShowInputCode] = useState(false);
   const [code, setCode] = useState("");
-  const [hasUserEntered, setHasUserEntered] = useState(false);
 
-  useEffect(() => {
-    // Verificar si el usuario ya ha ingresado
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setHasUserEntered(true);
-    } else {
-      // Si el usuario no ha ingresado, abrir el diálogo automáticamente
-      setOpen(true);
-    }
-  }, []);
+  const handleCreateNewCardboard = () => {
+    // onSaveCardboard();
+    setOpen(false);
+  };
 
-  const handleButtonSendUser = (e) => {
-    e.preventDefault();
-    if (showInputCode) {
+  const handleUseExistingCardboard = () => {
+    if (code.trim()) {
       getExistingCardboard(code);
+      setOpen(false);
     } else {
-      localStorage.setItem("userId", JSON.stringify(userId));
-      onSaveCardboard(userId);
+      alert("Por favor, ingrese un código válido.");
     }
-    setOpen(false);
-    setHasUserEntered(true); // Marcar que el usuario ha ingresado
   };
-
-  const handleCancel = () => {
-    setOpen(false);
-  };
-
-  // Si el usuario ya ha ingresado, no renderizar el componente
-  if (hasUserEntered) {
-    return null;
-  }
 
   return (
-    <>
-      <Dialog open={open} size="xs">
-        <div className="flex items-center justify-between"></div>
-        <DialogBody>
-          <form onSubmit={handleButtonSendUser}>
-            {!showInputCode && (
-              <div className="grid gap-6">
-                <Typography className="-mb-1" color="blue-gray" variant="h6">
-                  Ingrese un nombre para jugar
-                </Typography>
-                <Input
-                  label="Nombre"
-                  onChange={(e) => setUserId(e.target.value)}
-                />
-                <div>
-                  <Typography
-                    className="cursor-pointer"
-                    color="blue-gray"
-                    variant="small"
-                    onClick={() => setShowInputCode(true)}
-                  >
-                    ¿Tienes un código de cartón?
-                  </Typography>
-                </div>
-              </div>
-            )}
-            {showInputCode && (
-              <div className="grid gap-6">
-                <Typography className="-mb-1" color="blue-gray" variant="h6">
-                  Ingrese código de cartón
-                </Typography>
-                <Input
-                  label="Código"
-                  onChange={(e) => setCode(e.target.value)}
-                />
-                <div>
-                  <Typography
-                    className="cursor-pointer"
-                    color="blue-gray"
-                    variant="small"
-                    onClick={() => setShowInputCode(false)}
-                  >
-                    ¿Nuevo jugador?
-                  </Typography>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter className="space-x-2">
-              <Button onClick={handleCancel}>Cancel</Button>
+    <Dialog open={open} size="xs">
+      <DialogBody>
+        {!showInputCode ? (
+          <div className="flex flex-col text-center">
+            <Typography variant="h5" className="mb-5">
+              ¿Cómo deseas continuar?
+            </Typography>
+            <div className="flex m-auto gap-5">
               <Button
+                color="blue"
+                className="normal-case rounded-full"
+                variant="outlined"
+                onClick={handleCreateNewCardboard}
+              >
+                Nuevo cartón
+              </Button>
+              <Button
+                color="gray"
+                className="normal-case rounded-full"
+                variant="outlined"
+                onClick={() => setShowInputCode(true)}
+              >
+                Ya tengo un cartón
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUseExistingCardboard();
+            }}
+          >
+            <Typography variant="h6" className="mb-5">
+              Ingrese el código de su cartón
+            </Typography>
+            <Input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              label="Código de Cartón"
+            />
+            <DialogFooter>
+              <Button
+                onClick={() => setShowInputCode(false)}
+                size="sm"
+                variant="outlined"
+                className="normal-case mr-1 rounded-full"
+              >
+                Regresar
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
                 variant="gradient"
                 color="gray"
-                type="submit"
+                className="normal-case rounded-full"
               >
-                Enviar
+                Usar este cartón
               </Button>
             </DialogFooter>
           </form>
-        </DialogBody>
-      </Dialog>
-    </>
+        )}
+      </DialogBody>
+    </Dialog>
   );
 }

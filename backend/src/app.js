@@ -21,7 +21,6 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });
@@ -66,6 +65,21 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}, ${process.env.NODE_ENV}`);
 });
 
+customEmitter.on("ballotUpdate", (data) => {
+  io.emit("ballotUpdate", data);
+});
+
+customEmitter.on("sangBingo", (isWinner) => {
+  if (isWinner.status) {
+    console.log("Tenemos un ganador en sangBingo!");
+  } else if (!isWinner.status) {
+    console.log("No hay ganador esta vez en sangBingo.");
+  } else {
+    console.log("Validando.");
+  }
+  io.emit("sangBingo", isWinner);
+});
+
 io.on("connection", (socket) => {
   // Nuevo evento para recibir el nombre del usuario
   socket.on("setPlayerName", (data) => {
@@ -76,22 +90,8 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Escuchar los eventos emitidos por el EventEmitter personalizado
-  customEmitter.on("ballotUpdate", (data) => {
-    socket.emit("ballotUpdate", data); // Emitir eventos a los clientes conectados con los cambios de datos
-  });
-
-  customEmitter.on("sangBingo", (isWinner) => {
-    if (isWinner.status) {
-      console.log("Tenemos un ganador en sangBingo!");
-    } else {
-      console.log("No hay ganador esta vez en sangBingo.");
-    }
-    socket.emit("sangBingo", isWinner);
-  });
-
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    socket.broadcast.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {

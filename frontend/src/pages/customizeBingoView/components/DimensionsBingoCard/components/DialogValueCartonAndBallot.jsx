@@ -6,14 +6,13 @@ import {
   DialogBody,
   DialogFooter,
   Input,
-} from '@material-tailwind/react';
-import { useContext, useState, useEffect } from 'react';
-import { NewBingoContext } from '../../../context/NewBingoContext';
+} from "@material-tailwind/react";
+import { useContext, useState, useEffect } from "react";
+import { NewBingoContext } from "../../../context/NewBingoContext";
 import {
   validationsEditInputsBallot,
   validationsEditInputsCarton,
-} from '../../../../../utils/validationsEditInputs';
-
+} from "../../../../../utils/validationsEditInputs";
 
 const DialogValueCartonAndBallot = ({
   openDialogValueCartonAndBallot,
@@ -25,135 +24,97 @@ const DialogValueCartonAndBallot = ({
 }) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
 
-  //estado para editar dependiendo del tipo que eliga el usuario
   const [editInputsCarton, setEditInputsCarton] = useState({
-    number: '',
-    text: '',
-    imageUrl: '',
+    number: "",
+    text: "",
+    imageUrl: "",
   });
-
   const [editInputsBallot, setEditInputsBallot] = useState({
-    number: '',
-    text: '',
-    imageUrl: '',
+    number: "",
+    text: "",
+    imageUrl: "",
   });
-
-  //estados para guardar el tipo para el carton y la balota
-  const [selectedCartonType, setSelectedCartonType] = useState('');
-  const [selectedBallotType, setSelectedBallotType] = useState('');
-  //seleccionar posiciones para el valor del carton
+  const [selectedCartonType, setSelectedCartonType] = useState("");
+  const [selectedBallotType, setSelectedBallotType] = useState("");
   const [selectedPositions, setSelectedPositions] = useState([]);
-  //estados para personalizar la imagen desde un archivo local
   const [newCustomValueCartonImageFile, setNewCustomValueCartonImageFile] =
     useState(null);
   const [newCustomValueBallotImageFile, setNewCustomValueBallotImageFile] =
     useState(null);
-  //guarda el valor de carton y balota del objeto que se esta editando
   const [selectedItem, setSelectedItem] = useState(null);
-
-  //guarda errores en el ingreso de los valores al carton
   const [errorsInputsCarton, setErrorsInputsCarton] = useState({});
-
-  //guarda errores en el ingreso de los valores para la balota
   const [errorsInputsBallot, setErrorsInputsBallot] = useState({});
 
-  // UseEffect para actualizar los valores cuando el índice de edición cambie
   useEffect(() => {
     if (editIndex !== null) {
       setSelectedItem(bingo.bingo_values[editIndex]);
     }
   }, [editIndex, bingo.bingo_values]);
 
-  // UseEffect para establecer los valores iniciales de los campos
   useEffect(() => {
     if (selectedItem) {
-      setSelectedCartonType(selectedItem.carton_type || '');
-      setSelectedBallotType(selectedItem.ballot_type || '');
+      setSelectedCartonType(selectedItem.carton_type || "");
+      setSelectedBallotType(selectedItem.ballot_type || "");
       setSelectedPositions(selectedItem.positions || []);
 
-      setEditInputsCarton({
-        number: '',
-        text: '',
-        imageUrl: '',
-      });
-      setEditInputsBallot({
-        number: '',
-        text: '',
-        imageUrl: '',
-      });
+      const initialCartonValues = { number: "", text: "", imageUrl: "" };
+      const initialBallotValues = { number: "", text: "", imageUrl: "" };
 
-      // Establecer los valores iniciales del cartón según el tipo seleccionado
-      if (selectedItem.carton_type === 'default') {
-        setEditInputsCarton({
-          number: selectedItem.carton_value || '',
-          text: '',
-          imageUrl: '',
-        });
-      } else if (selectedItem.carton_type === 'text') {
-        setEditInputsCarton({
-          number: '',
-          text: selectedItem.carton_value || '',
-          imageUrl: '',
-        });
-      } else if (selectedItem.carton_type === 'image') {
-        setEditInputsCarton({
-          number: '',
-          text: '',
-          imageUrl: selectedItem.carton_value || '',
-        });
+      if (selectedItem.carton_type === "default") {
+        initialCartonValues.number = selectedItem.carton_value || "";
+      } else if (selectedItem.carton_type === "text") {
+        initialCartonValues.text = selectedItem.carton_value || "";
+      } else if (selectedItem.carton_type === "image") {
+        initialCartonValues.imageUrl = selectedItem.carton_value || "";
       }
 
-      // Establecer los valores iniciales de la balota según el tipo seleccionado
-      if (selectedItem.ballot_type === 'default') {
-        setEditInputsBallot({
-          number: selectedItem.ballot_value || '',
-          text: '',
-          imageUrl: '',
-        });
-      } else if (selectedItem.ballot_type === 'text') {
-        setEditInputsBallot({
-          number: '',
-          text: selectedItem.ballot_value || '',
-          imageUrl: '',
-        });
-      } else if (selectedItem.ballot_type === 'image') {
-        setEditInputsBallot({
-          number: '',
-          text: '',
-          imageUrl: selectedItem.ballot_value || '',
-        });
+      if (selectedItem.ballot_type === "default") {
+        initialBallotValues.number = selectedItem.ballot_value || "";
+      } else if (selectedItem.ballot_type === "text") {
+        initialBallotValues.text = selectedItem.ballot_value || "";
+      } else if (selectedItem.ballot_type === "image") {
+        initialBallotValues.imageUrl = selectedItem.ballot_value || "";
       }
+
+      setEditInputsCarton(initialCartonValues);
+      setEditInputsBallot(initialBallotValues);
     }
   }, [selectedItem]);
 
-  const renderCartonInputs = () => {
-    if (selectedCartonType === 'default') {
+  const renderInputs = (
+    type,
+    editInputs,
+    handleChange,
+    errors,
+    handleImageChange
+  ) => {
+    if (type === "default") {
       return (
         <div>
           <Input
             label="Ingresar valor numérico"
             placeholder="Ingrese un número"
             name="number"
-            onChange={(e) => handleOnChangeEditInputsCarton(e)}
-            value={editInputsCarton.number}
+            onChange={handleChange}
+            value={editInputs.number}
           />
-          {errorsInputsCarton.number && <p>{errorsInputsCarton.number}</p>}
+          {errors.number && <p>{errors.number}</p>}
         </div>
       );
-    } else if (selectedCartonType === 'text') {
+    } else if (type === "text") {
       return (
         <div>
           <Input
             label="Ingresar valor de texto"
             placeholder="Ingrese un texto"
             name="text"
-            onChange={(e) => handleOnChangeEditInputsCarton(e)}
-            value={editInputsCarton.text}
+            onChange={handleChange}
+            value={editInputs.text}
           />
-          {errorsInputsCarton.text && <p>{errorsInputsCarton.text}</p>}
+          {errors.text && <p>{errors.text}</p>}
         </div>
       );
-    } else if (selectedCartonType === 'image') {
+    } else if (type === "image") {
       return (
         <>
           <Typography className="mb-1" color="gray" variant="lead">
@@ -164,203 +125,60 @@ const DialogValueCartonAndBallot = ({
               label="Selecciona un archivo"
               type="file"
               placeholder="Selecciona un archivo de imagen"
-              onChange={(e) => handleImageChange(e, 'carton')}
+              onChange={(e) => handleImageChange(e)}
             />
             <Input
               label="Ingresar URL de la imagen"
               placeholder="URL de la imagen"
               name="imageUrl"
-              onChange={(e) => handleOnChangeEditInputsCarton(e)}
-              value={editInputsCarton.imageUrl}
+              onChange={handleChange}
+              value={editInputs.imageUrl}
             />
-            {errorsInputsCarton.imageUrl && (
-              <p>{errorsInputsCarton.imageUrl}</p>
-            )}
+            {errors.imageUrl && <p>{errors.imageUrl}</p>}
           </div>
         </>
       );
     }
   };
 
-  const renderBallotInputs = () => {
-    if (selectedBallotType === 'default') {
-      return (
-        <div>
-          <Input
-            label="Ingresar valor numérico"
-            placeholder="Ingrese un número"
-            name="number"
-            onChange={(e) => handleOnChangeEditInputsBallot(e)}
-            value={editInputsBallot.number}
-          />
-          {errorsInputsBallot.number && <p>{errorsInputsBallot.number}</p>}
-        </div>
-      );
-    } else if (selectedBallotType === 'text') {
-      return (
-        <div>
-          <Input
-            label="Ingresar valor de texto"
-            placeholder="Ingrese un texto"
-            name="text"
-            onChange={(e) => handleOnChangeEditInputsBallot(e)}
-            value={editInputsBallot.text}
-          />
-          {errorsInputsBallot.text && <p>{errorsInputsBallot.text}</p>}
-        </div>
-      );
-    } else if (selectedBallotType === 'image') {
-      return (
-        <>
-          <Typography className="mb-1" color="gray" variant="lead">
-            Elige una Imagen
-          </Typography>
-          <div className="grid gap-2">
-            <Input
-              label="Selecciona un archivo"
-              type="file"
-              placeholder="Selecciona un archivo de imagen"
-              onChange={(e) => handleImageChange(e, 'balota')}
-            />
-            <Input
-              label="Ingresar URL de la imagen"
-              placeholder="URL de la imagen"
-              name="imageUrl"
-              onChange={(e) => handleOnChangeEditInputsBallot(e)}
-              value={editInputsBallot.imageUrl}
-            />
-            {errorsInputsBallot.imageUrl && (
-              <p>{errorsInputsBallot.imageUrl}</p>
-            )}
-          </div>
-        </>
-      );
-    }
-  };
-
-  const handleOnChangeEditInputsCarton = (e) => {
+  const handleChangeEditInputs = (e, setEditInputs, setErrors, validations) => {
     const { name, value } = e.target;
-    if (name === 'text') {
-      setEditInputsCarton({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsCarton({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsCarton({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    } else if (name === 'number') {
-      setEditInputsCarton({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsCarton({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsCarton({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    } else if (name === 'imageUrl') {
-      setEditInputsCarton({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsCarton({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsCarton({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    }
+    setEditInputs((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validations({ ...prev, [name]: value })[name],
+    }));
   };
 
-  const handleOnChangeEditInputsBallot = (e) => {
-    const { name, value } = e.target;
-    if (name === 'text') {
-      setEditInputsBallot({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsBallot({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsBallot({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    } else if (name === 'number') {
-      setEditInputsBallot({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsBallot({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsBallot({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    } else if (name === 'imageUrl') {
-      setEditInputsBallot({
-        ...editInputsCarton,
-        [name]: value,
-      });
-      setErrorsInputsBallot({
-        ...errorsInputsCarton,
-        [name]: validationsEditInputsBallot({
-          ...editInputsCarton,
-          [name]: value,
-        })[name],
-      });
-    }
-  };
-
-  //guarda en el array de position dentro del estado bingo los index
   const handleSelectedPosition = (index) => {
-    // Verificar si el índice ya está en selectedPositions
     const isSelected = selectedPositions.includes(index);
-
-    // Si está seleccionado, lo removemos; de lo contrario, lo agregamos
     const newSelectedPositions = isSelected
       ? selectedPositions.filter((pos) => pos !== index)
       : [...selectedPositions, index];
 
-    // Actualizamos el estado selectedPositions
     setSelectedPositions(newSelectedPositions);
-
-    // Actualizamos el estado bingo con las nuevas posiciones
-    updateBingo((prevBingoCard) => {
-      const newBingoCard = { ...prevBingoCard };
-
-      // Actualizamos las posiciones del valor actual
+    updateBingo((prev) => {
+      const newBingoCard = { ...prev };
       newBingoCard.bingo_values = newBingoCard.bingo_values.map(
         (value, idx) => {
           if (idx === editIndex) {
-            // Asignamos las nuevas posiciones
             value.positions = newSelectedPositions;
           }
           return value;
         }
       );
-
       return newBingoCard;
     });
   };
 
-  // Función para manejar el cambio de imagen desde un archivo local
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (type === 'carton') {
+        if (type === "carton") {
           setNewCustomValueCartonImageFile(reader.result);
-        } else if (type === 'balota') {
+        } else if (type === "balota") {
           setNewCustomValueBallotImageFile(reader.result);
         }
       };
@@ -368,9 +186,6 @@ const DialogValueCartonAndBallot = ({
     }
   };
 
-
-
-  //guarda los valores editados en el estado "bingo"
   const handleSaveCustomValue = () => {
     if (editIndex !== null) {
       const updatedBingoValues = [...bingo.bingo_values];
@@ -378,44 +193,30 @@ const DialogValueCartonAndBallot = ({
       editedItem.carton_type = selectedCartonType;
       editedItem.ballot_type = selectedBallotType;
 
-     // Actualizar el valor del cartón según el tipo seleccionado
-      if (selectedCartonType === 'default') {
+      if (selectedCartonType === "default") {
         editedItem.carton_value = editInputsCarton.number;
-      }
-      if (selectedCartonType === 'text') {
+      } else if (selectedCartonType === "text") {
         editedItem.carton_value = editInputsCarton.text;
+      } else if (selectedCartonType === "image") {
+        editedItem.carton_value =
+          editInputsCarton.imageUrl || newCustomValueCartonImageFile;
       }
-      if (selectedCartonType === 'image') {
-      
-        editedItem.carton_value = editInputsCarton.imageUrl || newCustomValueCartonImageFile;
-      } 
-      
 
-     // Actualizar el valor de la balota según el tipo seleccionado
-      if (selectedBallotType === 'default') {
+      if (selectedBallotType === "default") {
         editedItem.ballot_value = editInputsBallot.number;
-      }
-      if (selectedBallotType === 'text') {
+      } else if (selectedBallotType === "text") {
         editedItem.ballot_value = editInputsBallot.text;
+      } else if (selectedBallotType === "image") {
+        editedItem.ballot_value =
+          editInputsBallot.imageUrl || newCustomValueBallotImageFile;
       }
-      if (selectedBallotType === 'image' ) {
-      
-        editedItem.ballot_value = editInputsBallot.imageUrl || newCustomValueBallotImageFile;
 
-      } 
-     // Actualizar el estado con los nuevos valores
-      updateBingo((prevState) => ({
-        ...prevState,
-        bingo_values: updatedBingoValues,
-      }));
+      updateBingo((prev) => ({ ...prev, bingo_values: updatedBingoValues }));
     }
 
-   // Limpiar el índice de edición y cerrar el diálogo
     setEditIndex(null);
     setOpenDialogValueCartonAndBallot(false);
   };
-
-  
 
   return (
     <Dialog
@@ -449,106 +250,107 @@ const DialogValueCartonAndBallot = ({
           <Typography color="gray" variant="h6">
             Ingresar Valor en el Cartón
           </Typography>
-          {renderCartonInputs()}
+          {renderInputs(
+            selectedCartonType,
+            editInputsCarton,
+            (e) =>
+              handleChangeEditInputs(
+                e,
+                setEditInputsCarton,
+                setErrorsInputsCarton,
+                validationsEditInputsCarton
+              ),
+            errorsInputsCarton,
+            (e) => handleImageChange(e, "carton")
+          )}
           <Typography color="gray" variant="h6">
             Posiciones
-          </Typography>{' '}
-          {dimension === '3x3' && (
-            <div className="w-[166px] m-auto p-3  grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center bg-blue-gray-900">
+          </Typography>
+          {dimension === "3x3" && (
+            <div className="w-[166px] m-auto p-3 grid grid-cols-3 grid-rows-3 gap-1 justify-center items-center bg-blue-gray-900">
               {[...Array(9)].map((_, index) => (
                 <button
                   key={index}
                   className={`square w-5 h-5 m-auto ${
                     selectedPositions.includes(index)
-                      ? 'bg-yellow-600'
-                      : 'bg-blue-500'
+                      ? "bg-yellow-600"
+                      : "bg-blue-500"
                   } ${
                     positionsDisabled.includes(index)
-                      ? 'bg-red-600 cursor-not-allowed'
-                      : 'bg-blue-500 '
-                  }
-                      bg-blue-500 `}
+                      ? "bg-red-600 cursor-not-allowed"
+                      : "bg-blue-500"
+                  }`}
                   onClick={() => handleSelectedPosition(index)}
                   disabled={positionsDisabled.includes(index)}
-                ></button>
+                />
               ))}
             </div>
           )}
-          {dimension === '4x4' && (
-            <div className="w-[166px] m-auto p-3  grid grid-cols-4 grid-cols-auto grid-rows-4 gap-1 justify-center items-center bg-blue-gray-900">
+          {dimension === "4x4" && (
+            <div className="w-[166px] m-auto p-3 grid grid-cols-4 grid-rows-4 gap-1 justify-center items-center bg-blue-gray-900">
               {[...Array(16)].map((_, index) => (
                 <button
                   key={index}
                   className={`square w-5 h-5 m-auto ${
                     selectedPositions.includes(index)
-                      ? 'bg-yellow-600'
-                      : 'bg-blue-500'
+                      ? "bg-yellow-600"
+                      : "bg-blue-500"
                   } ${
                     positionsDisabled.includes(index)
-                      ? 'bg-red-600 cursor-not-allowed'
-                      : 'bg-blue-500 '
-                  }
-                      bg-blue-500 `}
+                      ? "bg-red-600 cursor-not-allowed"
+                      : "bg-blue-500"
+                  }`}
                   onClick={() => handleSelectedPosition(index)}
                   disabled={positionsDisabled.includes(index)}
-                ></button>
+                />
               ))}
             </div>
           )}
-          {dimension === '5x5' && (
-            <>
-              {' '}
-              <div className=" w-[166px] m-auto p-3 grid grid-cols-5 grid-rows-6 gap-1 justify-center items-center bg-blue-gray-900">
-                {[...Array(25)].map((_, index) => (
-                  <button
-                    key={index}
-                    className={`square w-5 h-5 m-auto ${
-                      selectedPositions.includes(index)
-                        ? 'bg-yellow-600'
-                        : 'bg-blue-500'
-                    } ${
-                      positionsDisabled.includes(index)
-                        ? 'bg-red-600 cursor-not-allowed'
-                        : 'bg-blue-500 '
-                    } bg-blue-500 `}
-                    onClick={() => handleSelectedPosition(index)}
-                    disabled={positionsDisabled.includes(index)}
-                  ></button>
-                ))}
-              </div>{' '}
-            </>
+          {dimension === "5x5" && (
+            <div className="w-[166px] m-auto p-3 grid grid-cols-5 grid-rows-5 gap-1 justify-center items-center bg-blue-gray-900">
+              {[...Array(25)].map((_, index) => (
+                <button
+                  key={index}
+                  className={`square w-5 h-5 m-auto ${
+                    selectedPositions.includes(index)
+                      ? "bg-yellow-600"
+                      : "bg-blue-500"
+                  } ${
+                    positionsDisabled.includes(index)
+                      ? "bg-red-600 cursor-not-allowed"
+                      : "bg-blue-500"
+                  }`}
+                  onClick={() => handleSelectedPosition(index)}
+                  disabled={positionsDisabled.includes(index)}
+                />
+              ))}
+            </div>
           )}
-          {/* Cambiar de tipo */}
           <Typography color="gray" variant="h6">
             Cambiar el tipo
           </Typography>
           <div className="grid grid-cols-3 gap-3">
-            {/* Numeros */}
             <Button
-              className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
-                selectedCartonType === 'default' ? 'bg-blue-500 text-white' : ''
+              className={`bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedCartonType === "default" ? "bg-blue-500 text-white" : ""
               }`}
-              onClick={() => {
-                setSelectedCartonType('default');
-              }}
+              onClick={() => setSelectedCartonType("default")}
             >
               <h6>Numeros</h6>
             </Button>
-            {/* Texto */}
             <Button
-              className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
-                selectedCartonType === 'text' ? 'bg-blue-500 text-white' : ''
+              className={`h-10 bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedCartonType === "text" ? "bg-blue-500 text-white" : ""
               }`}
-              onClick={() => setSelectedCartonType('text')}
+              onClick={() => setSelectedCartonType("text")}
             >
               <h6>Texto</h6>
             </Button>
-            {/* Imagenes */}
             <Button
-              className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
-                selectedCartonType === 'image' ? 'bg-blue-500 text-white' : ''
+              className={`h-10 bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedCartonType === "image" ? "bg-blue-500 text-white" : ""
               }`}
-              onClick={() => setSelectedCartonType('image')}
+              onClick={() => setSelectedCartonType("image")}
             >
               <h6>Imagenes</h6>
             </Button>
@@ -556,39 +358,44 @@ const DialogValueCartonAndBallot = ({
           <Typography color="gray" variant="h6">
             Ingresar Valor en la Balota
           </Typography>
-          {renderBallotInputs()}
-          {/* cambiar de tipo */}
+          {renderInputs(
+            selectedBallotType,
+            editInputsBallot,
+            (e) =>
+              handleChangeEditInputs(
+                e,
+                setEditInputsBallot,
+                setErrorsInputsBallot,
+                validationsEditInputsBallot
+              ),
+            errorsInputsBallot,
+            (e) => handleImageChange(e, "balota")
+          )}
           <Typography color="gray" variant="h6">
             Cambiar el tipo
           </Typography>
           <div className="grid grid-cols-3 gap-3">
-            {/* Numeros */}
             <Button
-              className={`bg-gray-200 cursor-pointer text-gray-700  text-center ${
-                selectedBallotType === 'default' ? 'bg-blue-500 text-white' : ''
+              className={`bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedBallotType === "default" ? "bg-blue-500 text-white" : ""
               }`}
-              name="default"
-              onClick={() => setSelectedBallotType('default')}
+              onClick={() => setSelectedBallotType("default")}
             >
               <h6>Numeros</h6>
             </Button>
-            {/* Texto */}
             <Button
-              className={`h-10 bg-gray-200 cursor-pointer  text-gray-700 text-center  ${
-                selectedBallotType === 'text' ? 'bg-blue-500 text-white' : ''
+              className={`h-10 bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedBallotType === "text" ? "bg-blue-500 text-white" : ""
               }`}
-              name="text"
-              onClick={() => setSelectedBallotType('text')}
+              onClick={() => setSelectedBallotType("text")}
             >
               <h6>Texto</h6>
             </Button>
-            {/* Imagenes */}
             <Button
-              className={`h-10 bg-gray-200 cursor-pointer text-gray-700  text-center ${
-                selectedBallotType === 'image' ? 'bg-blue-500 text-white' : ''
+              className={`h-10 bg-gray-200 cursor-pointer text-gray-700 text-center ${
+                selectedBallotType === "image" ? "bg-blue-500 text-white" : ""
               }`}
-              name="image"
-              onClick={() => setSelectedBallotType('image')}
+              onClick={() => setSelectedBallotType("image")}
             >
               <h6>Imagenes</h6>
             </Button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 
 const BingoCardStatic = ({
@@ -27,15 +27,17 @@ const BingoCardStatic = ({
           <CardBody
             className={`grid grid-cols-1 grid-cols-${cols} gap-1`}
             style={{
-              backgroundColor: bingoAppearance.background_color,
+              background: bingoAppearance.background_image
+                ? `url(${bingoAppearance.background_image}) no-repeat center center/cover`
+                : bingoAppearance.background_color,
             }}
           >
             {bingoCard.map((cell, index) => (
               <div
                 key={index}
-                className={`aspect-[1/0.6] bg-blue-100 rounded-md shadow-lg cursor-pointer flex justify-center items-center relative ${
-                  cell.value === "Disabled" ? "opacity-70" : ""
-                }`}
+                className={`aspect-[1/0.6] cursor-pointer rounded-md fontcursor-pointer flex justify-center items-center relative px-2 py-1 ${
+                  cell.value === "Disabled" ? "opacity-80" : ""
+                } ${cell.isMarked ? "opacity-80" : ""}`}
                 style={{
                   textAlign: "center",
                   position: "relative",
@@ -46,47 +48,37 @@ const BingoCardStatic = ({
                   <img
                     src={cell.default_image}
                     alt="Marked"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
+                    className="w-full h-full object-cover rounded-md"
                   />
                 ) : (
-                  <React.Fragment>
-                    {
-                      cell.type === "image" ? (
-                        <img
-                          src={cell.value}
-                          alt="Carton"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                          }}
-                        />
-                      ) : cell.value ? ( // Añadido condicional para asegurar que cell.value no es undefined
-                        <Typography className="text-black text-xl font-bold select-none">
-                          {cell.value}
-                        </Typography>
-                      ) : null // Puedes cambiar esto por un valor por defecto si necesario
-                    }
-                  </React.Fragment>
+                  <>
+                    {cell.type === "image" ? (
+                      <img
+                        src={cell.value}
+                        alt="Carton"
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    ) : cell.value ? (
+                      <Typography className="text-black text-3xl font-bold select-none">
+                        {cell.value}
+                      </Typography>
+                    ) : null}
+                  </>
                 )}
                 {bingoCard[index] &&
                   bingoCard[index].isMarked &&
-                  bingoCard[index].value != "Disabled" &&
+                  bingoCard[index].value !== "Disabled" &&
                   (bingoAppearance.dial_image ? (
                     <img
                       src={bingoAppearance.dial_image}
                       alt="Marked Overlay"
-                      className="absolute opacity-25 rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
+                      className="absolute rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50 bg-black">
+                    <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50">
                       <Typography
                         color="red"
-                        className="sm:text-8xl md:text-4xl lg:text-5xl xl:text-6xl font-bold select-none animate-mark-in"
+                        className="md:text-4xl lg:text-5xl xl:text-6xl font-bold select-none animate-mark-in"
                       >
                         X
                       </Typography>

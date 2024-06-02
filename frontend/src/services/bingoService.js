@@ -2,22 +2,33 @@ import { apiBingo } from "./index";
 
 const bingoServices = {
   // Crear un nuevo bingo
-  createBingo: async (data) => {
+
+  createBingo: async (data, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.post("/", data);
       return response.data.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 
   // Obtener los detalles de un bingo por su ID
-  getBingoById: async (id) => {
+  getBingoById: async (id, showLoading, hideLoading) => {
+    if (showLoading) {
+      showLoading();
+    }
     try {
       const response = await apiBingo.get(`/${id}`);
       return response.data.data;
     } catch (error) {
       throw error;
+    } finally {
+      if (hideLoading) {
+        hideLoading();
+      }
     }
   },
 
@@ -52,7 +63,8 @@ const bingoServices = {
   },
 
   // Marcar el fin del juego en un bingo
-  markGameEnd: async (id, winners) => {
+  markGameEnd: async (id, winners, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.post(`/${id}/end`, {
         winners,
@@ -60,11 +72,14 @@ const bingoServices = {
       return response.data.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 
   // Actualizar la capacidad de un bingo
-  updateBingoCapacity: async (id, capacity) => {
+  updateBingoCapacity: async (id, capacity, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.put(`/${id}/capacity`, {
         capacity,
@@ -72,6 +87,8 @@ const bingoServices = {
       return response.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 
@@ -102,12 +119,15 @@ const bingoServices = {
   },
 
   // Eliminar un bingo
-  deleteBingo: async (id) => {
+  deleteBingo: async (id, showLoading, hideLoading) => {
+    showLoading();
     try {
       const response = await apiBingo.delete(`/${id}`);
       return response.data;
     } catch (error) {
       throw error;
+    } finally {
+      hideLoading();
     }
   },
 

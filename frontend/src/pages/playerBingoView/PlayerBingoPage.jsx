@@ -11,38 +11,18 @@ import { TabsSection } from "./components/TabsSetion";
 import { LiveStream } from "./components/LiveStream";
 import { useAuth } from "../../context/AuthContext";
 import { useLoading } from "../../context/LoadingContext";
-
-async function generateRandomAlphanumeric(length) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let code;
-  let existingCardboards;
-  do {
-    code = "";
-    for (let i = 0; i < length; i++) {
-      code += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    // Verificar si el código ya existe en la base de datos
-    existingCardboards = await bingoCardboardService.findCardboardsByFields(
-      "cardboard_code",
-      code
-    );
-    // Si el código ya existe, generar uno nuevo
-  } while (existingCardboards.response.data.status === "Success");
-  return code;
-}
+import { MessageDialog } from "./components/MessageDialog";
+import dayjs from 'dayjs';
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
 export const PlayerBingoPage = () => {
   const { user, userName } = useAuth();
   const { showLoading, hideLoading } = useLoading();
+
   const { bingoCode, bingoId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   // Estados iniciales
-  const [bingoCodeLocal, setBingoCodeLocal] = useState(null);
   const [bingoConfig, setBingoConfig] = useState(null);
   const [bingoCard, setBingoCard] = useState(
     JSON.parse(localStorage.getItem("bingoCard"))
@@ -119,12 +99,52 @@ export const PlayerBingoPage = () => {
     getBingo();
   }, [user, userName, bingoId]);
 
+  // Efecto para configurar los eventos de socket.io
+  useEffect(() => {
+    if (userNickname) {
+      // Emitir el nombre del jugador al conectar
+      const handleConnect = () => {
+        socket.emit("setPlayerName", { playerName: userNickname });
+      };
+  
+      // Manejar eventos de conexión y reconexión
+      socket.on("connect", handleConnect);
+  
+      // Otros eventos
+      socket.on("userConnected", (data) => {
+        addLog(data.message);
+      });
+  
+      socket.on("ballotUpdate", handleBallotUpdate);
+      socket.on("sangBingo", handleSocketSangBingo);
+  
+      socket.on("chat message", (msg) => {
+        setChat((prevChat) => [...prevChat, msg]);
+      });
+  
+      // Cleanup al desmontar el componente
+      return () => {
+        socket.off("connect", handleConnect);
+        socket.off("userConnected");
+        socket.off("ballotUpdate", handleBallotUpdate);
+        socket.off("sangBingo", handleSocketSangBingo);
+        socket.off("chat message");
+        socket.disconnect();
+      };
+    }
+  }, [userNickname, chat]);
+  
+
   // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
   const initialValidation = async (bingo, rows, cols) => {
-    const result = await bingoCardboardService.findCardboardsByFields({
-      userId: user.uid,
-      bingoId: bingoId,
-    });
+    const result = await bingoCardboardService.findCardboardsByFields(
+      {
+        userId: user.uid,
+        bingoId: bingoId,
+      },
+      showLoading,
+      hideLoading
+    );
     if (result.status === "Success") {
       setUserNickname(result.data[0].playerName);
       setCardboardCode(result.data[0].cardboard_code);
@@ -151,34 +171,38 @@ export const PlayerBingoPage = () => {
     }
   };
 
-  // Efecto para configurar los eventos de socket.io
-  useEffect(() => {
-    if (userNickname) {
-      socket.emit("setPlayerName", { playerName: userNickname });
+  const getExistingCardboard = async (code) => {
+    const result = await bingoCardboardService.findCardboardsByFields(
+      {
+        cardboard_code: code,
+      },
+      showLoading,
+      hideLoading
+    );
+    if (result.status === "Success") {
+      setUserNickname(result.data[0].playerName);
+      setCardboardCode(result.data[0].cardboard_code);
+      setCardboardId(result.data[0]._id);
+      setBingoCard(result.data[0].game_card_values);
 
-      socket.on("userConnected", (data) => {
-        addLog(data.message);
+      setShowAlert(true);
+      setAlertData({
+        color: "green",
+        message: "Cartón obtenido correctamente.",
       });
-
-      socket.on("ballotUpdate", handleBallotUpdate);
-      socket.on("sangBingo", handleSocketSangBingo);
-
-      socket.on("chat message", (msg) => {
-        setChat([...chat, msg]);
-      });
-
-      return () => {
-        socket.off("ballotUpdate", handleBallotUpdate);
-        socket.off("sangBingo", handleSocketSangBingo);
-        socket.disconnect();
-      };
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
+    } else {
     }
-  }, [userNickname, chat]);
+  };
 
   const sendChat = (e) => {
     e.preventDefault();
-    socket.emit("chat message", message);
-    setMessage("");
+    const date = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    const dataMessage = { userId: user.uid, userName: userName, message: message, date };
+    socket.emit('chat message', dataMessage);
+    setMessage('');
   };
 
   const handleSocketSangBingo = (data) => {
@@ -302,19 +326,48 @@ export const PlayerBingoPage = () => {
     }
   };
 
+  async function generateRandomAlphanumeric(length) {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let code;
+    let existingCardboards;
+    do {
+      code = "";
+      for (let i = 0; i < length; i++) {
+        code += characters.charAt(
+          Math.floor(Math.random() * characters.length)
+        );
+      }
+      // Verificar si el código ya existe en la base de datos
+      existingCardboards = await bingoCardboardService.findCardboardsByFields(
+        {
+          cardboard_code: code,
+        },
+        showLoading,
+        hideLoading
+      );
+      // Si el código ya existe, generar uno nuevo
+    } while (existingCardboards.response.data.status === "Success");
+    return code;
+  }
+
   const saveCardboard = async (id, card) => {
-    const bingoId = id;
+    const bingoId = bingoConfig ? bingoConfig._id : id;
     const cardboard_code = await generateRandomAlphanumeric(6);
-    const game_card_values = card;
+    const game_card_values = bingoCard ? bingoCard : card;
 
     try {
-      const cardboardSaved = await bingoCardboardService.createCardboard({
-        playerName: userName,
-        bingoId,
-        cardboard_code,
-        game_card_values,
-        userId: user.uid,
-      });
+      const cardboardSaved = await bingoCardboardService.createCardboard(
+        {
+          playerName: userName,
+          bingoId,
+          cardboard_code,
+          game_card_values,
+          userId: user.uid,
+        },
+        showLoading,
+        hideLoading
+      );
 
       setCardboardId(cardboardSaved.data._id);
       setCardboardCode(cardboard_code);
@@ -325,7 +378,6 @@ export const PlayerBingoPage = () => {
 
   // Función para resetear el juego
   const resetGame = async (localReset = false) => {
-    console.log(cardboardId);
     if (cardboardId) {
       const resetMarkedSquares = bingoCard.map((square) =>
         square.value === "Disabled" ? square : { ...square, isMarked: false }
@@ -459,11 +511,12 @@ export const PlayerBingoPage = () => {
     await bingoCardboardService.updateCardboard(cardboardId, {
       game_card_values: updatedMarks,
     });
-    // localStorage.setItem("bingoCard", JSON.stringify(updatedMarks));
   };
 
   const getBallotsHistory = async () => {
-    const response = await bingoServices.getBingoById(bingoId);
+    const response = await bingoServices.getBingoById(
+      bingoId,
+    );
     setBingoConfig(response);
     setBallotsHistory(response.history_of_ballots);
 
@@ -488,6 +541,10 @@ export const PlayerBingoPage = () => {
   return (
     <>
       <DndContext onDragEnd={handleDragEnd}>
+        <MessageDialog
+          onSaveCardboard={saveCardboard}
+          getExistingCardboard={getExistingCardboard}
+        />
         <div className="md:row md:flex-auto md:flex md:flex-col md:w-full  bg-gray-300 pt-2 px-2">
           <Card className="flex-none">
             <TabsSection
@@ -553,24 +610,14 @@ export const PlayerBingoPage = () => {
                 <CardBody className="relative h-auto">
                   <LiveStream
                     bingoConfig={bingoConfig}
-                    playerName={userNickname}
+                    userUid={user.uid}
                     cardboardCode={cardboardCode}
                     logs={logs}
+                    sendChat={sendChat}
+                    message={message}
+                    setMessage={setMessage}
+                    chat={chat}
                   />
-                  {/* <div>
-                    <form onSubmit={sendChat}>
-                      <input
-                        type="text"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Escribe un mensaje"
-                      />
-                      <button type="submit">Enviar</button>
-                    </form>
-                    {chat.map((msg, index) => (
-                      <p key={index}>{msg}</p>
-                    ))}
-                  </div> */}
                 </CardBody>
               </Card>
             </div>
@@ -600,7 +647,17 @@ const DraggableLiveStream = ({ position }) => {
       {...attributes}
       className="absolute bottom-4 left-4 w-40 h-24 bg-black opacity-90 hover:opacity-100 z-10 md:hidden"
     >
-      <LiveStream />
+      <div style={{ border: "1px solid black", width: "100%", height: "auto" }}>
+        <iframe
+          style={{ width: "100%", height: "100%" }}
+          src="https://www.youtube.com/embed/x7gazu5rlT8?si=e-MiD73LRR3CHzMt"
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
     </div>
   );
 };

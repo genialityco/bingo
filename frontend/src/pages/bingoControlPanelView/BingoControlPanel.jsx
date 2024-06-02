@@ -22,6 +22,7 @@ import { FormEditRoom } from "./components/FormEditRoom";
 import { BingoRequestTable } from "./components/BingoRequestTable";
 import { BingoCardInputDialog } from "./components/BingoCardInputDialog";
 import { useLoading } from "../../context/LoadingContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -70,7 +71,11 @@ export const BingoControlPanel = () => {
 
   const fetchInitialData = async () => {
     try {
-      const bingoResponse = await bingoServices.getBingoById(bingoId);
+      const bingoResponse = await bingoServices.getBingoById(
+        bingoId,
+        showLoading,
+        hideLoading
+      );
       setBingo(bingoResponse);
       setAnnouncedBallots(bingoResponse.history_of_ballots);
       setSelectedFigure(bingoResponse.bingo_figure?._id || null);
@@ -123,7 +128,12 @@ export const BingoControlPanel = () => {
   const restartBingo = async () => {
     try {
       const updateData = { history_of_ballots: [] };
-      const response = await bingoServices.updateBingo(bingoId, updateData);
+      await bingoServices.updateBingo(
+        bingoId,
+        updateData,
+        showLoading,
+        hideLoading
+      );
       fetchInitialData();
     } catch (error) {
       console.error(error);
@@ -176,44 +186,61 @@ export const BingoControlPanel = () => {
       className="flex flex-col w-full bg-gray-300 p-2"
       style={backgroundStyle}
     >
-      <section className="mb-1 text-center">
-        <Card className="w-full">
+      {/* <section className="mb-1 text-center">
+        <Card className="w-full opacity-75">
           <CardBody className="flex flex-col items-center justify-center">
             <Typography variant="h4">Panel de control</Typography>
             <Typography>{bingo?.name}</Typography>
           </CardBody>
         </Card>
-      </section>
+      </section> */}
 
       <div className="flex flex-1 flex-col gap-0 md:flex-row md:justify-between">
         {/* Sección izquierda para la balota actual */}
         <div className="w-full md:w-1/4 flex flex-col items-center mb-1">
           <Card className="w-full mb-1">
             <CardBody className="flex flex-col items-center justify-center">
-              {currentBallot ? (
-                currentBallot.ballot_type === "image" &&
-                currentBallot.ballot_value ? (
-                  <img
-                    src={currentBallot.ballot_value}
-                    alt="Ballot"
-                    className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50 mb-5"
-                  />
+              <AnimatePresence mode='wait'>
+                {currentBallot ? (
+                  currentBallot.ballot_type === "image" &&
+                  currentBallot.ballot_value ? (
+                    <motion.img
+                      key={currentBallot.ballot_value}
+                      src={currentBallot.ballot_value}
+                      alt="Ballot"
+                      className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50 mb-5"
+                      initial={{ opacity: 0, x: 100, rotate: -360 }}
+                      animate={{ opacity: 1, x: 0, rotate: 0 }}
+                      exit={{ opacity: 0, x: -100, rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  ) : (
+                    <motion.div
+                      key={currentBallot.ballot_value}
+                      className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                      initial={{ opacity: 0, x: 100, rotate: -360 }}
+                      animate={{ opacity: 1, x: 0, rotate: 0 }}
+                      exit={{ opacity: 0, x: -100, rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Typography variant="h5">
+                        {currentBallot.ballot_value}
+                      </Typography>
+                    </motion.div>
+                  )
                 ) : (
-                  <Typography
-                    variant="h5"
+                  <motion.div
+                    key="empty"
                     className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                    initial={{ opacity: 0, x: 100, rotate: -360 }}
+                    animate={{ opacity: 1, x: 0, rotate: 0 }}
+                    exit={{ opacity: 0, x: -100, rotate: 360 }}
+                    transition={{ duration: 0.5 }}
                   >
-                    {currentBallot.ballot_value}
-                  </Typography>
-                )
-              ) : (
-                <Typography
-                  variant="h5"
-                  className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
-                >
-                  —
-                </Typography>
-              )}
+                    <Typography variant="h5">—</Typography>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <Button onClick={drawBallot}>Sacar Balota</Button>
             </CardBody>
           </Card>
@@ -244,7 +271,7 @@ export const BingoControlPanel = () => {
               />
             </CardBody>
           </Card>
-        </div> 
+        </div> */}
 
         {/* Sección derecha para solicitudes de Bingo y validador de cartones */}
         <div className="w-full md:w-2/6 flex flex-col items-center mb-1">

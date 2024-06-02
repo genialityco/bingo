@@ -1,9 +1,9 @@
 import React from "react";
+import { CustomLoading } from "./components/CustomLoading";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { DialogForName } from "./components/DialogForName";
 import routesConfig from "./routes/routesConfig";
-import { CustomLoading } from "./components/CustomLoading";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
