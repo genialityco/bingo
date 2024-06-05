@@ -13,6 +13,7 @@ import {
   MenuItem,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -107,8 +108,19 @@ export function Header() {
               </MenuHandler>
               <MenuList className="text-center">
                 <MenuItem onClick={goToAdminBingo}>Dashboard Bingos</MenuItem>
-                <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem> //
-                Usar MenuItem para mantener consistencia
+                <hr className="my-2 border-blue-gray-50" />
+                <MenuItem
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 "
+                >
+                  <ArrowLeftStartOnRectangleIcon
+                    className="h-4 w-4"
+                    strokeWidth={2}
+                  />
+                  <Typography variant="small" className="font-medium">
+                    Cerrar sesión
+                  </Typography>
+                </MenuItem>
               </MenuList>
             </Menu>
           ) : (
@@ -159,8 +171,18 @@ export function Header() {
                     <MenuItem onClick={goToAdminBingo}>
                       Dashboard Bingos
                     </MenuItem>
-                    <MenuItem>
-                      <Typography variant="lead"> Cerrar sesión</Typography>
+                    <hr className="my-2 border-blue-gray-50" />
+                    <MenuItem
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 "
+                    >
+                      <ArrowLeftStartOnRectangleIcon
+                        className="h-4 w-4"
+                        strokeWidth={2}
+                      />
+                      <Typography variant="small" className="font-medium">
+                        Cerrar sesión
+                      </Typography>
                     </MenuItem>
                   </MenuList>
                 </Menu>

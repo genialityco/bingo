@@ -1,8 +1,11 @@
-import { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef, useCallback } from "react";
 import { Carousel, Typography, Button } from "@material-tailwind/react";
 import { NewBingoContext } from "../../../context/NewBingoContext";
 
-const SizeBingoCard = ({ getPositionsDisablesAndDimension, onConfigChange }) => {
+const SizeBingoCard = ({
+  getPositionsDisablesAndDimension,
+  onConfigChange,
+}) => {
   const { bingo, updateBingo } = useContext(NewBingoContext);
   const [selectedDimensions, setSelectedDimensions] = useState(null);
   const [disabledPositions, setDisabledPositions] = useState([]);
@@ -15,42 +18,63 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension, onConfigChange }) => 
     "5x5": useRef(null),
   };
 
-  const handleDisabledPosition = (index) => {
-    const isSelected = disabledPositions.includes(index);
-    const newDisabledPositions = isSelected
-      ? disabledPositions.filter((pos) => pos !== index)
-      : [...disabledPositions, index];
-
-    setDisabledPositions(newDisabledPositions);
-
-    updateBingo((prevState) => {
-      const newBingoCard = { ...prevState };
-      const existingIndex = newBingoCard.positions_disabled.findIndex(
-        (item) => item.position === index
+  useEffect(() => {
+    if (bingo) {
+      setSelectedDimensions(bingo.dimensions);
+      setDisabledPositions(
+        bingo.positions_disabled.map((item) => item.position)
       );
+    }
+  }, [bingo]);
 
-      if (isSelected && existingIndex !== -1) {
-        newBingoCard.positions_disabled.splice(existingIndex, 1);
-      } else if (!isSelected && existingIndex === -1) {
-        newBingoCard.positions_disabled.push({
-          position: index,
-          default_image: "",
+  useEffect(() => {
+    getPositionsDisablesAndDimension(disabledPositions, selectedDimensions);
+  }, [disabledPositions, selectedDimensions, getPositionsDisablesAndDimension]);
+
+  const handleDisabledPosition = useCallback(
+    (index) => {
+      setDisabledPositions((prevDisabledPositions) => {
+        const isSelected = prevDisabledPositions.includes(index);
+        const newDisabledPositions = isSelected
+          ? prevDisabledPositions.filter((pos) => pos !== index)
+          : [...prevDisabledPositions, index];
+
+        updateBingo((prevState) => {
+          const newBingoCard = { ...prevState };
+          const existingIndex = newBingoCard.positions_disabled.findIndex(
+            (item) => item.position === index
+          );
+
+          if (isSelected && existingIndex !== -1) {
+            newBingoCard.positions_disabled.splice(existingIndex, 1);
+          } else if (!isSelected && existingIndex === -1) {
+            newBingoCard.positions_disabled.push({
+              position: index,
+              default_image: "",
+            });
+          }
+
+          return newBingoCard;
         });
+
+        return newDisabledPositions;
+      });
+    },
+    [updateBingo]
+  );
+
+  const handleSizeChange = useCallback(
+    (newDimension) => {
+      const currentDimension = bingo.dimensions;
+
+      if (sizeChangeCount > 0 && currentDimension !== newDimension) {
+        const confirmChange = window.confirm(
+          "¿Estás seguro de cambiar el tamaño del cartón?"
+        );
+        if (!confirmChange) return;
       }
 
-      return newBingoCard;
-    });
-  };
-
-  const handleSizeChange = (newDimension) => {
-    const currentDimension = bingo.dimensions;
-
-    if (sizeChangeCount > 0 && currentDimension !== newDimension) {
-      const confirmChange = window.confirm(
-        "¿Estás seguro de cambiar el tamaño del cartón?"
-      );
-
-      if (confirmChange) {
+      if (currentDimension !== newDimension) {
         updateBingo((prevBingoCard) => ({
           ...prevBingoCard,
           dimensions: newDimension,
@@ -59,68 +83,55 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension, onConfigChange }) => 
             positions: [],
           })),
         }));
+
         setSelectedDimensions(newDimension);
         moveToSlide(newDimension);
+        setSizeChangeCount((prevCount) => prevCount + 1);
       }
-    } else if (currentDimension !== newDimension) {
-      updateBingo((prevBingoCard) => ({
-        ...prevBingoCard,
-        dimensions: newDimension,
-        bingo_values: prevBingoCard.bingo_values.map((value) => ({
-          ...value,
-          positions: [],
-        })),
-      }));
-      setSelectedDimensions(newDimension);
-      moveToSlide(newDimension);
-    }
+    },
+    [bingo.dimensions, sizeChangeCount, updateBingo]
+  );
 
-    setSizeChangeCount((prevCount) => prevCount + 1);
-  };
-
-  useEffect(() => {
-    if (bingo) {
-      setSelectedDimensions(bingo.dimensions);
-      setDisabledPositions(bingo.positions_disabled.map((item) => item.position));
-      getPositionsDisablesAndDimension(disabledPositions, selectedDimensions);
-    }
-  }, [bingo]);
-
-  const moveToSlide = (dimension) => {
+  const moveToSlide = useCallback((dimension) => {
     const index = ["3x3", "4x4", "5x5"].indexOf(dimension);
     if (carouselRef.current && sectionRefs[dimension]?.current) {
       sectionRefs[dimension].current.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
-  const renderGrid = (size) => (
-    <Button
-      color="white"
-      className={`my-2 ${selectedDimensions === size ? "bg-yellow-300" : "bg-white"}`}
-    >
-      <div className={`grid grid-cols-${size[0]} gap-1 justify-center items-center`}>
-        {[...Array(size[0] * size[0])].map((_, index) => (
-          <div
-            key={index}
-            className={`square w-6 h-6 m-auto ${
-              disabledPositions.includes(index)
-                ? "bg-red-500"
-                : "bg-blue-500 cursor-pointer"
-            }`}
-            onClick={() => handleDisabledPosition(index)}
-          ></div>
-        ))}
-      </div>
-    </Button>
-  );
+  const renderGrid = (size) => {
+    const gridSize = parseInt(size[0]);
+    return (
+      <Button
+        color="white"
+        className={`my-2 ${
+          selectedDimensions === size ? "bg-yellow-300" : "bg-white"
+        }`}
+      >
+        <div
+          className={`grid grid-cols-${gridSize} gap-1 justify-center items-center`}
+        >
+          {[...Array(gridSize * gridSize)].map((_, index) => (
+            <div
+              key={index}
+              className={`square w-6 h-6 m-auto ${
+                disabledPositions.includes(index)
+                  ? "bg-red-500"
+                  : "bg-blue-500 cursor-pointer"
+              }`}
+              onClick={() => handleDisabledPosition(index)}
+            ></div>
+          ))}
+        </div>
+      </Button>
+    );
+  };
 
   const renderSizeButton = (size) => (
     <Button
       className="text-center"
       size="sm"
-      onClick={() => {
-        handleSizeChange(size);
-      }}
+      onClick={() => handleSizeChange(size)}
     >
       {size}
     </Button>
@@ -150,7 +161,11 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension, onConfigChange }) => 
       loop={false}
     >
       {["3x3", "4x4", "5x5"].map((size, index) => (
-        <div key={index} ref={sectionRefs[size]} className="flex flex-col justify-center items-center">
+        <div
+          key={index}
+          ref={sectionRefs[size]}
+          className="flex flex-col justify-center items-center"
+        >
           <Typography variant="paragraph" className="text-center mt-2">
             Inhabilitar celdas en el cartón
           </Typography>
