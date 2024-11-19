@@ -114,7 +114,11 @@ const BingoList = () => {
         is_public: false,
       };
 
-      const newBingoCreated = await bingoServices.createBingo(copiedTemplate);
+      const newBingoCreated = await bingoServices.createBingo(
+        copiedTemplate,
+        showLoading,
+        hideLoading
+      );
 
       if (newBingoCreated) {
         fetchBingos();
@@ -136,8 +140,11 @@ const BingoList = () => {
         is_public: false,
         is_template: true,
       };
-      await bingoTemplateServices.createTemplate(newTemplate,    showLoading,
-        hideLoading);
+      await bingoTemplateServices.createTemplate(
+        newTemplate,
+        showLoading,
+        hideLoading
+      );
       fetchTemplates();
     } catch (error) {
       console.error(error);

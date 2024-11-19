@@ -9,12 +9,12 @@ const bingoAppearanceSchema = new Schema({
   banner: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoHeader.png?alt=media&token=973f45a2-deab-42f4-9479-546d9a0315aa",
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FBanner_Bingo.jpg?alt=media&token=6db9ac84-6b19-46ee-986d-3b8fd581721d",
   },
   footer: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/eviusauth.appspot.com/o/template%2FbingoFooter.png?alt=media&token=08c9bac6-563d-419a-b207-d2dd2846ba1d",
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FFooter_Bingo.jpg?alt=media&token=6b485484-8417-417a-bf67-8da901257f8a",
   },
   dial_image: { type: String, default: null },
 });
@@ -44,7 +44,7 @@ const bingoPositionsDisabledSchema = new Schema({
   default_image: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2F3060c998-30ac-4bea-80e1-eb6c23ef1d82?alt=media&token=b27ad368-8f41-4d13-90bf-d68c9f46a87e",
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/logos%2FLOGOS%20MAGNETIC-03.png?alt=media&token=2cc96a2f-cc4f-4883-8ce1-3bd2f8b07a6f",
   },
 });
 

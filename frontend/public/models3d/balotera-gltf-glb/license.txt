@@ -1,0 +1,8 @@
+Model Information:
+* title:	Lottery Machine
+* source:	https://sketchfab.com/3d-models/lottery-machine-14cd7c97b7dc4fa5a5d7ecf4c8c7beb1
+* author:	Ankush Gupta (https://sketchfab.com/Ankush4135)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

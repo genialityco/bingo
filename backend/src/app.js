@@ -6,7 +6,8 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import bingo from "./routes/bingo.js";
+import firebaseRoutes from "./routes/firebase.js";
+import bingoRoutes from "./routes/bingo.js";
 import bingoTemplateRoutes from "./routes/bingoTemplate.js";
 import bingoFigureRoutes from "./routes/bingoFigure.js";
 import bingoCardboardRoutes from "./routes/bingoCardboard.js";
@@ -21,7 +22,6 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });
@@ -32,7 +32,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
-app.use(bingo);
+app.use(firebaseRoutes);
+app.use(bingoRoutes);
 app.use(bingoTemplateRoutes);
 app.use(bingoFigureRoutes);
 app.use(bingoCardboardRoutes);
@@ -66,6 +67,21 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}, ${process.env.NODE_ENV}`);
 });
 
+customEmitter.on("ballotUpdate", (data) => {
+  io.emit("ballotUpdate", data);
+});
+
+customEmitter.on("sangBingo", (isWinner) => {
+  if (isWinner.status) {
+    console.log("Tenemos un ganador en sangBingo!");
+  } else if (!isWinner.status) {
+    console.log("No hay ganador esta vez en sangBingo.");
+  } else {
+    console.log("Validando.");
+  }
+  io.emit("sangBingo", isWinner);
+});
+
 io.on("connection", (socket) => {
   // Nuevo evento para recibir el nombre del usuario
   socket.on("setPlayerName", (data) => {
@@ -76,22 +92,8 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Escuchar los eventos emitidos por el EventEmitter personalizado
-  customEmitter.on("ballotUpdate", (data) => {
-    socket.emit("ballotUpdate", data); // Emitir eventos a los clientes conectados con los cambios de datos
-  });
-
-  customEmitter.on("sangBingo", (isWinner) => {
-    if (isWinner.status) {
-      console.log("Tenemos un ganador en sangBingo!");
-    } else {
-      console.log("No hay ganador esta vez en sangBingo.");
-    }
-    socket.emit("sangBingo", isWinner);
-  });
-
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    socket.broadcast.emit("chat message", msg);
   });
 
   socket.on("disconnect", () => {

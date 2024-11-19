@@ -3,6 +3,8 @@ import BingosList from "../pages/customizeBingoView/BingosList";
 import CustomizeBingo from "../pages/customizeBingoView/CustomizeBingo";
 import { BingoControlPanel } from "../pages/bingoControlPanelView/BingoControlPanel";
 import { PlayerBingoPage } from "../pages/playerBingoView/PlayerBingoPage";
+import BingoMachine from "../pages/lottoMachineView/LottoMachine";
+import LotteryMachine from "../pages/lotteryMachineView/LotteryMachine";
 
 const routesConfig = [
   {
@@ -29,6 +31,10 @@ const routesConfig = [
     path: "/list-bingos",
     component: BingosList,
     exact: true,
+  },
+  {
+    path: "/lotto-machine",
+    component: LotteryMachine,
   },
 ];
 

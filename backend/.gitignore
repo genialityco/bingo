@@ -30,6 +30,7 @@ yarn-error.log*
 # Archivos de configuración de Firebase que no deberían ser compartidos
 .firebaserc
 .firebase/*
+src/config/firebase/service-account-file.json
 
 # Archivos de bloqueo de paquetes
 package-lock.json
