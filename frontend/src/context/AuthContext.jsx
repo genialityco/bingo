@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { loginAnonymously, logout } from "../services/authFirebaseService";
-import { onAuthStateChanged } from "firebase/auth";
+import { loginAnonymously, logout, loginWithEmailPassword, registerWithEmailPassword } from "../services/authFirebaseService";
+import { onAuthStateChanged, EmailAuthProvider, linkWithCredential } from "firebase/auth";
 import { auth } from "../firebase-config";
-import { useLoading } from "./LoadingContext";
 
 export const AuthContext = createContext();
 
@@ -36,6 +35,32 @@ export const AuthProvider = ({ children }) => {
     return result;
   };
 
+  const handleRegisterWithEmail = async (email, password) => {
+    const result = await registerWithEmailPassword(email, password);
+    setUser(result.user);
+    setUserName(result.user.displayName);
+    return result.user;
+  };
+
+  const handleLoginWithEmail = async (email, password) => {
+    const result = await loginWithEmailPassword(email, password);
+    setUser(result.user);
+    setUserName(result.user.displayName);
+    return result.user;
+  };
+
+  const handleLinkAnonymousAccount = async (email, password) => {
+    const credential = EmailAuthProvider.credential(email, password);
+    if (user.isAnonymous) {
+      const result = await linkWithCredential(user, credential);
+      setUser(result.user);
+      setUserName(result.user.displayName);
+      return result.user;
+    } else {
+      throw new Error("User is not anonymous");
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -46,6 +71,9 @@ export const AuthProvider = ({ children }) => {
         auth,
         handleLogout,
         handleLoginAnonymously,
+        handleRegisterWithEmail,
+        handleLoginWithEmail,
+        handleLinkAnonymousAccount,
       }}
     >
       {children}

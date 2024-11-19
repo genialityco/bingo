@@ -241,7 +241,7 @@ export const BingoControlPanel = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <Button onClick={drawBallot}>Sacar Balota</Button>
+              <Button size="sm" className="normal-case" onClick={drawBallot}>Sacar Balota</Button>
             </CardBody>
           </Card>
 

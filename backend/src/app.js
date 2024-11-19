@@ -6,7 +6,8 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import bingo from "./routes/bingo.js";
+import firebaseRoutes from "./routes/firebase.js";
+import bingoRoutes from "./routes/bingo.js";
 import bingoTemplateRoutes from "./routes/bingoTemplate.js";
 import bingoFigureRoutes from "./routes/bingoFigure.js";
 import bingoCardboardRoutes from "./routes/bingoCardboard.js";
@@ -31,7 +32,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Rutas
-app.use(bingo);
+app.use(firebaseRoutes);
+app.use(bingoRoutes);
 app.use(bingoTemplateRoutes);
 app.use(bingoFigureRoutes);
 app.use(bingoCardboardRoutes);

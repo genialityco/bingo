@@ -1,10 +1,11 @@
-import React from "react";
+import { useState } from "react";
 import { CustomLoading } from "./components/CustomLoading";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { DialogForName } from "./components/DialogForName";
 import routesConfig from "./routes/routesConfig";
 import { useAuth } from "./context/AuthContext";
+import LinkAccountModal from "./components/LinkAccount";
 
 function App() {
   const { user, userName, loading } = useAuth();

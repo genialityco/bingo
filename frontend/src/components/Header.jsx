@@ -11,11 +11,13 @@ import {
   MenuHandler,
   MenuList,
   MenuItem,
+  Avatar,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import LinkAccountModal from "./LinkAccount";
 
 function NavList() {
   return (
@@ -61,6 +63,7 @@ export function Header() {
   const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
   const { user, userName, handleLogout } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener(
@@ -69,8 +72,14 @@ export function Header() {
     );
   }, []);
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   const goToAdminBingo = () => {
-    navigate("/list-bingos");
+
+      navigate("/list-bingos");
+
   };
   const gotToHome = () => {
     navigate("/");
@@ -78,6 +87,7 @@ export function Header() {
 
   return (
     <Navbar className="mx-auto min-w-full px-4 py-2 text-slate-950 shadow-lg">
+      <LinkAccountModal open={isModalOpen} handleClose={handleCloseModal} />
       <div className="flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
@@ -95,8 +105,20 @@ export function Header() {
             <Menu>
               <MenuHandler>
                 <div className="flex items-center gap-2">
-                  <span>{userName}</span>
-                  <img
+                  <div align="right">
+                    <Typography variant="h6">{userName}</Typography>
+                    {user?.isAnonymous && (
+                      <Typography
+                        variant="small"
+                        color="gray"
+                        className="font-normal"
+                      >
+                        {" "}
+                        Modo invitado{" "}
+                      </Typography>
+                    )}
+                  </div>
+                  <Avatar
                     src={
                       user?.photoURL ||
                       "https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector-PNG.png"

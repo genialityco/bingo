@@ -9,12 +9,12 @@ const bingoAppearanceSchema = new Schema({
   banner: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/Bingo%2FBANNER-BINGO.jpg?alt=media&token=0d1fa6e4-e540-45ce-b106-e5df7b40c1f0",
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FBanner_Bingo.jpg?alt=media&token=6db9ac84-6b19-46ee-986d-3b8fd581721d",
   },
   footer: {
     type: String,
     default:
-      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/Bingo%2FBanner_Bingo.jpg?alt=media&token=80b7dcc1-667c-4ae3-9238-e5d401b916cd",
+      "https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FFooter_Bingo.jpg?alt=media&token=6b485484-8417-417a-bf67-8da901257f8a",
   },
   dial_image: { type: String, default: null },
 });

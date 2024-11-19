@@ -46,7 +46,7 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="flex flex-col relative" style={{height: '92vh'}}>
+    <div className="flex flex-col relative" style={{ height: "92vh" }}>
       {showAlert && (
         <Alert
           className="fixed w-11/12 bottom-5 left-1/2 transform -translate-x-1/2 z-50"
@@ -57,13 +57,17 @@ export const HomePage = () => {
         </Alert>
       )}
 
-      <section className="flex flex-col justify-center items-center h-full bg-[url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/Bingo%2FSLIDER_01_B.ESPECIALES.png?alt=media&token=b9065304-95c3-4c25-940e-989b47f2c41d')] bg-no-repeat bg-cover p-8">
+      <section className="flex flex-col justify-center items-center h-full bg-[url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FSLIDER_01_B.ESPECIALES.png?alt=media&token=ef64c07d-c31b-4093-853c-2f1c83ee66b9')] bg-no-repeat bg-cover p-8">
         <div
           className="w-80 bg-black bg-opacity-75 p-5 rounded-lg shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105"
           align="center"
         >
-          <Typography color="white" variant="h6" className="mb-5">¡Bievenido jugador!</Typography>
-          <Typography color="white" variant="small" className="mb-5">Ingresa el código del bingo para jugar</Typography>
+          <Typography color="white" variant="h6" className="mb-5">
+            ¡Bievenido jugador!
+          </Typography>
+          <Typography color="white" variant="small" className="mb-5">
+            Ingresa el código del bingo para jugar
+          </Typography>
           <form onSubmit={goToBingo} className="flex flex-col items-center">
             <Input
               name="bingoCode"
