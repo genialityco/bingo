@@ -62,7 +62,8 @@ const BingoCardStatic = ({
                       <Typography
                         className="text-black text-3xl font-bold select-none"
                         style={{
-                          fontSize: cell.value.length > 3 ? "20px" : undefined,
+                          fontSize: cell.value.length > 3 ? "15px" : undefined,
+                          lineHeight: "1", 
                         }}
                       >
                         {cell.value}
