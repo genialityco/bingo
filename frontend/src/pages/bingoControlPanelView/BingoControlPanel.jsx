@@ -181,6 +181,11 @@ export const BingoControlPanel = () => {
     minHeight: "100vh",
   };
 
+  const clearRequestBingoStorage = () => {
+    localStorage.clear()
+    setBingoRequests([])
+  }
+
   return (
     <div
       className="flex flex-col w-full bg-gray-300 p-2"
@@ -200,7 +205,7 @@ export const BingoControlPanel = () => {
         <div className="w-full md:w-1/4 flex flex-col items-center mb-1">
           <Card className="w-full mb-1">
             <CardBody className="flex flex-col items-center justify-center">
-              <AnimatePresence mode='wait'>
+              <AnimatePresence mode="wait">
                 {currentBallot ? (
                   currentBallot.ballot_type === "image" &&
                   currentBallot.ballot_value ? (
@@ -241,7 +246,9 @@ export const BingoControlPanel = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <Button size="sm" className="normal-case" onClick={drawBallot}>Sacar Balota</Button>
+              <Button size="sm" className="normal-case" onClick={drawBallot}>
+                Sacar Balota
+              </Button>
             </CardBody>
           </Card>
 
@@ -277,7 +284,10 @@ export const BingoControlPanel = () => {
         <div className="w-full md:w-2/6 flex flex-col items-center mb-1">
           <Card className="w-full h-64">
             <CardBody className="flex flex-col justify-between">
-              <Typography variant="h6">Solicitudes de bingo</Typography>
+              <div className="flex flex-row justify-between">
+                <Typography variant="h6">Solicitudes de bingo</Typography>
+                <Button  size="sm" variant="text" onClick={() => clearRequestBingoStorage()}>Limpiar</Button>
+              </div>
               <div className="overflow-y-auto max-h-40">
                 <BingoRequestTable
                   bingoRequests={bingoRequests}
