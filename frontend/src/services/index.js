@@ -5,7 +5,6 @@ import.meta.env.NODE_ENV === "production"
     ? import.meta.env.VITE_APP_API_URL
     : import.meta.env.VITE_APP_URL_DEPLOYMENT;
 
-console.log('API URL',import.meta.env, process.env, API_BASE_URL)
 
 const createAxiosInstance = (baseURL) => {
   const api = axios.create({

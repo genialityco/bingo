@@ -92,6 +92,21 @@ const bingoServices = {
     }
   },
 
+    //adicionar una balota nueva al bingo
+    addBingoValue: async (id, data, showLoading, hideLoading) => {
+      showLoading();
+      try {
+        const response = await apiBingo.post(`/${id}/addBingoValue`, {
+          data,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      } finally {
+        hideLoading();
+      }
+    },
+
   // Obtener todas los bingo
   getAllBingos: async (showLoading, hideLoading) => {
     showLoading();
@@ -104,6 +119,20 @@ const bingoServices = {
       hideLoading();
     }
   },
+
+    // Actualizar los detalles de un bingo
+    addBingoValue: async (id, updateData, showLoading, hideLoading) => {
+      showLoading();
+      try {
+        const response = await apiBingo.post(`/${id}/addBingoValue`, updateData);
+        return response.data;
+      } catch (error) {
+        throw error;
+      } finally {
+        hideLoading();
+      }
+    },
+
 
   // Actualizar los detalles de un bingo
   updateBingo: async (id, updateData, showLoading, hideLoading) => {
