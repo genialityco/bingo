@@ -82,12 +82,13 @@ export const ShowLastBallot = ({
               </Typography>
             )}
           </div>
-          <div>
-            Balota:{" "}
-            {getBallotValueForDom(lastBallot).value.length > 3 && (
-              <Typography>{getBallotValueForDom(lastBallot).value}</Typography>
-            )}
-          </div>
+          {getBallotValueForDom(lastBallot).value.length > 3 && (
+            <div>
+              <Typography>
+                Balota: {getBallotValueForDom(lastBallot).value}
+              </Typography>
+            </div>
+          )}
         </div>
       )}
     </div>

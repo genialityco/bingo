@@ -51,7 +51,7 @@ export const SelectFigure = ({
 
   return (
     <div align="center">
-      <Typography>
+      <Typography variant="h4">
         {figures.find((t) => t._id === selectedFigure)?.title ||
           "Ninguna seleccionada"}
       </Typography>
@@ -109,7 +109,7 @@ export const SelectFigure = ({
         <img
           src={figures.find((t) => t._id === selectedFigure)?.image}
           alt="Figura de Bingo"
-          width={"100"}
+          width={"130"}
           height={"60"}
           className="m-auto mt-2"
         />
