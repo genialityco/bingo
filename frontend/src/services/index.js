@@ -2,8 +2,10 @@ import axios from "axios";
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? import.meta.env.VITE_APP_API_URL
-    : import.meta.env.VITE_APP_URL_DEPLOYMENT;
+    ? process.env.VITE_APP_API_URL
+    : process.env.VITE_APP_URL_DEPLOYMENT;
+
+console.log('API URL',API_BASE_URL)
 
 const createAxiosInstance = (baseURL) => {
   const api = axios.create({
