@@ -7,7 +7,7 @@ import { LoadingProvider } from "./context/LoadingContext";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  // <React.StrictMode>
+  <React.StrictMode>
   <LoadingProvider>
     <AuthProvider>
       <NewBingoContextProvider>
@@ -15,5 +15,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </NewBingoContextProvider>
     </AuthProvider>
   </LoadingProvider>
-  // </React.StrictMode>
+  </React.StrictMode>
 );
