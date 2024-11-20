@@ -265,7 +265,7 @@ export const BingoControlPanel = () => {
           <Card className="w-full mb-1">
             <CardBody>
               {currentBallot && (
-                <Typography variant="small" style={{ fontWeight: "bold" }}>
+                <Typography variant="h3" style={{ fontWeight: "bold" }}>
                   {currentBallot.ballot_value}
                 </Typography>
               )}
