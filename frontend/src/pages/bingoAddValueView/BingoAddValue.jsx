@@ -22,29 +22,33 @@ export const BingoAddValue = () => {
   const [resultado, setResultado] = useState(undefined);
   const [error, setError] = useState(undefined);
 
-
   const addBingoValue = async () => {
-
-    if (!nombreEmpresa || !infoEmpresa){
-      alert('Información incompleta, porfavor llevar nombre de empresa y datos de la empresa')
+    if (!nombreEmpresa || !infoEmpresa) {
+      alert(
+        "Información incompleta, porfavor llevar nombre de empresa y datos de la empresa"
+      );
     }
     try {
       var data = {
         ballot_type: "default",
-        ballot_value: nombreEmpresa,
+        ballot_value: infoEmpresa,
         carton_type: "default",
-        carton_value: infoEmpresa,
+        carton_value: nombreEmpresa,
       };
 
-      const bingoResponse = await bingoServices.addBingoValue(bingoId, data, showLoading, hideLoading);
+      const bingoResponse = await bingoServices.addBingoValue(
+        bingoId,
+        data,
+        showLoading,
+        hideLoading
+      );
       console.log("bingoResponse", bingoResponse);
       setResultado(bingoResponse);
     } catch (error) {
       console.error("Error:", error);
-      setError(error)
+      setError(error);
     }
   };
-
 
   // useEffect(() => {
   //   if (bingoId) {
@@ -61,7 +65,10 @@ export const BingoAddValue = () => {
   };
 
   return (
-    <div className="flex flex-col w-full bg-gray-300 p-2" style={backgroundStyle}>
+    <div
+      className="flex flex-col w-full bg-gray-300 p-2"
+      style={backgroundStyle}
+    >
       <div className="w-full">
         <Card className="w-full">
           <CardBody className="flex flex-wrap justify-center items-center gap-2">
@@ -95,10 +102,15 @@ export const BingoAddValue = () => {
             )}
             {resultado && (
               <Alert color="green">
-                Gracias, información Enviada correctamente; Por favor espere un momento  a que inicie la actividad
+                Gracias, información Enviada correctamente; Por favor espere un
+                momento a que inicie la actividad
               </Alert>
             )}
-            {error && <Alert color="red">Ha sudecido un error intente en un momento</Alert>}
+            {error && (
+              <Alert color="red">
+                Ha sudecido un error intente en un momento
+              </Alert>
+            )}
           </CardFooter>
         </Card>
       </div>
