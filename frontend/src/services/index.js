@@ -5,7 +5,7 @@ const API_BASE_URL =
     ? process.env.VITE_APP_API_URL
     : process.env.VITE_APP_URL_DEPLOYMENT;
 
-console.log('API URL',process.env, API_BASE_URL)
+console.log('API URL',import.meta.env, process.env, API_BASE_URL)
 
 const createAxiosInstance = (baseURL) => {
   const api = axios.create({
