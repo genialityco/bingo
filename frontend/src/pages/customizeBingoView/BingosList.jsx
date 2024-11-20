@@ -42,7 +42,6 @@ const BingoList = () => {
 
   // Funciones para obtener listas
   const fetchBingos = useCallback(async () => {
-    setLoadingBingos(true);
     try {
       const response = await bingoServices.getAllBingos(
         showLoading,
@@ -52,12 +51,11 @@ const BingoList = () => {
     } catch (err) {
       setErrorBingos("Error al obtener la lista de bingos");
     } finally {
-      setLoadingBingos(false);
+      setLoadingBingos(isLoading);
     }
-  }, [showLoading, hideLoading]);
+  }, []);
 
   const fetchTemplates = useCallback(async () => {
-    setLoadingTemplates(true);
     try {
       const { data } = await bingoTemplateServices.listAllTemplates(
         showLoading,
@@ -67,9 +65,9 @@ const BingoList = () => {
     } catch (err) {
       setErrorTemplates("Error al obtener la lista de plantillas");
     } finally {
-      setLoadingTemplates(false);
+      setLoadingTemplates(isLoading);
     }
-  }, [showLoading, hideLoading]);
+  }, []);
 
   // Uso de useEffect para llamar a las funciones de carga
   useEffect(() => {
@@ -124,6 +122,7 @@ const BingoList = () => {
 
       if (newBingoCreated) {
         fetchBingos();
+        fetchTemplates();
         closeDialog();
       } else {
         console.error("No se pudo crear el nuevo Bingo");
@@ -152,29 +151,52 @@ const BingoList = () => {
     }
   };
 
+  // Componentes auxiliares
+  const LoadingOrErrorComponent = ({ loading, error, children }) => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-24">
+          <svg
+            className="animate-spin w-8 h-8 text-green-500"
+            viewBox="0 0 64 64"
+          ></svg>
+        </div>
+      );
+    }
+
+    if (error) {
+      return <div className="text-red-600 text-center mt-8">{error}</div>;
+    }
+
+    return children;
+  };
+
   const BingoCard = ({ bingo }) => (
     <Card className="bg-blue-gray-100 flex flex-col justify-between h-full w-full">
       <CardBody className="flex-grow">
         <h3 className="text-xl font-bold">{bingo.name}</h3>
       </CardBody>
       <CardFooter>
-        <ButtonGroup>
-          <Button className="normal-case" size="sm">
-            <Link to={`/customize-bingo?bingoId=${bingo._id}`}>
-              Personalizar
-            </Link>
-          </Button>
-          <Button className="normal-case" size="sm">
-            <Link to={`/play-bingo/${bingo._id}`}>Iniciar bingo</Link>
-          </Button>
-          <Button
-            className="normal-case"
-            size="sm"
-            onClick={() => convertToTemplate(bingo)}
-          >
-            Convertir en plantilla
-          </Button>
-        </ButtonGroup>
+        <div className="flex gap-2 w-full">
+          <ButtonGroup>
+            <Button className="normal-case" size="sm">
+              <Link to={`/customize-bingo?bingoId=${bingo._id}`}>
+                Personalizar
+              </Link>
+            </Button>
+
+            <Button className="normal-case" size="sm">
+              <Link to={`/play-bingo/${bingo._id}`}>Iniciar bingo</Link>
+            </Button>
+            <Button
+              className="normal-case"
+              size="sm"
+              onClick={() => convertToTemplate(bingo)}
+            >
+              Convertir en plantilla
+            </Button>
+          </ButtonGroup>
+        </div>
       </CardFooter>
     </Card>
   );
@@ -195,37 +217,57 @@ const BingoList = () => {
     </Card>
   );
 
+  const renderBingos = () => (
+    <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
+      {bingos ? (
+        bingos.map((bingo) => <BingoCard key={bingo._id} bingo={bingo} />)
+      ) : (
+        <div className="text-center text-lg text-gray-500">
+          No se encontraron bingos.
+        </div>
+      )}
+    </div>
+  );
+
+  const renderTemplates = () => (
+    <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
+      {templates ? (
+        templates.map((template) => (
+          <TemplateCard key={template._id} template={template} />
+        ))
+      ) : (
+        <div className="text-center text-lg text-gray-500">
+          No se encontraron plantillas.
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
-      <div className="p-5">
-        <div className="flex gap-5 items-center">
-          <h2 className="text-2xl font-bold my-4">Lista de Bingos</h2>
-          <Button onClick={openDialog}>Crear Nuevo Bingo</Button>
-        </div>
-        {!loadingBingos && !errorBingos && bingos.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">{bingos.map((bingo) => <BingoCard key={bingo._id} bingo={bingo} />)}</div>
-        ) : loadingBingos ? (
-          <p>Cargando bingos...</p>
-        ) : (
-          <p className="text-center">No se encontraron bingos.</p>
-        )}
-      </div>
-
-      <div className="p-5">
-        <h2 className="text-2xl font-bold my-4">Lista de Plantillas</h2>
-        {!loadingTemplates && !errorTemplates && templates.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
-            {templates.map((template) => (
-              <TemplateCard key={template._id} template={template} />
-            ))}
+      <LoadingOrErrorComponent loading={loadingBingos} error={errorBingos}>
+        <div className="p-5">
+          <div className="flex gap-5 items-center">
+            <h2 className="text-2xl font-bold my-4">Lista de Bingos</h2>
+            <Button onClick={openDialog}>Crear Nuevo Bingo</Button>
           </div>
-        ) : loadingTemplates ? (
-          <p>Cargando plantillas...</p>
-        ) : (
-          <p className="text-center">No se encontraron plantillas.</p>
-        )}
-      </div>
+          {renderBingos()}
+        </div>
+      </LoadingOrErrorComponent>
 
+      <LoadingOrErrorComponent
+        loading={loadingTemplates}
+        error={errorTemplates}
+      >
+        <div className="p-5">
+          <div className="flex gap-5 items-center">
+            <h2 className="text-2xl font-bold my-4">Lista de Plantillas</h2>
+          </div>
+          {renderTemplates()}
+        </div>
+      </LoadingOrErrorComponent>
+
+      {/* Diálogo de creación */}
       <Dialog open={isDialogOpen} handler={closeDialog}>
         <DialogHeader>Crear Nuevo Bingo</DialogHeader>
         <DialogBody divider>
@@ -240,7 +282,6 @@ const BingoList = () => {
             label="Seleccionar plantilla"
             onChange={handleTemplateSelect}
             value={newBingo.templateId}
-            disabled={loadingTemplates || templates.length === 0}
             required
           >
             {templates.map((template) => (
@@ -251,7 +292,12 @@ const BingoList = () => {
           </Select>
         </DialogBody>
         <DialogFooter>
-          <Button variant="text" color="red" onClick={closeDialog}>
+          <Button
+            variant="text"
+            color="red"
+            onClick={closeDialog}
+            className="mr-1"
+          >
             Cancelar
           </Button>
           <Button variant="gradient" color="green" onClick={createNewBingo}>
