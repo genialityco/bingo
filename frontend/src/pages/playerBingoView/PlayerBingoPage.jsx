@@ -12,7 +12,7 @@ import { LiveStream } from "./components/LiveStream";
 import { useAuth } from "../../context/AuthContext";
 import { useLoading } from "../../context/LoadingContext";
 import { MessageDialog } from "./components/MessageDialog";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 
@@ -106,22 +106,22 @@ export const PlayerBingoPage = () => {
       const handleConnect = () => {
         socket.emit("setPlayerName", { playerName: userNickname });
       };
-  
+
       // Manejar eventos de conexión y reconexión
       socket.on("connect", handleConnect);
-  
+
       // Otros eventos
       socket.on("userConnected", (data) => {
         addLog(data.message);
       });
-  
+
       socket.on("ballotUpdate", handleBallotUpdate);
       socket.on("sangBingo", handleSocketSangBingo);
-  
+
       socket.on("chat message", (msg) => {
         setChat((prevChat) => [...prevChat, msg]);
       });
-  
+
       // Cleanup al desmontar el componente
       return () => {
         socket.off("connect", handleConnect);
@@ -133,7 +133,6 @@ export const PlayerBingoPage = () => {
       };
     }
   }, [userNickname, chat]);
-  
 
   // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
   const initialValidation = async (bingo, rows, cols) => {
@@ -193,16 +192,20 @@ export const PlayerBingoPage = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 1000);
-    } else {
     }
   };
 
   const sendChat = (e) => {
     e.preventDefault();
-    const date = dayjs().format('YYYY-MM-DD HH:mm:ss');
-    const dataMessage = { userId: user.uid, userName: userName, message: message, date };
-    socket.emit('chat message', dataMessage);
-    setMessage('');
+    const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    const dataMessage = {
+      userId: user.uid,
+      userName: userName,
+      message: message,
+      date,
+    };
+    socket.emit("chat message", dataMessage);
+    setMessage("");
   };
 
   const handleSocketSangBingo = (data) => {
@@ -514,9 +517,7 @@ export const PlayerBingoPage = () => {
   };
 
   const getBallotsHistory = async () => {
-    const response = await bingoServices.getBingoById(
-      bingoId,
-    );
+    const response = await bingoServices.getBingoById(bingoId);
     setBingoConfig(response);
     setBallotsHistory(response.history_of_ballots);
 
@@ -645,10 +646,10 @@ const DraggableLiveStream = ({ position }) => {
       style={style}
       {...listeners}
       {...attributes}
-      className="absolute bottom-4 left-4 w-40 h-24 bg-black opacity-90 hover:opacity-100 z-10 md:hidden"
+      // className="absolute bottom-4 left-4 w-40 h-24 bg-black opacity-90 hover:opacity-100 z-10 md:hidden"
     >
-      <div style={{ border: "1px solid black", width: "100%", height: "auto" }}>
-        <iframe
+      <div style={{ width: "100%", height: "auto" }}>
+        {/* <iframe
           style={{ width: "100%", height: "100%" }}
           src="https://www.youtube.com/embed/x7gazu5rlT8?si=e-MiD73LRR3CHzMt"
           title="YouTube video player"
@@ -656,7 +657,7 @@ const DraggableLiveStream = ({ position }) => {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerpolicy="strict-origin-when-cross-origin"
           allowFullScreen
-        ></iframe>
+        ></iframe> */}
       </div>
     </div>
   );
