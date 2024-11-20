@@ -75,6 +75,7 @@ export const BingoAddValue = () => {
             <Typography variant="h6" className="w-full text-center">
               Información de la empresa
             </Typography>
+            <Typography variant="small">Toda la información proporcionada está protegida conforme a la Ley de Habeas Data.</Typography>
 
             <div className="w-full">
               <Input
