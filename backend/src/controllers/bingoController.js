@@ -107,6 +107,17 @@ class BingoController {
     }
   }
 
+  // POST /bingos/:id/addValue - Actualizar una sala
+  async addBingoValue(req, res) {
+    try {
+      const bingo = await BingoServices.addBingoValue(req.params.id, req.body);
+      sendResponse(res, 200, bingo, "Bingo updated successfully");
+    } catch (error) {
+      sendResponse(res, 500, null, error.message);
+    }
+  }
+
+
   // PUT /bingos/:id - Actualizar una sala
   async updateBingo(req, res) {
     try {
