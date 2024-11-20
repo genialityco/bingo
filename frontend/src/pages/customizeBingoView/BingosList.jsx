@@ -219,7 +219,7 @@ const BingoList = () => {
 
   const renderBingos = () => (
     <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
-      {bingos.length ? (
+      {bingos ? (
         bingos.map((bingo) => <BingoCard key={bingo._id} bingo={bingo} />)
       ) : (
         <div className="text-center text-lg text-gray-500">
@@ -231,7 +231,7 @@ const BingoList = () => {
 
   const renderTemplates = () => (
     <div className="w-full m-auto my-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2">
-      {templates.length ? (
+      {templates ? (
         templates.map((template) => (
           <TemplateCard key={template._id} template={template} />
         ))
