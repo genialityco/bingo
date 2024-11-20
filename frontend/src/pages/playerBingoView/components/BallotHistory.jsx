@@ -31,7 +31,9 @@ export const BallotHistory = ({ bingoConfig, ballotsHistory }) => {
                   variant="h5"
                   className={`flex justify-center items-center text-xs p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-8 w-8 mb-5 ${opacityClass}`}
                 >
-                  {ballot_value}
+                  {ballot_value.length > 3
+                    ? `${ballot_value.slice(0, 2)}...`
+                    : ballot_value}
                 </Typography>
               )}
             </React.Fragment>
