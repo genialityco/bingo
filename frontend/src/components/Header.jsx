@@ -129,7 +129,7 @@ export function Header() {
                 </div>
               </MenuHandler>
               <MenuList className="text-center">
-                <MenuItem onClick={goToAdminBingo}>Dashboard Bingos</MenuItem>
+                {/* <MenuItem onClick={goToAdminBingo}>Dashboard Bingos</MenuItem> */}
                 <hr className="my-2 border-blue-gray-50" />
                 <MenuItem
                   onClick={handleLogout}

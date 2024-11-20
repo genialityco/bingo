@@ -80,8 +80,8 @@ export const BingoAddValue = () => {
             <div className="w-full">
               <Input
                 label="Empresa"
-                value={nombreEmpresa} // ...force the input's value to match the state variable...
-                onChange={(e) => setNombreEmpresa(e.target.value)} // ... and update the state variable on any edits!
+                value={nombreEmpresa}
+                onChange={(e) => setNombreEmpresa(e.target.value)} 
               />
             </div>
             <div className="w-full">
