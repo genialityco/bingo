@@ -190,8 +190,9 @@ export const LiveStream = ({
 
 const SectionLiveStream = () => {
   return (
-    <div style={{ border: "1px solid black", width: "100%", height: "200px" }}>
-      <iframe
+    // <div style={{ border: "1px solid black", width: "100%", height: "200px" }}>
+    <div>
+      {/* <iframe
         style={{ width: "100%", height: "100%" }}
         src="https://www.youtube.com/embed/x7gazu5rlT8?si=e-MiD73LRR3CHzMt"
         title="YouTube video player"
@@ -199,7 +200,7 @@ const SectionLiveStream = () => {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
-      ></iframe>
+      ></iframe> */}
     </div>
   );
 };
