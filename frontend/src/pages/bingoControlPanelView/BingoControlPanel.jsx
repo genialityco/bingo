@@ -174,7 +174,7 @@ export const BingoControlPanel = () => {
   //
 
   const backgroundStyle = {
-    backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2F4d2727bd-871a-4000-ab26-8b88eebb534e?alt=media&token=d436ab50-9b3a-4a03-8c9b-e5b0807ae293')`,
+    backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2FESCENARIO_BINGO-FENALCO.png?alt=media&token=7018af4d-0c96-4888-8c10-3012d8995b93')`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center center",
     backgroundSize: "cover",
@@ -182,27 +182,33 @@ export const BingoControlPanel = () => {
   };
 
   const clearRequestBingoStorage = () => {
-    localStorage.clear()
-    setBingoRequests([])
-  }
+    localStorage.clear();
+    setBingoRequests([]);
+  };
 
   return (
     <div
       className="flex flex-col w-full bg-gray-300 p-2"
       style={backgroundStyle}
     >
-      {/* <section className="mb-1 text-center">
-        <Card className="w-full opacity-75">
+      <section className="mb-1 text-center">
+        <Card className="w-full opacity-0">
           <CardBody className="flex flex-col items-center justify-center">
             <Typography variant="h4">Panel de control</Typography>
             <Typography>{bingo?.name}</Typography>
           </CardBody>
         </Card>
-      </section> */}
+        <Card className="w-full opacity-0">
+          <CardBody className="flex flex-col items-center justify-center">
+            <Typography variant="h4">Panel de control</Typography>
+            <Typography>{bingo?.name}</Typography>
+          </CardBody>
+        </Card>
+      </section>
 
-      <div className="flex flex-1 flex-col gap-0 md:flex-row md:justify-between">
+      <div className="flex flex-1 flex-col gap-0 md:flex-row md:justify-between opacity-85">
         {/* Sección izquierda para la balota actual */}
-        <div className="w-full md:w-1/4 flex flex-col items-center mb-1">
+        <div className="w-auto flex flex-col items-center mb-1">
           <Card className="w-full mb-1">
             <CardBody className="flex flex-col items-center justify-center">
               <AnimatePresence mode="wait">
@@ -229,7 +235,9 @@ export const BingoControlPanel = () => {
                       transition={{ duration: 0.5 }}
                     >
                       <Typography variant="h5">
-                        {currentBallot.ballot_value}
+                        {currentBallot.ballot_value.length > 3
+                          ? `${currentBallot.ballot_value.slice(0, 2)}...`
+                          : currentBallot.ballot_value}
                       </Typography>
                     </motion.div>
                   )
@@ -251,7 +259,22 @@ export const BingoControlPanel = () => {
               </Button>
             </CardBody>
           </Card>
+        </div>
 
+        <div className="w-full flex flex-col items-center mx-1">
+          <Card className="w-full mb-1">
+            <CardBody>
+              {currentBallot && (
+                <Typography variant="small" style={{ fontWeight: "bold" }}>
+                  {currentBallot.ballot_value}
+                </Typography>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Sección derecha para solicitudes de Bingo y validador de cartones */}
+        {/* <div className="w-full md:w-2/6 flex flex-row justify-beetween mb-1">
           {bingo?.dimensions && (
             <Card className="w-full">
               <CardBody className="flex justify-center items-center">
@@ -267,26 +290,17 @@ export const BingoControlPanel = () => {
               </CardBody>
             </Card>
           )}
-        </div>
-
-        {/* <div className="w-auto flex flex-col items-center mb-1">
-          <Card className="w-full h-auto">
-            <CardBody className="flex flex-col justify-between">
-              <BallotMachine
-                drawBallot={drawBallot}
-                currentBallot={currentBallot}
-              />
-            </CardBody>
-          </Card>
-        </div> */}
-
-        {/* Sección derecha para solicitudes de Bingo y validador de cartones */}
-        <div className="w-full md:w-2/6 flex flex-col items-center mb-1">
           <Card className="w-full h-64">
             <CardBody className="flex flex-col justify-between">
               <div className="flex flex-row justify-between">
                 <Typography variant="h6">Solicitudes de bingo</Typography>
-                <Button  size="sm" variant="text" onClick={() => clearRequestBingoStorage()}>Limpiar</Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => clearRequestBingoStorage()}
+                >
+                  Limpiar
+                </Button>
               </div>
               <div className="overflow-y-auto max-h-40">
                 <BingoRequestTable
@@ -297,11 +311,49 @@ export const BingoControlPanel = () => {
               </div>
             </CardBody>
           </Card>
-        </div>
+        </div> */}
+      </div>
+      <div className="w-full  flex flex-row justify-between mb-1 opacity-85">
+        {bingo?.dimensions && (
+          <Card className="w-1/4">
+            <CardBody className="flex justify-center items-center">
+              {bingo.dimensions && (
+                <SelectFigure
+                  figures={figures}
+                  selectedFigure={selectedFigure}
+                  setSelectedFigure={setSelectedFigure}
+                  bingo={bingo}
+                  dimensions={bingo.dimensions}
+                />
+              )}
+            </CardBody>
+          </Card>
+        )}
+        <Card className="md:w-2/6 h-64">
+          <CardBody className="flex flex-col justify-between">
+            <div className="flex flex-row justify-between">
+              <Typography variant="h6">Solicitudes de bingo</Typography>
+              <Button
+                size="sm"
+                variant="text"
+                onClick={() => clearRequestBingoStorage()}
+              >
+                Limpiar
+              </Button>
+            </div>
+            <div className="overflow-y-auto max-h-40">
+              <BingoRequestTable
+                bingoRequests={bingoRequests}
+                STATUS_VALIDATING={STATUS_VALIDATING}
+                STATUS_WINNER={STATUS_WINNER}
+              />
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* Sección para las balotas anunciadas */}
-      <div className="w-full">
+      <div className="w-full opacity-85">
         {/* Verifica que bingoConfig exista */}
         {bingo && Object.keys(bingo).length > 0 && announcedBallots && (
           <Card className="w-full">
@@ -324,7 +376,7 @@ export const BingoControlPanel = () => {
                         variant="h5"
                         className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
                       >
-                        {value}
+                        {value.length > 3 ? `${value.slice(0, 2)}...` : value}
                       </Typography>
                     )}
                   </React.Fragment>

@@ -61,7 +61,7 @@ export const ShowLastBallot = ({
 
       <Typography className="text-center">{messageLastBallot}</Typography>
       {lastBallot && lastBallot !== "" && (
-        <div className="flex justify-center items-center">
+        <div className="flex flex-col justify-center items-center">
           <div className="h-24 w-24 rounded-full flex justify-center items-center relative">
             <img
               src="https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2Ffc34d411-a873-4bb7-b172-6f8f9397f932?alt=media&token=91fd632d-4093-4627-a64e-2d69b9bc80a0" // Ruta a la imagen de fondo
@@ -76,8 +76,16 @@ export const ShowLastBallot = ({
               />
             ) : (
               <Typography className="text-black text-xl z-50">
-                {getBallotValueForDom(lastBallot).value}
+                {getBallotValueForDom(lastBallot).value.length > 3
+                  ? `${getBallotValueForDom(lastBallot).value.slice(0, 2)}...`
+                  : getBallotValueForDom(lastBallot).value}
               </Typography>
+            )}
+          </div>
+          <div>
+            Balota:{" "}
+            {getBallotValueForDom(lastBallot).value.length > 3 && (
+              <Typography>{getBallotValueForDom(lastBallot).value}</Typography>
             )}
           </div>
         </div>
