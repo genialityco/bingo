@@ -22,6 +22,9 @@ router.post("/bingos/:id/end", BingoController.markGameEnd);
 // Ruta para actualizar la capacidad de una sala específica
 router.put("/bingos/:id/capacity", BingoController.updateBingoCapacity);
 
+router.post("/bingos/:id/addBingoValue", BingoController.addBingoValue);
+
+
 // Ruta para obtener todas las salas de bingo
 router.get("/bingos", BingoController.getAllBingos);
 

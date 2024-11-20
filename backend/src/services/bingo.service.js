@@ -68,11 +68,7 @@ class BingoServices {
 
   async updateBingoCapacity(bingoId, capacity) {
     try {
-      const bingo = await Bingo.findByIdAndUpdate(
-        bingoId,
-        { capacity: capacity },
-        { new: true }
-      );
+      const bingo = await Bingo.findByIdAndUpdate(bingoId, { capacity: capacity }, { new: true });
       return bingo;
     } catch (error) {
       console.error("Error updating bingo capacity:", error);
@@ -86,6 +82,22 @@ class BingoServices {
       return bingos;
     } catch (error) {
       console.error("Error getting all bingos:", error);
+      throw error;
+    }
+  }
+
+  async addBingoValue (bingoId, updateData) {
+    try {
+      const updatedBingo = await Bingo.findByIdAndUpdate(
+        bingoId,
+        { $push: { bingo_values: updateData } },
+        {
+          new: true,
+        }
+      );
+      return updatedBingo;
+    } catch (error) {
+      console.error("Error updating bingo:", error);
       throw error;
     }
   }
