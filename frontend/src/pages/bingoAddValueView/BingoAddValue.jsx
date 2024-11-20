@@ -86,9 +86,17 @@ export const BingoAddValue = () => {
             <div className="w-full">
               <Textarea
                 label="Datos empresa"
-                value={infoEmpresa} // ...force the input's value to match the state variable...
-                onChange={(e) => setInfoEmpresa(e.target.value)} // ... and update the state variable on any edits!
+                value={infoEmpresa}
+                onChange={(e) => {
+                  if (e.target.value.length <= 300) {
+                    setInfoEmpresa(e.target.value); 
+                  }
+                }}
+                resize={true} 
               />
+              <p className="text-sm text-gray-600 mt-1">
+                {infoEmpresa.length}/300 caracteres máximo
+              </p>
             </div>
           </CardBody>
           <CardFooter>
