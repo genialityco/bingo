@@ -170,7 +170,7 @@ class BingoController {
         });
         sendResponse(res, 400, esGanador, "Todavía no ganas el Bingo.");
       }
-    }, 7000); // Ajuste de las comillas para el timeout
+    }, 10000); // Ajuste de las comillas para el timeout
   }
 }
 

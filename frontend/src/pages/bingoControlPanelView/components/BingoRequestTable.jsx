@@ -22,6 +22,9 @@ export const BingoRequestTable = ({
         <thead>
           <tr>
             <th className="p-2 border-y border-blue-gray-100 bg-blue-gray-50/50">
+              #
+            </th>
+            <th className="p-2 border-y border-blue-gray-100 bg-blue-gray-50/50">
               Ver
             </th>
             <th className="p-2 border-y border-blue-gray-100 bg-blue-gray-50/50">
@@ -35,6 +38,9 @@ export const BingoRequestTable = ({
         <tbody>
           {bingoRequests.map((request, index) => (
             <tr key={index}>
+              <td className="p-1 border-b border-blue-gray-50 text-center">
+                {index + 1}
+              </td>
               <td className="p-1 border-b border-blue-gray-50">
                 <button
                   onClick={() => handleViewCardboard(request.cardboardCode)}

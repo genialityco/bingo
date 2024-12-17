@@ -62,40 +62,40 @@ export const PlayerBingoPage = () => {
   const [chat, setChat] = useState([]);
 
   const socket = io(SOCKET_SERVER_URL);
+  const getBingo = async () => {
+    if (bingoCode) {
+      const response = await bingoServices.findBingoByField(
+        "bingo_code",
+        bingoCode,
+        showLoading,
+        hideLoading
+      );
+      if (response.status === "Success") {
+        const [rows, cols] = response.data.dimensions.split("x").map(Number);
 
-  useEffect(() => {
-    const getBingo = async () => {
-      if (bingoCode) {
-        const response = await bingoServices.findBingoByField(
-          "bingo_code",
-          bingoCode,
-          showLoading,
-          hideLoading
-        );
-        if (response.status === "Success") {
-          const [rows, cols] = response.data.dimensions.split("x").map(Number);
+        setBingoConfig(response.data);
+        getBallotsHistory(response.data.history_of_ballots);
+        setRows(rows);
+        setCols(cols);
 
-          setBingoConfig(response.data);
-          getBallotsHistory(response.data.history_of_ballots);
-          setRows(rows);
-          setCols(cols);
-
-          if (user && userName) {
-            setUserNickname(userName);
-            initialValidation(response.data, rows, cols);
-          } else {
-            setShowAlert(true);
-            setAlertData({
-              color: "red",
-              message: "Debes iniciar sesión para poder jugar",
-            });
-            setTimeout(() => {
-              setShowAlert(false);
-            }, 1000);
-          }
+        if (user && userName) {
+          setUserNickname(userName);
+          initialValidation(response.data, rows, cols);
+        } else {
+          setShowAlert(true);
+          setAlertData({
+            color: "red",
+            message: "Debes iniciar sesión para poder jugar",
+          });
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 1000);
         }
       }
-    };
+    }
+  };
+
+  useEffect(() => {
     getBingo();
   }, [user, userName, bingoId]);
 
@@ -291,21 +291,21 @@ export const PlayerBingoPage = () => {
     const { userId, status } = data;
     let message, color;
     if (userId === userNickname) {
-      setMessageLastBallot("¡Alguien ha cantado bingo, estamos validando!");
+      setMessageLastBallot("¡Alguien ha cantado, estamos validando!");
       message =
         status === "Validando"
-          ? "Estamos validando el bingo, ¡espera un momento!"
+          ? "Estamos validando el juego, ¡espera un momento!"
           : status
-          ? "Felicidades! Eres el ganador del bingo."
+          ? "Felicidades! Eres el ganador!."
           : "Lo sentimos, no has ganado, revisa las balotas.";
       color = status === "Validando" ? "gray" : status ? "green" : "red";
       setMessageLastBallot(message);
     } else {
       (message =
         status === "Validando"
-          ? "Alguien ha cantado bingo, ¡espera un momento!"
+          ? "Alguien ha cantado, ¡espera un momento!"
           : status
-          ? "Alguien ha cantado bingo y es un ganador."
+          ? "Alguien ha cantado y es un ganador."
           : "Lo sentimos, no es un ganador esta vez."),
         (color = status === "Validando" ? "gray" : status ? "green" : "red");
       setMessageLastBallot(message);
@@ -526,7 +526,7 @@ export const PlayerBingoPage = () => {
       const lastBallotId =
         response.history_of_ballots[response.history_of_ballots.length - 1];
       setLastBallot(lastBallotId);
-      setMessageLastBallot("¡El bingo ha comenzado!");
+      setMessageLastBallot("¡El juego ha comenzado!");
     }
   };
 
@@ -537,6 +537,17 @@ export const PlayerBingoPage = () => {
       x: prevPosition.x + delta.x,
       y: prevPosition.y + delta.y,
     }));
+  };
+
+  const changeCardboard = () => {
+    console.log(bingoConfig);
+    generateBingoCard(
+      bingoConfig._id,
+      bingoConfig.bingo_values,
+      bingoConfig.positions_disabled,
+      rows,
+      cols
+    );
   };
 
   return (
@@ -586,6 +597,14 @@ export const PlayerBingoPage = () => {
                     onClick={() => resetGame(true)}
                   >
                     Limpiar Cartón
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="px-2 md:px-4"
+                    color="gray"
+                    onClick={() => changeCardboard()}
+                  >
+                    Cambiar Cartón
                   </Button>
                   {/* <Button size="sm" className="px-2 md:px-4" color="gray">
                     Chat

@@ -208,13 +208,30 @@ export const BingoControlPanel = () => {
 
       <div className="flex flex-1 flex-col gap-0 md:flex-row md:justify-between opacity-85">
         {/* Sección izquierda para la balota actual */}
-        <div className="w-full flex flex-col items-center mx-1" align="center">
+        <div
+          className="w-full flex flex-col items-center mx-1 opacity-100"
+          align="center"
+        >
           <Card className="w-full mb-1">
-            <CardBody>
+            <CardBody className="flex justify-center items-center">
               {currentBallot && (
-                <Typography variant="h3" style={{ fontWeight: "bold" }}>
-                  {currentBallot.ballot_value}
-                </Typography>
+                <>
+                  {currentBallot.ballot_type === "image" ? (
+                    <img
+                      src={currentBallot.ballot_value}
+                      alt="Ballot"
+                      className="w-30 h-28 object-cover rounded-md"
+                    />
+                  ) : (
+                    <Typography
+                      variant="h3"
+                      style={{ fontWeight: "bold" }}
+                      className="text-black"
+                    >
+                      {currentBallot.ballot_value}
+                    </Typography>
+                  )}
+                </>
               )}
             </CardBody>
           </Card>
@@ -260,10 +277,10 @@ export const BingoControlPanel = () => {
           </Card>
         </div> */}
       </div>
-      
-      <div className="w-full  flex flex-row justify-between mb-1 opacity-85">
+
+      <div className="w-full  flex flex-row justify-between mb-1">
         {bingo?.dimensions && (
-          <Card className="w-1/4">
+          <Card className="w-1/3 opacity-85">
             <CardBody className="flex justify-center items-center">
               {bingo.dimensions && (
                 <SelectFigure
@@ -287,7 +304,8 @@ export const BingoControlPanel = () => {
                     key={currentBallot.ballot_value}
                     src={currentBallot.ballot_value}
                     alt="Ballot"
-                    className="rounded-full shadow-xl shadow-blue-500/50 mb-5"
+                    className="rounded-lg shadow-xl shadow-blue-500/50 mb-5"
+                    style={{ width: "150px", height: "150px" }}
                     initial={{ opacity: 0, x: 100, rotate: -360 }}
                     animate={{ opacity: 1, x: 0, rotate: 0 }}
                     exit={{ opacity: 0, x: -100, rotate: 360 }}
@@ -314,6 +332,7 @@ export const BingoControlPanel = () => {
                 <motion.div
                   key="empty"
                   className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
+                  style={{ width: "150px", height: "150px" }}
                   initial={{ opacity: 0, x: 100, rotate: -360 }}
                   animate={{ opacity: 1, x: 0, rotate: 0 }}
                   exit={{ opacity: 0, x: -100, rotate: 360 }}
@@ -323,12 +342,12 @@ export const BingoControlPanel = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-            <Button size="sm" className="normal-case" onClick={drawBallot}>
+            <Button size="md" className="normal-case" onClick={drawBallot}>
               Sacar Balota
             </Button>
           </CardBody>
         </Card>
-        <Card className="w-2/6">
+        <Card className="w-2/6 opacity-85">
           <CardBody className="flex flex-col justify-between">
             <div className="flex flex-row justify-between">
               <Typography variant="h6">Solicitudes de bingo</Typography>
@@ -368,7 +387,7 @@ export const BingoControlPanel = () => {
                       <img
                         src={value}
                         alt="Ballot"
-                        className="h-12 w-12 rounded-full shadow-xl shadow-blue-500/50 mb-5"
+                        className="h-12 w-12 rounded-lg shadow-xl shadow-blue-500/50 mb-5"
                       />
                     ) : (
                       <Typography
