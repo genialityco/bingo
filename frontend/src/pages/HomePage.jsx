@@ -46,7 +46,17 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="flex flex-col relative" style={{ height: "92vh" }}>
+    <div className="flex flex-col relative min-h-screen">
+      {/* Header */}
+      <header className="w-full">
+        <img
+          src="https://ik.imagekit.io/6cx9tc1kx/HEADER-NAVIDAD.png"
+          alt="Header"
+          className="w-full object-contain"
+          style={{ aspectRatio: "1920 / 540" }}
+        />
+      </header>
+
       {showAlert && (
         <Alert
           className="fixed w-11/12 bottom-5 left-1/2 transform -translate-x-1/2 z-50"
@@ -57,18 +67,21 @@ export const HomePage = () => {
         </Alert>
       )}
 
-      <section className="flex flex-col justify-center items-center h-full bg-[url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FSLIDER_01_B.ESPECIALES.png?alt=media&token=ef64c07d-c31b-4093-853c-2f1c83ee66b9')] bg-no-repeat bg-cover p-8">
+      {/* Main Section */}
+      <section
+        className="flex justify-center items-center flex-grow bg-gray-50 p-4"
+      >
         <div
-          className="w-80 bg-black bg-opacity-75 p-5 rounded-lg shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105"
+          className="w-full bg-black bg-opacity-75 p-5 rounded-lg shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105"
           align="center"
         >
           <Typography color="white" variant="h6" className="mb-5">
             ¡Bievenido jugador!
           </Typography>
           <Typography color="white" variant="small" className="mb-5">
-            Ingresa el código del bingo para jugar
+            Ingresa el código para jugar
           </Typography>
-          <form onSubmit={goToBingo} className="flex flex-col items-center">
+          <form onSubmit={goToBingo} className="flex flex-col items-center max-w-sm">
             <Input
               name="bingoCode"
               type="text"
@@ -83,6 +96,16 @@ export const HomePage = () => {
           </form>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="w-full">
+        <img
+          src="https://ik.imagekit.io/6cx9tc1kx/FOOTER-NAVIDAD.png"
+          alt="Footer"
+          className="w-full object-contain"
+          style={{ aspectRatio: "1920 / 280" }}
+        />
+      </footer>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 
 const BingoCardStatic = ({
@@ -10,10 +9,12 @@ const BingoCardStatic = ({
   if (!bingoCard) {
     return <p>Cargando configuración del bingo...</p>;
   }
+
   const cols = Number.isInteger(rows) && rows > 0 ? rows : 3;
 
   return (
     <div className="flex flex-col flex-1 w-full h-full">
+      {/* Banner */}
       {bingoAppearance.banner && (
         <img
           src={bingoAppearance.banner}
@@ -22,28 +23,33 @@ const BingoCardStatic = ({
         />
       )}
 
-      <div className="w-full h-full">
+      {/* Bingo Card */}
+      <div className="flex flex-1 w-full h-full">
         <Card className="w-full h-full">
           <CardBody
-            className={`grid grid-cols-1 grid-cols-4 gap-1`}
+            className={`grid grid-cols-${cols} gap-2 p-2`}
             style={{
               background: bingoAppearance.background_image
                 ? `url(${bingoAppearance.background_image}) no-repeat center center/cover`
-                : bingoAppearance.background_color,
+                : bingoAppearance.background_color || "#fff",
             }}
           >
             {bingoCard.map((cell, index) => (
               <div
                 key={index}
-                className={`aspect-[1/0.6] cursor-pointer rounded-md fontcursor-pointer flex justify-center items-center relative px-2 py-1 ${
-                  cell.value === "Disabled" ? "opacity-80" : ""
-                } ${cell.isMarked ? "opacity-80" : ""}`}
-                style={{
-                  textAlign: "center",
-                  position: "relative",
-                }}
+                className={`aspect-square cursor-pointer flex justify-center items-center rounded-md relative ${
+                  cell.value === "Disabled"
+                    ? "opacity-50 pointer-events-none"
+                    : ""
+                } ${cell.isMarked ? "bg-opacity-80" : "bg-opacity-100"}`}
                 onClick={() => onMarkSquare(cell, index)}
+                style={{
+                  backgroundColor: cell.isMarked
+                    ? "rgba(255, 0, 0, 0.1)"
+                    : "transparent",
+                }}
               >
+                {/* Default Image */}
                 {cell.default_image ? (
                   <img
                     src={cell.default_image}
@@ -52,6 +58,7 @@ const BingoCardStatic = ({
                   />
                 ) : (
                   <>
+                    {/* Content based on type */}
                     {cell.type === "image" ? (
                       <img
                         src={cell.value}
@@ -60,10 +67,10 @@ const BingoCardStatic = ({
                       />
                     ) : cell.value ? (
                       <Typography
-                        className="text-black text-3xl font-bold select-none"
+                        className="text-black text-2xl font-bold select-none"
                         style={{
-                          fontSize: cell.value.length > 3 ? "15px" : undefined,
-                          lineHeight: "1", 
+                          fontSize: cell.value.length > 3 ? "16px" : "20px",
+                          lineHeight: "1",
                         }}
                       >
                         {cell.value}
@@ -71,30 +78,33 @@ const BingoCardStatic = ({
                     ) : null}
                   </>
                 )}
-                {bingoCard[index] &&
-                  bingoCard[index].isMarked &&
-                  bingoCard[index].value !== "Disabled" &&
-                  (bingoAppearance.dial_image ? (
-                    <img
-                      src={bingoAppearance.dial_image}
-                      alt="Marked Overlay"
-                      className="absolute rounded-md inset-0 w-full h-full object-cover animate-mark-opacity"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex justify-center rounded-md items-center bg-opacity-50">
+
+                {/* Marked Overlay */}
+                {cell.isMarked && cell.value !== "Disabled" && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-md">
+                    {bingoAppearance.dial_image ? (
+                      <img
+                        src={bingoAppearance.dial_image}
+                        alt="Marked Overlay"
+                        className="w-full h-full object-cover animate-fade-in"
+                      />
+                    ) : (
                       <Typography
                         color="red"
-                        className="md:text-4xl lg:text-5xl xl:text-6xl font-bold select-none animate-mark-in"
+                        className="text-4xl font-bold select-none animate-pulse"
                       >
                         X
                       </Typography>
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </CardBody>
+
+          {/* Footer */}
           {bingoAppearance.footer && (
-            <div className="flex flex-col items-center justify-center h-auto">
+            <div className="flex items-center justify-center w-full">
               <img
                 src={bingoAppearance.footer}
                 alt="Bingo Footer"

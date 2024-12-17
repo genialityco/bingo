@@ -26,16 +26,16 @@ export const ShowLastBallot = ({
   };
 
   useEffect(() => {
-    if (messageLastBallot === "¡El bingo ha comenzado!") {
+    if (messageLastBallot === "¡El juego ha comenzado!") {
       bingoStartAudioRef.current.play();
     } else if (
       messageLastBallot ===
-      "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
+      "¡El juego ha sido reiniciado, comienza una nueva ronda!"
     ) {
       bingoRestartAudioRef.current.play();
     } else if (
-      messageLastBallot === "Estamos validando el bingo, ¡espera un momento!" ||
-      messageLastBallot === "Alguien ha cantado bingo, ¡espera un momento!"
+      messageLastBallot === "Estamos validando el juego, ¡espera un momento!" ||
+      messageLastBallot === "Alguien ha cantado, ¡espera un momento!"
     ) {
       bingoValidatingRef.current.play();
     } else if (
@@ -44,8 +44,8 @@ export const ShowLastBallot = ({
     ) {
       bingoNoWinRef.current.play();
     } else if (
-      messageLastBallot === "Felicidades! Eres el ganador del bingo." ||
-      messageLastBallot === "Alguien ha cantado bingo y es un ganador."
+      messageLastBallot === "Felicidades! Eres el ganador!." ||
+      messageLastBallot === "Alguien ha cantado y es un ganador."
     ) {
       bingoWinnerRef.current.play();
     }
@@ -62,27 +62,20 @@ export const ShowLastBallot = ({
       <Typography className="text-center">{messageLastBallot}</Typography>
       {lastBallot && lastBallot !== "" && (
         <div className="flex flex-col justify-center items-center">
-          <div className="h-24 w-24 rounded-full flex justify-center items-center relative">
+          {getBallotValueForDom(lastBallot).type === "image" ? (
             <img
-              src="https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/images%2Ffc34d411-a873-4bb7-b172-6f8f9397f932?alt=media&token=91fd632d-4093-4627-a64e-2d69b9bc80a0" // Ruta a la imagen de fondo
-              className="absolute top-0 left-0 w-full h-full object-cover rounded-full shadow-2xl"
-              alt="Background ballot"
+              src={getBallotValueForDom(lastBallot).value}
+              alt="Ballot"
+              className="h-20 w-20 border-2 border-gray-300 object-cover z-50"
             />
-            {getBallotValueForDom(lastBallot).type === "image" ? (
-              <img
-                src={getBallotValueForDom(lastBallot).value}
-                alt="Ballot"
-                className="h-12 w-12 rounded-full z-50"
-              />
-            ) : (
-              <Typography className="text-black text-xl z-50">
-                {getBallotValueForDom(lastBallot).value.length > 3
-                  ? `${getBallotValueForDom(lastBallot).value.slice(0, 2)}...`
-                  : getBallotValueForDom(lastBallot).value}
-              </Typography>
-            )}
-          </div>
-          {getBallotValueForDom(lastBallot).value.length > 3 && (
+          ) : (
+            <Typography className="text-black text-xl z-50">
+              {getBallotValueForDom(lastBallot).value.length > 3
+                ? `${getBallotValueForDom(lastBallot).value.slice(0, 2)}...`
+                : getBallotValueForDom(lastBallot).value}
+            </Typography>
+          )}
+          {getBallotValueForDom(lastBallot).type !== "image" && (
             <div>
               <Typography>
                 Balota: {getBallotValueForDom(lastBallot).value}

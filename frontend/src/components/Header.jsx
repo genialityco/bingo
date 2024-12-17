@@ -97,9 +97,7 @@ export function Header() {
         >
           Power by Magnetic
         </Typography>
-        <div className="hidden lg:block">
-          <NavList />
-        </div>
+
         <div className="hidden gap-2 lg:flex">
           {user && userName ? (
             <Menu>
@@ -190,9 +188,9 @@ export function Header() {
                     </div>
                   </MenuHandler>
                   <MenuList>
-                    <MenuItem onClick={goToAdminBingo}>
+                    {/* <MenuItem onClick={goToAdminBingo}>
                       Dashboard Bingos
-                    </MenuItem>
+                    </MenuItem> */}
                     <hr className="my-2 border-blue-gray-50" />
                     <MenuItem
                       onClick={handleLogout}
