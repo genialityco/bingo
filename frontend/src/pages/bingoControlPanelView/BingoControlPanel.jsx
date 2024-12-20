@@ -40,6 +40,9 @@ export const BingoControlPanel = () => {
 
   const [isInputDialogOpen, setIsInputDialogOpen] = useState(false);
 
+  const [shufflingBallot, setShufflingBallot] = useState(null);
+  const [isShuffling, setIsShuffling] = useState(false);
+
   const STATUS_WINNER = "Ganador";
   const STATUS_NOT_YET_WINNER = "Aún no ha ganado";
   const STATUS_VALIDATING = "Validando";
@@ -140,26 +143,27 @@ export const BingoControlPanel = () => {
     }
   };
 
-  const drawBallot = async () => {
-    const remainingBallots = bingo.bingo_values.filter(
-      (ballot) => !announcedBallots.includes(ballot._id)
-    );
+  // Funcion inicial usada para mezclar las balotas
+  // const drawBallot = async () => {
+  //   const remainingBallots = bingo.bingo_values.filter(
+  //     (ballot) => !announcedBallots.includes(ballot._id)
+  //   );
 
-    if (remainingBallots.length === 0) {
-      alert("Todas las balotas han sido anunciadas.");
-      return;
-    }
+  //   if (remainingBallots.length === 0) {
+  //     alert("Todas las balotas han sido anunciadas.");
+  //     return;
+  //   }
 
-    const randomBallot =
-      remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
-    setCurrentBallot(randomBallot);
-    setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
-    try {
-      await bingoServices.addBallotToHistory(bingoId, randomBallot._id);
-    } catch (error) {
-      console.error("Error adding ballot to history:", error);
-    }
-  };
+  //   const randomBallot =
+  //     remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
+  //   setCurrentBallot(randomBallot);
+  //   setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
+  //   try {
+  //     await bingoServices.addBallotToHistory(bingoId, randomBallot._id);
+  //   } catch (error) {
+  //     console.error("Error adding ballot to history:", error);
+  //   }
+  // };
 
   const getBallotValueForDom = (id) => {
     if (bingo && id) {
@@ -171,7 +175,53 @@ export const BingoControlPanel = () => {
     }
   };
 
-  //
+  const shuffleBallot = async () => {
+    setIsShuffling(true);
+
+    const remainingBallots = bingo.bingo_values.filter(
+      (ballot) => !announcedBallots.includes(ballot._id)
+    );
+
+    if (remainingBallots.length === 0) {
+      alert("Todas las balotas han sido anunciadas.");
+      setIsShuffling(false);
+      return;
+    }
+
+    let shuffleInterval;
+    const shuffleDuration = 5000; // Duración total del shuffle (5 segundos)
+
+    // Inicia el shuffle
+    const startShuffle = () => {
+      shuffleInterval = setInterval(() => {
+        const randomBallot =
+          remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
+        setShufflingBallot(randomBallot);
+      }, 100); // Cambia la balota cada 100ms
+    };
+
+    // Detén el shuffle y selecciona una balota
+    const stopShuffle = async () => {
+      clearInterval(shuffleInterval);
+      const selectedBallot =
+        remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
+      setCurrentBallot(selectedBallot);
+      setAnnouncedBallots((prev) => [...prev, selectedBallot._id]);
+      setIsShuffling(false);
+
+      try {
+        await bingoServices.addBallotToHistory(bingoId, selectedBallot._id);
+      } catch (error) {
+        console.error("Error adding ballot to history:", error);
+      }
+    };
+
+    startShuffle();
+
+    setTimeout(() => {
+      stopShuffle();
+    }, shuffleDuration);
+  };
 
   const backgroundStyle = {
     backgroundImage: `url('https://ik.imagekit.io/6cx9tc1kx/Imagenes%20App%20Prueba/FONDO%20LOTERIA_Mesa%20de%20trabajo%201.png')`,
@@ -297,7 +347,48 @@ export const BingoControlPanel = () => {
         <Card className="w-full m-1" style={{ background: "none" }}>
           <CardBody className="flex flex-col items-center justify-center">
             <AnimatePresence mode="wait">
-              {currentBallot ? (
+              {isShuffling ? (
+                shufflingBallot ? (
+                  shufflingBallot.ballot_type === "image" &&
+                  shufflingBallot.ballot_value ? (
+                    <motion.img
+                      key={shufflingBallot.ballot_value}
+                      src={shufflingBallot.ballot_value}
+                      alt="Ballot"
+                      className="rounded-lg shadow-xl shadow-blue-500/50 mb-5"
+                      style={{ width: "150px", height: "150px" }}
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        repeat: Infinity,
+                      }}
+                    />
+                  ) : (
+                    <motion.div
+                      key={shufflingBallot.ballot_value}
+                      className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-inner shadow-blue-500 mb-5"
+                      style={{ width: "150px", height: "150px" }}
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 360],
+                      }}
+                      transition={{
+                        duration: 0.5,
+                        repeat: Infinity,
+                      }}
+                    >
+                      <Typography variant="h1">
+                        {shufflingBallot.ballot_value.length > 3
+                          ? `${shufflingBallot.ballot_value.slice(0, 2)}...`
+                          : shufflingBallot.ballot_value}
+                      </Typography>
+                    </motion.div>
+                  )
+                ) : null
+              ) : currentBallot ? (
                 currentBallot.ballot_type === "image" &&
                 currentBallot.ballot_value ? (
                   <motion.img
@@ -342,11 +433,12 @@ export const BingoControlPanel = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-            <Button size="md" className="normal-case" onClick={drawBallot}>
+            <Button size="md" className="normal-case" onClick={shuffleBallot}>
               Sacar Balota
             </Button>
           </CardBody>
         </Card>
+
         <Card className="w-2/6 opacity-85">
           <CardBody className="flex flex-col justify-between">
             <div className="flex flex-row justify-between">
@@ -394,7 +486,7 @@ export const BingoControlPanel = () => {
                         variant="h5"
                         className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
                       >
-                      {value.length > 3 ? `${value.slice(0, 2)}...` : value}
+                        {value.length > 3 ? `${value.slice(0, 2)}...` : value}
                       </Typography>
                     )}
                   </React.Fragment>
