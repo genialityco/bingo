@@ -18,15 +18,15 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-server.setTimeout(50000)
+server.setTimeout(60000);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Cambiar a dominio específico en producción
+    origin: "*", // Cambia a tu dominio en producción
     methods: ["GET", "POST"],
     credentials: true,
   },
-  pingTimeout: 30000, // Tiempo máximo de espera antes de desconectar
-  pingInterval: 15000, // Intervalo entre pings
+  pingTimeout: 60000, // Tiempo máximo para considerar una desconexión
+  pingInterval: 25000, // Intervalo para enviar señales de vida
   allowEIO3: true, // Compatibilidad con clientes antiguos
 });
 
@@ -89,7 +89,6 @@ customEmitter.on("sangBingo", (isWinner) => {
 io.on("connection", (socket) => {
   console.log(`Cliente conectado: ${socket.id}`);
 
-  // Evento para recibir el nombre del jugador
   socket.on("setPlayerName", (data) => {
     if (!data || !data.playerName) {
       console.error("PlayerName no definido");
@@ -101,24 +100,20 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Evento de mensaje de chat
-  socket.on("chat message", (msg) => {
-    socket.broadcast.emit("chat message", msg);
-  });
-
-  // Desconexión del cliente
   socket.on("disconnect", (reason) => {
     console.log(`Cliente desconectado: ${socket.id}, motivo: ${reason}`);
-    if (reason === "ping timeout" || reason === "transport close") {
-      console.log("Posible problema de red, esperando reconexión...");
+    if (reason === "ping timeout") {
+      console.log("Timeout detectado, posible problema de red.");
+    } else if (reason === "transport close") {
+      console.log("Conexión cerrada, esperando reconexión...");
     }
   });
 
-  // Manejo de errores
   socket.on("error", (err) => {
     console.error(`Error en el socket ${socket.id}:`, err.message);
   });
 });
+
 
 // Monitoreo periódico de actividad
 setInterval(() => {
