@@ -53,7 +53,7 @@ export const PlayerBingoPage = () => {
   });
 
   const [messageLastBallot, setMessageLastBallot] = useState(
-    "¡El bingo aún no ha iniciado!"
+    "¡El juego aún no ha iniciado!"
   );
 
   const [logs, setLogs] = useState([]);
@@ -133,6 +133,7 @@ export const PlayerBingoPage = () => {
       };
     }
   }, [userNickname, chat]);
+  
 
   // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
   const initialValidation = async (bingo, rows, cols) => {
@@ -540,7 +541,6 @@ export const PlayerBingoPage = () => {
   };
 
   const changeCardboard = () => {
-    console.log(bingoConfig);
     generateBingoCard(
       bingoConfig._id,
       bingoConfig.bingo_values,
