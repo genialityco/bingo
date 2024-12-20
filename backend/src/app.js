@@ -20,14 +20,16 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "*", // Cambiar a dominio específico en producción
     methods: ["GET", "POST"],
     credentials: true,
-    pingTimeout: 60000, // Wait 60 seconds before disconnecting
-    pingInterval: 25000, // Ping clients every 25 seconds
   },
+  pingTimeout: 30000, // Tiempo máximo de espera antes de desconectar
+  pingInterval: 15000, // Intervalo entre pings
+  allowEIO3: true, // Compatibilidad con clientes antiguos
 });
 
+// Middlewares
 app.use(cors({ origin: "*" }));
 app.use(morgan("dev"));
 app.use(express.json({ limit: "10mb" }));
@@ -44,6 +46,7 @@ app.get("/", (req, res) => {
   res.send("API bingo");
 });
 
+// Manejo de errores global
 app.use((err, req, res, next) => {
   console.error(err.stack || err);
 
@@ -54,21 +57,18 @@ app.use((err, req, res, next) => {
     message = "Ocurrió un error en el servidor";
   }
 
-  res.status(statusCode).json({ result: "error", message: message });
+  res.status(statusCode).json({ result: "error", message });
 });
 
+// Configuración en producción
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("frontend/dist"));
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.resolve("frontend", "dist", "index.html"));
   });
 }
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}, ${process.env.NODE_ENV}`);
-});
-
+// Eventos personalizados
 customEmitter.on("ballotUpdate", (data) => {
   io.emit("ballotUpdate", data);
 });
@@ -84,21 +84,47 @@ customEmitter.on("sangBingo", (isWinner) => {
   io.emit("sangBingo", isWinner);
 });
 
+// Conexiones de Socket.IO
 io.on("connection", (socket) => {
-  // Nuevo evento para recibir el nombre del usuario
+  console.log(`Cliente conectado: ${socket.id}`);
+
+  // Evento para recibir el nombre del jugador
   socket.on("setPlayerName", (data) => {
+    if (!data || !data.playerName) {
+      console.error("PlayerName no definido");
+      return;
+    }
     console.log(`${data.playerName} se ha conectado`);
-    // Emitir a todos los clientes excepto al remitente
     socket.broadcast.emit("userConnected", {
       message: `${data.playerName} se ha conectado`,
     });
   });
 
+  // Evento de mensaje de chat
   socket.on("chat message", (msg) => {
     socket.broadcast.emit("chat message", msg);
   });
 
-  socket.on("disconnect", () => {
-    console.log("Cliente desconectado");
+  // Desconexión del cliente
+  socket.on("disconnect", (reason) => {
+    console.log(`Cliente desconectado: ${socket.id}, motivo: ${reason}`);
+    if (reason === "ping timeout" || reason === "transport close") {
+      console.log("Posible problema de red, esperando reconexión...");
+    }
   });
+
+  // Manejo de errores
+  socket.on("error", (err) => {
+    console.error(`Error en el socket ${socket.id}:`, err.message);
+  });
+});
+
+// Monitoreo periódico de actividad
+setInterval(() => {
+  console.log(`Conexiones activas: ${io.sockets.sockets.size}`);
+}, 10000);
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}, ${process.env.NODE_ENV}`);
 });
