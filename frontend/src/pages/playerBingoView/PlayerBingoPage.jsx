@@ -241,7 +241,7 @@ export const PlayerBingoPage = () => {
           const lastBallotValue = updatedFields[key];
           getBallotsHistory();
           setLastBallot(lastBallotValue);
-          setMessageLastBallot("¡El bingo ha comenzado!");
+          setMessageLastBallot("¡El juego ha comenzado!");
         }
       });
 
@@ -259,7 +259,7 @@ export const PlayerBingoPage = () => {
             updatedFields.history_of_ballots[latestBallotKey];
           getBallotsHistory();
           setLastBallot(latestBallot);
-          setMessageLastBallot("¡El bingo ha comenzado!");
+          setMessageLastBallot("¡El juego ha comenzado!");
         }
       }
 
@@ -551,22 +551,28 @@ export const PlayerBingoPage = () => {
   };
 
   return (
-    <>
+    <div className="md:px-[120px]">
       <DndContext onDragEnd={handleDragEnd}>
         <MessageDialog
           onSaveCardboard={saveCardboard}
           getExistingCardboard={getExistingCardboard}
         />
-        <div className="md:row md:flex-auto md:flex md:flex-col md:w-full  bg-gray-300 pt-2 px-2">
-          <Card className="flex-none">
-            <TabsSection
-              bingoConfig={bingoConfig}
-              lastBallot={lastBallot}
-              messageLastBallot={messageLastBallot}
-              ballotsHistory={ballotsHistory}
-            />
+        {/* <div className="md:row md:flex-auto md:flex md:flex-col md:w-full  bg-gray-300 pt-2 px-2">
+          <Card className="h-full mb-4 md:mb-2 flex-1">
+            <CardBody className="relative h-auto">
+              <LiveStream
+                bingoConfig={bingoConfig}
+                userUid={user.uid}
+                cardboardCode={cardboardCode}
+                logs={logs}
+                sendChat={sendChat}
+                message={message}
+                setMessage={setMessage}
+                chat={chat}
+              />
+            </CardBody>
           </Card>
-        </div>
+        </div> */}
         <div className="flex flex-col h-auto w-full bg-gray-300 px-2 pt-2">
           {showAlert && (
             <Alert
@@ -588,7 +594,7 @@ export const PlayerBingoPage = () => {
                     color="green"
                     onClick={handleBingoCall}
                   >
-                    Cantar Bingo
+                    Cantar Lotería
                   </Button>
                   <Button
                     size="sm"
@@ -626,7 +632,15 @@ export const PlayerBingoPage = () => {
 
             {/* Columna para la transmisión en vivo y datos del juego */}
             <div className="md:flex-auto md:flex md:flex-col md:w-3/4 h-auto mx-1">
-              <Card className="h-full mb-4 md:mb-2 flex-1">
+              <Card className="flex-none">
+                <TabsSection
+                  bingoConfig={bingoConfig}
+                  lastBallot={lastBallot}
+                  messageLastBallot={messageLastBallot}
+                  ballotsHistory={ballotsHistory}
+                />
+              </Card>
+              <Card className="h-full mt-2 md:mb-2 flex-1">
                 <CardBody className="relative h-auto">
                   <LiveStream
                     bingoConfig={bingoConfig}
@@ -645,7 +659,7 @@ export const PlayerBingoPage = () => {
           <DraggableLiveStream position={liveStreamPosition} />
         </div>
       </DndContext>
-    </>
+    </div>
   );
 };
 

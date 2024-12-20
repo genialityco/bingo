@@ -95,7 +95,7 @@ export function Header() {
           className="mr-4 cursor-pointer py-1.5 lg:ml-2"
           onClick={gotToHome}
         >
-          Power by Magnetic
+          Powered by Magnetic
         </Typography>
 
         <div className="hidden gap-2 lg:flex">
