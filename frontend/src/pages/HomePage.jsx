@@ -91,7 +91,7 @@ export const HomePage = () => {
               required
             />
             <button className="bg-blue-500 rounded-full text-white mt-3 py-2 px-4 hover:bg-blue-400 transition duration-300 ease-in-out shadow-lg hover:shadow-xl animate-pulse-infinite">
-              Entrar al bingo
+              Entrar al juego
             </button>
           </form>
         </div>
