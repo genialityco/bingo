@@ -61,7 +61,13 @@ export const PlayerBingoPage = () => {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
-  const socket = io(SOCKET_SERVER_URL);
+  const socket = io(SOCKET_SERVER_URL, {
+    reconnection: true,
+    reconnectionAttempts: 10, 
+    reconnectionDelay: 5000, 
+    timeout: 20000,
+    transports: ["websocket"],
+  });
   const getBingo = async () => {
     if (bingoCode) {
       const response = await bingoServices.findBingoByField(
@@ -133,7 +139,6 @@ export const PlayerBingoPage = () => {
       };
     }
   }, [userNickname, chat]);
-  
 
   // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
   const initialValidation = async (bingo, rows, cols) => {
