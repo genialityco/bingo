@@ -21,7 +21,7 @@ export const BallotHistory = ({ bingoConfig, ballotsHistory }) => {
                 <img
                   src={ballot_value}
                   alt="Ballot"
-                  className={`h-8 w-8 rounded-full shadow-xl shadow-blue-500/50 mb-5 ${opacityClass}`}
+                  className={`h-20 w-20 shadow-xl shadow-blue-500/50 mb-5 ${opacityClass}`}
                   style={{
                     objectFit: "contain",
                   }}

@@ -387,7 +387,7 @@ export const BingoControlPanel = () => {
                       <img
                         src={value}
                         alt="Ballot"
-                        className="h-12 w-12 rounded-lg shadow-xl shadow-blue-500/50 mb-5"
+                        className="h-20 w-20 rounded-lg shadow-xl shadow-blue-500/50 mb-5"
                       />
                     ) : (
                       <Typography
