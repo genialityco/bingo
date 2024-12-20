@@ -174,7 +174,7 @@ export const BingoControlPanel = () => {
   //
 
   const backgroundStyle = {
-    backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/magnetic-be10a.appspot.com/o/bingo%2Fimages%2Fdefault%2FESCENARIO_BINGO-FENALCO.png?alt=media&token=3aadf98a-fa22-44e6-8b4c-e11c103425c4')`,
+    backgroundImage: `url('https://ik.imagekit.io/6cx9tc1kx/Imagenes%20App%20Prueba/FONDO%20LOTERIA_Mesa%20de%20trabajo%201.png')`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center center",
     backgroundSize: "cover",
@@ -394,7 +394,7 @@ export const BingoControlPanel = () => {
                         variant="h5"
                         className="flex justify-center items-center text-xl p-4 bg-blue-50 rounded-full shadow-xl shadow-blue-500/50 h-12 w-12 mb-5"
                       >
-                        {value.length > 3 ? `${value.slice(0, 2)}...` : value}
+                      {value.length > 3 ? `${value.slice(0, 2)}...` : value}
                       </Typography>
                     )}
                   </React.Fragment>
