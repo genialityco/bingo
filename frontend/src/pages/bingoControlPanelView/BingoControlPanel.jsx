@@ -144,26 +144,26 @@ export const BingoControlPanel = () => {
   };
 
   // Funcion inicial usada para mezclar las balotas
-  // const drawBallot = async () => {
-  //   const remainingBallots = bingo.bingo_values.filter(
-  //     (ballot) => !announcedBallots.includes(ballot._id)
-  //   );
+  const drawBallot = async () => {
+    const remainingBallots = bingo.bingo_values.filter(
+      (ballot) => !announcedBallots.includes(ballot._id)
+    );
 
-  //   if (remainingBallots.length === 0) {
-  //     alert("Todas las balotas han sido anunciadas.");
-  //     return;
-  //   }
+    if (remainingBallots.length === 0) {
+      alert("Todas las balotas han sido anunciadas.");
+      return;
+    }
 
-  //   const randomBallot =
-  //     remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
-  //   setCurrentBallot(randomBallot);
-  //   setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
-  //   try {
-  //     await bingoServices.addBallotToHistory(bingoId, randomBallot._id);
-  //   } catch (error) {
-  //     console.error("Error adding ballot to history:", error);
-  //   }
-  // };
+    const randomBallot =
+      remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
+    setCurrentBallot(randomBallot);
+    setAnnouncedBallots((prevBallots) => [...prevBallots, randomBallot._id]);
+    try {
+      await bingoServices.addBallotToHistory(bingoId, randomBallot._id);
+    } catch (error) {
+      console.error("Error adding ballot to history:", error);
+    }
+  };
 
   const getBallotValueForDom = (id) => {
     if (bingo && id) {
@@ -197,7 +197,7 @@ export const BingoControlPanel = () => {
         const randomBallot =
           remainingBallots[Math.floor(Math.random() * remainingBallots.length)];
         setShufflingBallot(randomBallot);
-      }, 100); // Cambia la balota cada 100ms
+      }, 100); 
     };
 
     // Detén el shuffle y selecciona una balota
