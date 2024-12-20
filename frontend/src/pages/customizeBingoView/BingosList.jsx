@@ -278,18 +278,20 @@ const BingoList = () => {
             onChange={handleBingoChange}
             required
           />
-          <Select
-            label="Seleccionar plantilla"
-            onChange={handleTemplateSelect}
-            value={newBingo.templateId}
-            required
-          >
-            {templates.map((template) => (
-              <Option key={template._id} value={template._id}>
-                {template.name}
-              </Option>
-            ))}
-          </Select>
+          {templates && (
+            <Select
+              label="Seleccionar plantilla"
+              onChange={handleTemplateSelect}
+              value={newBingo.templateId}
+              required
+            >
+              {templates.map((template) => (
+                <Option key={template._id} value={template._id}>
+                  {template.name}
+                </Option>
+              ))}
+            </Select>
+          )}
         </DialogBody>
         <DialogFooter>
           <Button
