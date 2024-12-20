@@ -18,6 +18,7 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
+server.setTimeout(50000)
 const io = new Server(server, {
   cors: {
     origin: "*", // Cambiar a dominio específico en producción
