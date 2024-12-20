@@ -23,6 +23,8 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
+    pingTimeout: 60000, // Wait 60 seconds before disconnecting
+    pingInterval: 25000, // Ping clients every 25 seconds
   },
 });
 
