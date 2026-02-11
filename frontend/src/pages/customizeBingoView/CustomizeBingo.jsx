@@ -2,6 +2,7 @@ import { Typography, Alert } from "@material-tailwind/react";
 import DimensionsBingoCard from "./components/DimensionsBingoCard/DimensionsBingoCard";
 import AppearanceCard from "./components/AppearanceBingo/AppearanceCard";
 import CardAssigment from "./components/CardAssigment/CardAssigment";
+import FiguresBingo from "./components/FiguresBingo/FiguresBingo";
 
 // Importaciones de servicios
 import bingoServices from "../../services/bingoService";
@@ -202,6 +203,11 @@ const BingoConfig = () => {
       label: "Configurar Bingo",
       value: "configurar bingo",
       desc: <DimensionsBingoCard sendBingoCreated={sendBingoCreated} />,
+    },
+    {
+      label: "Figuras",
+      value: "figuras",
+      desc: <FiguresBingo />,
     },
     {
       label: "Apariencia del cartón",

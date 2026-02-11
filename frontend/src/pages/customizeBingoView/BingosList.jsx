@@ -96,26 +96,41 @@ const BingoList = () => {
         capacity: 100,
         bingo_code: `ROOM${Math.random().toString(36).substring(2, 8)}`,
       };
+      let payload;
 
-      const originalTemplate = await bingoTemplateServices.getTemplateById(
-        newBingoData.templateId
-      );
-      if (!originalTemplate) {
-        console.error("Template no encontrado");
-        return;
+      if (newBingoData.templateId) {
+        const originalTemplate = await bingoTemplateServices.getTemplateById(
+          newBingoData.templateId
+        );
+        if (!originalTemplate) {
+          console.error("Template no encontrado");
+          return;
+        }
+
+        payload = {
+          ...originalTemplate,
+          _id: undefined,
+          name: newBingoData.name,
+          bingo_code: newBingoData.bingo_code,
+          capacity: newBingoData.capacity,
+          is_template: false,
+          is_public: false,
+        };
+      } else {
+        payload = {
+          name: newBingoData.name,
+          bingo_code: newBingoData.bingo_code,
+          capacity: newBingoData.capacity,
+          is_template: false,
+          is_public: false,
+          bingo_values: [],
+          positions_disabled: [],
+          dimensions: "5x5",
+        };
       }
 
-      const copiedTemplate = {
-        ...originalTemplate,
-        _id: undefined,
-        name: newBingoData.name,
-        bingo_code: newBingoData.bingo_code,
-        is_template: false,
-        is_public: false,
-      };
-
       const newBingoCreated = await bingoServices.createBingo(
-        copiedTemplate,
+        payload,
         showLoading,
         hideLoading
       );

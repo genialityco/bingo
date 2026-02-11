@@ -55,22 +55,44 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
     updateBingo({ ...bingo, [name]: value });
   };
 
-  const handleNumValuesToPlayChange = (value) => {
-    setNumValuesToPlay(value);
-    const newBingoValues = Array.from({ length: value }, () => ({
-      carton_value: "",
-      carton_type: "",
-      ballot_value: "",
-      ballot_type: "",
-      positions: [],
-    }));
+  const handleNumValuesToPlayChange = (config) => {
+    const count = parseInt(config?.count ?? config, 10);
+    const mode = config?.mode ?? "manual";
+    const start = parseInt(config?.start ?? 1, 10);
+
+    if (!Number.isFinite(count) || count <= 0) {
+      return;
+    }
+
+    setNumValuesToPlay(count);
+
+    const newBingoValues = Array.from({ length: count }, (_, index) => {
+      if (mode === "sequential") {
+        const value = String(start + index);
+        return {
+          carton_value: value,
+          carton_type: "default",
+          ballot_value: value,
+          ballot_type: "default",
+          positions: [],
+        };
+      }
+
+      return {
+        carton_value: "",
+        carton_type: "",
+        ballot_value: "",
+        ballot_type: "",
+        positions: [],
+      };
+    });
 
     updateBingo((prevState) => ({
       ...prevState,
       bingo_values: [...newBingoValues, ...prevState.bingo_values],
     }));
 
-    setSelectedNumValues(value);
+    setSelectedNumValues(count);
   };
 
   const handleOpenDialogValueCartonAndBallot = (index) => {
@@ -140,8 +162,10 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
 
     return (
       <tbody>
-        {currentItems.map((item, index) => (
-          <tr key={index} className="even:bg-blue-gray-50/50">
+        {currentItems.map((item, index) => {
+          const realIndex = offset + index;
+          return (
+          <tr key={realIndex} className="even:bg-blue-gray-50/50">
             <td className="p-4">
               <Chip
                 color={
@@ -225,7 +249,7 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 variant="text"
                 className="relative align-middle select-none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-5 max-w-[40px] h-5 max-h-[40px] text-xs text-gray-900 hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full"
                 type="button"
-                onClick={() => handleOpenDialogValueCartonAndBallot(index)}
+                onClick={() => handleOpenDialogValueCartonAndBallot(realIndex)}
               >
                 <PencilSquareIcon className="h-5 w-5" strokeWidth={2} />
               </IconButton>
@@ -233,13 +257,14 @@ const DimensionsBingoCard = ({ sendBingoCreated }) => {
                 variant="text"
                 className="relative align-middle select-none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-5 max-w-[40px] h-5 max-h-[40px] text-xs  text-red-500 hover:bg-gray-900/10 active:bg-gray-900/20 rounded-full"
                 type="button"
-                onClick={() => handleDeleteValueInBingoValues(index)}
+                onClick={() => handleDeleteValueInBingoValues(realIndex)}
               >
                 <TrashIcon className="h-5 w-5" strokeWidth={2} />
               </IconButton>
             </td>
           </tr>
-        ))}
+          );
+        })}
       </tbody>
     );
   };
