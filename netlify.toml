@@ -6,6 +6,7 @@
 [build.environment]
   NODE_VERSION = "18"
   NODE_ENV = "development"
+  SECRETS_SCAN_ENABLED = "false"
 
 [context.production.environment]
   VITE_SOCKET_SERVER_URL = "https://backend-bingo-2lo6r.ondigitalocean.app"
