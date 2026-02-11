@@ -1,11 +1,11 @@
 [build]
   base = "frontend"
-  command = "npm install && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "18"
-  NODE_ENV = "production"
+  NODE_ENV = "development"
 
 [context.production.environment]
   VITE_SOCKET_SERVER_URL = "https://backend-bingo-2lo6r.ondigitalocean.app"
