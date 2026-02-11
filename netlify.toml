@@ -1,0 +1,17 @@
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NODE_ENV = "production"
+
+[context.production.environment]
+  VITE_SOCKET_SERVER_URL = "https://backend-bingo-2lo6r.ondigitalocean.app"
+  VITE_APP_URL_DEPLOYMENT = "https://backend-bingo-2lo6r.ondigitalocean.app"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
