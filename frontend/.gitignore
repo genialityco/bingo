@@ -33,8 +33,6 @@ yarn-error.log*
 /coverage
 
 # Archivos de bloqueo de paquetes
-package-lock.json
-yarn.lock
 
 # Archivos y carpetas relacionados con la configuración de herramientas de desarrollo
 /.eslintcache
