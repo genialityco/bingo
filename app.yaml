@@ -1,0 +1,44 @@
+name: bingo-app
+
+services:
+  # Backend API Node.js
+  - name: bingo-api
+    github:
+      branch: main
+      repo: your-username/bingo  # Cambia con tu repo
+    source_dir: backend
+    build_command: npm ci
+    run_command: npm run prod
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        scope: RUN_AND_BUILD_TIME
+        value: ${db.username}:${db.password}@${db.host}:${db.port}/${db.database}?authSource=admin
+      - key: FIREBASE_SERVICE_ACCOUNT_KEY
+        scope: RUN_AND_BUILD_TIME
+        value: ${FIREBASE_SERVICE_ACCOUNT_KEY}
+      - key: PORT
+        value: "3000"
+    http_port: 3000
+    health_check:
+      http_path: /
+
+# Frontend como Static Site
+static_sites:
+  - name: bingo-frontend
+    github:
+      branch: main
+      repo: your-username/bingo  # Cambia con tu repo
+    source_dir: frontend
+    build_command: npm install && npm run build
+    output_dir: dist
+    envs:
+      - key: VITE_SOCKET_SERVER_URL
+        value: https://${bingo-api.name}.${APP_DOMAIN}
+
+# Base de datos MongoDB
+databases:
+  - name: mongodb
+    engine: MONGODB
+    version: "6"
