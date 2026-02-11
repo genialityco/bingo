@@ -11,6 +11,13 @@ const BingoCardStatic = ({
   }
 
   const cols = Number.isInteger(rows) && rows > 0 ? rows : 3;
+  
+  // Map dimensions to Tailwind grid classes
+  const gridColsClass = {
+    3: "grid-cols-3",
+    4: "grid-cols-4",
+    5: "grid-cols-5",
+  }[cols] || "grid-cols-4";
 
   return (
     <div className="flex flex-col flex-1 w-full h-full">
@@ -27,7 +34,7 @@ const BingoCardStatic = ({
       <div className="flex flex-1 w-full h-full">
         <Card className="w-full h-full">
           <CardBody
-            className={`grid grid-cols-4 gap-2 p-2`}
+            className={`grid ${gridColsClass} gap-2 p-2`}
             style={{
               background: bingoAppearance.background_image
                 ? `url(${bingoAppearance.background_image}) no-repeat center center/cover`

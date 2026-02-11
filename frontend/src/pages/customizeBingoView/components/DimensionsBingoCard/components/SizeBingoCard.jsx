@@ -76,9 +76,14 @@ const SizeBingoCard = ({ getPositionsDisablesAndDimension }) => {
 
   const renderGrid = (size) => {
     const gridSize = parseInt(size[0], 10);
+    const gridColsClass = {
+      3: "grid-cols-3",
+      4: "grid-cols-4",
+      5: "grid-cols-5",
+    }[gridSize];
     return (
       <Button color="white" className={`my-2 ${selectedDimensions === size ? "bg-yellow-300" : "bg-white"}`}>
-        <div className={`grid grid-cols-${gridSize} gap-1`}>
+        <div className={`grid ${gridColsClass} gap-1`}>
           {[...Array(gridSize * gridSize)].map((_, index) => (
             <div
               key={index}

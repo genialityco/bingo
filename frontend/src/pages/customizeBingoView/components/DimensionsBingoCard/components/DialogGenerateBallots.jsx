@@ -14,9 +14,15 @@ const DialogGenerateBallots = ({
   handleNumValuesToPlayChange,
 }) => {
   const [generateBallots, setGenerateBallots] = useState("");
+  const [generationMode, setGenerationMode] = useState("sequential");
+  const [startNumber, setStartNumber] = useState("1");
 
   const handleInputChange = (event) => {
     setGenerateBallots(event.target.value);
+  };
+
+  const handleStartNumberChange = (event) => {
+    setStartNumber(event.target.value);
   };
 
   const handleCloseDialog = () => {
@@ -44,6 +50,32 @@ const DialogGenerateBallots = ({
           />
         </div>
 
+        <div className="w-full mb-4">
+          <Typography color="gray" variant="small" className="mb-2">
+            Generar valores numericos consecutivos
+          </Typography>
+          <div className="flex items-center gap-2">
+            <input
+              type="radio"
+              id="mode-sequential"
+              name="generationMode"
+              value="sequential"
+              checked={generationMode === "sequential"}
+              onChange={() => setGenerationMode("sequential")}
+            />
+            <label htmlFor="mode-sequential" className="text-sm">
+              Desde
+            </label>
+            <input
+              type="number"
+              className="border border-gray-300 rounded-md px-2 py-1 w-24"
+              onChange={handleStartNumberChange}
+              value={startNumber}
+              min="1"
+            />
+          </div>
+        </div>
+
         <DialogFooter>
           <Button
             size="md"
@@ -58,7 +90,11 @@ const DialogGenerateBallots = ({
           <Button
             size="md"
             onClick={() => {
-              handleNumValuesToPlayChange(generateBallots);
+              handleNumValuesToPlayChange({
+                count: generateBallots,
+                mode: generationMode,
+                start: startNumber,
+              });
               setOpenDialogGenerateBallots(!openDialogGenerateBallots);
             }}
           >
