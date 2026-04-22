@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, Button, Alert } from "@material-tailwind/react";
-import { DndContext, useDraggable } from "@dnd-kit/core";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { Alert } from "@material-tailwind/react";
+import { useParams } from "react-router-dom";
 import { shuffle } from "../../utils/AuxiliaryFunctions";
 import io from "socket.io-client";
-import BingoCardStatic from "../../components/BingoCard";
 import bingoServices from "../../services/bingoService";
 import bingoCardboardService from "../../services/bingoCardboardService";
-import { TabsSection } from "./components/TabsSetion";
-import { LiveStream } from "./components/LiveStream";
 import { useAuth } from "../../context/AuthContext";
 import { useLoading } from "../../context/LoadingContext";
 import { MessageDialog } from "./components/MessageDialog";
+import { PlayerBingoCard } from "./components/PlayerBingoCard";
+import { BallotHistoryTable } from "./components/BallotHistoryTable";
+import { DesktopVideo, ChatPanel } from "./components/VideoChat";
+import { ShowLastBallot } from "./components/ShowLastBallot";
+import {
+  MegaphoneIcon,
+  ArrowPathIcon,
+  ArrowsRightLeftIcon,
+} from "@heroicons/react/24/solid";
 import dayjs from "dayjs";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
@@ -19,66 +24,63 @@ const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_SERVER_URL;
 export const PlayerBingoPage = () => {
   const { user, userName } = useAuth();
   const { showLoading, hideLoading } = useLoading();
-
   const { bingoCode, bingoId } = useParams();
 
-  // Estados iniciales
+  // Game state
   const [bingoConfig, setBingoConfig] = useState(null);
   const [bingoCard, setBingoCard] = useState(
     JSON.parse(localStorage.getItem("bingoCard"))
       ? JSON.parse(localStorage.getItem("bingoCard"))
-      : ""
+      : "",
   );
   const [rows, setRows] = useState();
   const [cols, setCols] = useState();
-  const [markedSquares, setMarkedSquares] = useState([]);
-  const [liveStreamPosition, setLiveStreamPosition] = useState({ x: 0, y: 0 });
   const [ballotsHistory, setBallotsHistory] = useState([]);
-  const [lastBallot, setLastBallot] = useState("");
+  // lastBallot is tracked for game state but displayed via the video stream
+  const [, setLastBallot] = useState("");
   const [userNickname, setUserNickname] = useState(
     JSON.parse(localStorage.getItem("userId"))
       ? JSON.parse(localStorage.getItem("userId"))
-      : ""
+      : "",
   );
   const [cardboardCode, setCardboardCode] = useState(
     JSON.parse(localStorage.getItem("cardboard_code"))
       ? JSON.parse(localStorage.getItem("cardboard_code"))
-      : ""
+      : "",
   );
   const [cardboardId, setCardboardId] = useState("");
+
+  // UI state
   const [showAlert, setShowAlert] = useState(false);
   const [alertData, setAlertData] = useState({
     color: "lightBlue",
     message: "",
   });
-
   const [messageLastBallot, setMessageLastBallot] = useState(
-    "¡El juego aún no ha iniciado!"
+    "¡El juego aún no ha iniciado!",
   );
-
   const [logs, setLogs] = useState([]);
-
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
   const socket = io(SOCKET_SERVER_URL, {
     reconnection: true,
-    reconnectionAttempts: 10, 
-    reconnectionDelay: 5000, 
+    reconnectionAttempts: 10,
+    reconnectionDelay: 5000,
     timeout: 20000,
     transports: ["websocket"],
   });
+
   const getBingo = async () => {
     if (bingoCode) {
       const response = await bingoServices.findBingoByField(
         "bingo_code",
         bingoCode,
         showLoading,
-        hideLoading
+        hideLoading,
       );
       if (response.status === "Success") {
         const [rows, cols] = response.data.dimensions.split("x").map(Number);
-
         setBingoConfig(response.data);
         getBallotsHistory(response.data.history_of_ballots);
         setRows(rows);
@@ -93,9 +95,7 @@ export const PlayerBingoPage = () => {
             color: "red",
             message: "Debes iniciar sesión para poder jugar",
           });
-          setTimeout(() => {
-            setShowAlert(false);
-          }, 1000);
+          setTimeout(() => setShowAlert(false), 1000);
         }
       }
     }
@@ -105,30 +105,20 @@ export const PlayerBingoPage = () => {
     getBingo();
   }, [user, userName, bingoId]);
 
-  // Efecto para configurar los eventos de socket.io
   useEffect(() => {
     if (userNickname) {
-      // Emitir el nombre del jugador al conectar
       const handleConnect = () => {
         socket.emit("setPlayerName", { playerName: userNickname });
       };
 
-      // Manejar eventos de conexión y reconexión
       socket.on("connect", handleConnect);
-
-      // Otros eventos
-      socket.on("userConnected", (data) => {
-        addLog(data.message);
-      });
-
+      socket.on("userConnected", (data) => addLog(data.message));
       socket.on("ballotUpdate", handleBallotUpdate);
       socket.on("sangBingo", handleSocketSangBingo);
-
       socket.on("chat message", (msg) => {
         setChat((prevChat) => [...prevChat, msg]);
       });
 
-      // Cleanup al desmontar el componente
       return () => {
         socket.off("connect", handleConnect);
         socket.off("userConnected");
@@ -140,64 +130,48 @@ export const PlayerBingoPage = () => {
     }
   }, [userNickname, chat]);
 
-  // Valida si ya existe un cartón para este jugador en el juego, si sí lo recupera, sino genera uno nuevo
   const initialValidation = async (bingo, rows, cols) => {
     const result = await bingoCardboardService.findCardboardsByFields(
-      {
-        userId: user.uid,
-        bingoId: bingoId,
-      },
+      { userId: user.uid, bingoId: bingoId },
       showLoading,
-      hideLoading
+      hideLoading,
     );
     if (result.status === "Success") {
       setUserNickname(result.data[0].playerName);
       setCardboardCode(result.data[0].cardboard_code);
       setCardboardId(result.data[0]._id);
       setBingoCard(result.data[0].game_card_values);
-
       setShowAlert(true);
-      setAlertData({
-        color: "green",
-        message: "¡Ya puedes empezar a jugar!",
-      });
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 1000);
+      setAlertData({ color: "green", message: "¡Ya puedes empezar a jugar!" });
+      setTimeout(() => setShowAlert(false), 1000);
     } else {
-      // generar un cartón nuevo
       generateBingoCard(
         bingo._id,
         bingo.bingo_values,
         bingo.positions_disabled,
         rows,
-        cols
+        cols,
       );
     }
   };
 
   const getExistingCardboard = async (code) => {
     const result = await bingoCardboardService.findCardboardsByFields(
-      {
-        cardboard_code: code,
-      },
+      { cardboard_code: code },
       showLoading,
-      hideLoading
+      hideLoading,
     );
     if (result.status === "Success") {
       setUserNickname(result.data[0].playerName);
       setCardboardCode(result.data[0].cardboard_code);
       setCardboardId(result.data[0]._id);
       setBingoCard(result.data[0].game_card_values);
-
       setShowAlert(true);
       setAlertData({
         color: "green",
         message: "Cartón obtenido correctamente.",
       });
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 1000);
+      setTimeout(() => setShowAlert(false), 1000);
     }
   };
 
@@ -211,6 +185,7 @@ export const PlayerBingoPage = () => {
       date,
     };
     socket.emit("chat message", dataMessage);
+    setChat((prevChat) => [...prevChat, dataMessage]);
     setMessage("");
   };
 
@@ -218,18 +193,11 @@ export const PlayerBingoPage = () => {
     handleSangBingo(data);
     addBingoSingingLog(data);
   };
+
   const addLog = (message) => {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  /**
-   * Valida inicialmente que el documento modificado coincida con el id de la sala
-   * Ejecuta una serie de funciones:
-   *  - Obtiene la última balota sacada
-   *  - Resetea las celdas marcadas (Limpia el cartón)
-   *  - Actualiza la figura si se modifica
-   * @param {*} data
-   */
   const handleBallotUpdate = (data) => {
     const { updateDescription } = data;
     if (
@@ -238,8 +206,6 @@ export const PlayerBingoPage = () => {
       updateDescription?.updatedFields
     ) {
       const { updatedFields } = updateDescription;
-
-      // Detectar cambios en 'history_of_ballots'
       const historyUpdates = updatedFields.history_of_ballots;
 
       Object.keys(updatedFields).forEach((key) => {
@@ -253,14 +219,11 @@ export const PlayerBingoPage = () => {
 
       if (historyUpdates) {
         const ballotKeys = Object.keys(historyUpdates);
-
-        // Si el array de balotas está vacío, manejar reinicio
         if (Array.isArray(historyUpdates) && historyUpdates.length === 0) {
           setLastBallot("");
           resetGame();
         } else if (ballotKeys.length) {
-          // Si hay balotas actualizadas, manejar la última balota
-          const latestBallotKey = ballotKeys[ballotKeys.length - 1]; // Obtener la última clave modificada
+          const latestBallotKey = ballotKeys[ballotKeys.length - 1];
           const latestBallot =
             updatedFields.history_of_ballots[latestBallotKey];
           getBallotsHistory();
@@ -269,7 +232,6 @@ export const PlayerBingoPage = () => {
         }
       }
 
-      // Si se detectan cambios en 'bingoFigure'
       if (updatedFields.bingo_figure) {
         getBallotsHistory();
       }
@@ -282,14 +244,14 @@ export const PlayerBingoPage = () => {
       status === "Validando"
         ? addLog(`¡Has cantado bingo!`)
         : status
-        ? addLog(`¡Has ganado el bingo!`)
-        : addLog(`¡Aún no ganas el bingo!`);
+          ? addLog(`¡Has ganado el bingo!`)
+          : addLog(`¡Aún no ganas el bingo!`);
     } else {
       status === "Validando"
         ? addLog(`¡El jugador ${userId} ha cantado bingo!`)
         : status
-        ? addLog(`¡El jugador ${userId} ha ganado el bingo!`)
-        : addLog(`¡El jugador ${userId} aún no gana el bingo!`);
+          ? addLog(`¡El jugador ${userId} ha ganado el bingo!`)
+          : addLog(`¡El jugador ${userId} aún no gana el bingo!`);
     }
   };
 
@@ -302,21 +264,20 @@ export const PlayerBingoPage = () => {
         status === "Validando"
           ? "Estamos validando el juego, ¡espera un momento!"
           : status
-          ? "Felicidades! Eres el ganador!."
-          : "Lo sentimos, no has ganado, revisa las balotas.";
+            ? "Felicidades! Eres el ganador!."
+            : "Lo sentimos, no has ganado, revisa las balotas.";
       color = status === "Validando" ? "gray" : status ? "green" : "red";
       setMessageLastBallot(message);
     } else {
-      (message =
+      message =
         status === "Validando"
           ? "Alguien ha cantado, ¡espera un momento!"
           : status
-          ? "Alguien ha cantado y es un ganador."
-          : "Lo sentimos, no es un ganador esta vez."),
-        (color = status === "Validando" ? "gray" : status ? "green" : "red");
+            ? "Alguien ha cantado y es un ganador."
+            : "Lo sentimos, no es un ganador esta vez.";
+      color = status === "Validando" ? "gray" : status ? "green" : "red";
       setMessageLastBallot(message);
     }
-
     setAlertData({ color, message });
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 6000);
@@ -328,7 +289,7 @@ export const PlayerBingoPage = () => {
         bingoCard,
         bingoConfig._id,
         userNickname,
-        cardboardCode
+        cardboardCode,
       );
     } catch (error) {
       console.error(error);
@@ -344,24 +305,20 @@ export const PlayerBingoPage = () => {
       code = "";
       for (let i = 0; i < length; i++) {
         code += characters.charAt(
-          Math.floor(Math.random() * characters.length)
+          Math.floor(Math.random() * characters.length),
         );
       }
-      // Verificar si el código ya existe en la base de datos
       existingCardboards = await bingoCardboardService.findCardboardsByFields(
-        {
-          cardboard_code: code,
-        },
+        { cardboard_code: code },
         showLoading,
-        hideLoading
+        hideLoading,
       );
-      // Si el código ya existe, generar uno nuevo
     } while (existingCardboards.response.data.status === "Success");
     return code;
   }
 
   const saveCardboard = async (id, card) => {
-    const bingoId = bingoConfig ? bingoConfig._id : id;
+    const bingoIdVal = bingoConfig ? bingoConfig._id : id;
     const cardboard_code = await generateRandomAlphanumeric(6);
     const game_card_values = bingoCard ? bingoCard : card;
 
@@ -369,15 +326,14 @@ export const PlayerBingoPage = () => {
       const cardboardSaved = await bingoCardboardService.createCardboard(
         {
           playerName: userName,
-          bingoId,
+          bingoId: bingoIdVal,
           cardboard_code,
           game_card_values,
           userId: user.uid,
         },
         showLoading,
-        hideLoading
+        hideLoading,
       );
-
       setCardboardId(cardboardSaved.data._id);
       setCardboardCode(cardboard_code);
     } catch (error) {
@@ -385,32 +341,24 @@ export const PlayerBingoPage = () => {
     }
   };
 
-  // Función para resetear el juego
   const resetGame = async (localReset = false) => {
     if (cardboardId) {
       const resetMarkedSquares = bingoCard.map((square) =>
-        square.value === "Disabled" ? square : { ...square, isMarked: false }
+        square.value === "Disabled" ? square : { ...square, isMarked: false },
       );
       setBingoCard(resetMarkedSquares);
       updateMarkSquare(resetMarkedSquares, cardboardId);
       if (!localReset) {
         setMessageLastBallot(
-          "¡El bingo ha sido reiniciado, comienza una nueva ronda!"
+          "¡El bingo ha sido reiniciado, comienza una nueva ronda!",
         );
       }
       getBallotsHistory();
     } else {
-      console.error("No existe cardbordId");
+      console.error("No existe cardboardId");
     }
   };
 
-  /**
-   * Genera los valores del cartón de bingo, priorizando posiciones deshabilitadas,
-   * luego valores con posiciones asignadas y finalmente valores sin posiciones.
-   * @param {*} values
-   * @param {*} dimensions
-   * @param {*} positionsDisabled
-   */
   const generateBingoCard = (id, values, positionsDisabled, rows, cols) => {
     let card = Array.from({ length: rows * cols }, () => ({
       value: null,
@@ -420,7 +368,6 @@ export const PlayerBingoPage = () => {
       type: null,
     }));
 
-    // Aplicar posiciones deshabilitadas
     positionsDisabled.forEach((disabled) => {
       card[disabled.position] = {
         ...card[disabled.position],
@@ -430,26 +377,20 @@ export const PlayerBingoPage = () => {
       };
     });
 
-    // Mezclar los valores antes de separarlos
     let shuffledValues = shuffle(values);
-
-    // Separar los valores en dos grupos: con posiciones y sin posiciones
     let valuesWithPositions = shuffledValues.filter(
-      (value) => value.positions.length > 0
+      (value) => value.positions.length > 0,
     );
     let valuesWithoutPositions = shuffledValues.filter(
-      (value) => value.positions.length === 0
+      (value) => value.positions.length === 0,
     );
-
-    // Registro de valores ya asignados para evitar duplicados
     let assignedValues = new Set();
 
-    // Asignar valores con posiciones específicas
     valuesWithPositions.forEach((value) => {
       value.positions.forEach((pos) => {
         if (
           pos >= 0 &&
-          pos < rows * cols && // Verificar que la posición esté dentro del rango del cartón
+          pos < rows * cols &&
           card[pos].value === null &&
           !assignedValues.has(value.carton_value)
         ) {
@@ -464,10 +405,9 @@ export const PlayerBingoPage = () => {
       });
     });
 
-    // Asignar valores sin posiciones específicas
     valuesWithoutPositions.forEach((value) => {
       let availablePositions = card.flatMap((cell, index) =>
-        cell.value === null ? index : []
+        cell.value === null ? index : [],
       );
       if (availablePositions.length > 0) {
         let chosenPosition =
@@ -507,7 +447,6 @@ export const PlayerBingoPage = () => {
         updatedMarks[index] = {
           ...updatedMarks[index],
           isMarked: newMarkStatus,
-          // value: item._id,
         };
 
         updateMarkSquare(updatedMarks, cardboardId);
@@ -527,7 +466,6 @@ export const PlayerBingoPage = () => {
     setBingoConfig(response);
     setBallotsHistory(response.history_of_ballots);
 
-    // Asignar la última balota del historial a lastBallot
     if (response.history_of_ballots.length > 0) {
       const lastBallotId =
         response.history_of_ballots[response.history_of_ballots.length - 1];
@@ -536,166 +474,221 @@ export const PlayerBingoPage = () => {
     }
   };
 
-  // Maneja el final del arrastre de la transmisión en vivo
-  const handleDragEnd = (event) => {
-    const { delta } = event;
-    setLiveStreamPosition((prevPosition) => ({
-      x: prevPosition.x + delta.x,
-      y: prevPosition.y + delta.y,
-    }));
-  };
-
   const changeCardboard = () => {
     generateBingoCard(
       bingoConfig._id,
       bingoConfig.bingo_values,
       bingoConfig.positions_disabled,
       rows,
-      cols
+      cols,
     );
   };
 
-  return (
-    <div className="md:px-[120px]">
-      <DndContext onDragEnd={handleDragEnd}>
-        <MessageDialog
-          onSaveCardboard={saveCardboard}
-          getExistingCardboard={getExistingCardboard}
-        />
-        {/* <div className="md:row md:flex-auto md:flex md:flex-col md:w-full  bg-gray-300 pt-2 px-2">
-          <Card className="h-full mb-4 md:mb-2 flex-1">
-            <CardBody className="relative h-auto">
-              <LiveStream
-                bingoConfig={bingoConfig}
-                userUid={user.uid}
-                cardboardCode={cardboardCode}
-                logs={logs}
-                sendChat={sendChat}
-                message={message}
-                setMessage={setMessage}
-                chat={chat}
-              />
-            </CardBody>
-          </Card>
-        </div> */}
-        <div className="flex flex-col h-auto w-full bg-gray-300 px-2 pt-2">
-          {showAlert && (
-            <Alert
-              color={alertData.color}
-              onClose={() => setShowAlert(false)}
-              className="fixed w-11/12 bottom-5 left-1/2 transform -translate-x-1/2 z-50 shadow"
-            >
-              {alertData.message}
-            </Alert>
-          )}
-          <div className="flex flex-auto  flex-col md:flex-row">
-            {/* Columna para el cartón de bingo y botones */}
-            <div className="flex flex-col md:w-3/5 h-auto mx-1 pb-2">
-              <Card className="flex-none">
-                <div className="shadow-lg p-2 flex justify-evenly items-center">
-                  <Button
-                    size="sm"
-                    className="px-2 md:px-4"
-                    color="green"
-                    onClick={handleBingoCall}
-                  >
-                    Cantar Lotería
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="px-2 md:px-4"
-                    color="blue"
-                    onClick={() => resetGame(true)}
-                  >
-                    Limpiar Cartón
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="px-2 md:px-4"
-                    color="gray"
-                    onClick={() => changeCardboard()}
-                  >
-                    Cambiar Cartón
-                  </Button>
-                  {/* <Button size="sm" className="px-2 md:px-4" color="gray">
-                    Chat
-                  </Button> */}
-                </div>
-                <div className="w-full h-full">
-                  {bingoConfig && (
-                    <BingoCardStatic
-                      bingoCard={bingoCard}
-                      rows={rows}
-                      bingoAppearance={bingoConfig.bingo_appearance}
-                      markedSquares={markedSquares}
-                      onMarkSquare={handleMarkSquare}
-                    />
-                  )}
-                </div>
-              </Card>
-            </div>
+  const [showChat, setShowChat] = useState(false);
 
-            {/* Columna para la transmisión en vivo y datos del juego */}
-            <div className="md:flex-auto md:flex md:flex-col md:w-3/4 h-auto mx-1">
-              <Card className="flex-none">
-                <TabsSection
-                  bingoConfig={bingoConfig}
-                  lastBallot={lastBallot}
-                  messageLastBallot={messageLastBallot}
-                  ballotsHistory={ballotsHistory}
-                />
-              </Card>
-              <Card className="h-full mt-2 md:mb-2 flex-1">
-                <CardBody className="relative h-auto">
-                  <LiveStream
-                    bingoConfig={bingoConfig}
-                    userUid={user.uid}
-                    cardboardCode={cardboardCode}
-                    logs={logs}
-                    sendChat={sendChat}
-                    message={message}
-                    setMessage={setMessage}
-                    chat={chat}
-                  />
-                </CardBody>
-              </Card>
-            </div>
-          </div>
-          <DraggableLiveStream position={liveStreamPosition} />
-        </div>
-      </DndContext>
+  const ActionButtons = ({ mobile = false }) => (
+    <div className={`flex justify-center ${mobile ? "gap-2" : "gap-3"} py-3 shrink-0`}>
+      <button
+        onClick={handleBingoCall}
+        className={`
+          flex items-center gap-1.5 font-semibold rounded-lg
+          bg-gradient-to-r from-green-500 to-green-700
+          hover:from-green-400 hover:to-green-600
+          text-white shadow-lg shadow-green-600/25 hover:shadow-green-600/40
+          active:scale-95 transition-all duration-150
+          ${mobile ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"}
+        `}
+      >
+        <MegaphoneIcon className={mobile ? "h-3.5 w-3.5" : "h-4 w-4"} />
+        {mobile ? "Cantar" : "Cantar Loteria"}
+      </button>
+      <button
+        onClick={() => resetGame(true)}
+        className={`
+          flex items-center gap-1.5 font-semibold rounded-lg
+          bg-gradient-to-r from-blue-500 to-indigo-600
+          hover:from-blue-400 hover:to-indigo-500
+          text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40
+          active:scale-95 transition-all duration-150
+          ${mobile ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"}
+        `}
+      >
+        <ArrowPathIcon className={mobile ? "h-3.5 w-3.5" : "h-4 w-4"} />
+        Limpiar
+      </button>
+      <button
+        onClick={changeCardboard}
+        className={`
+          flex items-center gap-1.5 font-semibold rounded-lg
+          bg-gradient-to-r from-gray-500 to-gray-600
+          hover:from-gray-400 hover:to-gray-500
+          text-white shadow-lg shadow-gray-500/20 hover:shadow-gray-500/35
+          active:scale-95 transition-all duration-150
+          ${mobile ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"}
+        `}
+      >
+        <ArrowsRightLeftIcon className={mobile ? "h-3.5 w-3.5" : "h-4 w-4"} />
+        Cambiar
+      </button>
     </div>
   );
-};
-
-const DraggableLiveStream = ({ position }) => {
-  const { attributes, listeners, setNodeRef } = useDraggable({
-    id: "draggable-live-stream",
-  });
-
-  const style = {
-    transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-    transition: "transform 0.2s",
-  };
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      // className="absolute bottom-4 left-4 w-40 h-24 bg-black opacity-90 hover:opacity-100 z-10 md:hidden"
+      className="h-screen flex flex-col overflow-hidden bg-gray-950 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/fondo.jpeg')" }}
     >
-      <div style={{ width: "100%", height: "auto" }}>
-        {/* <iframe
-          style={{ width: "100%", height: "100%" }}
-          src="https://www.youtube.com/embed/x7gazu5rlT8?si=e-MiD73LRR3CHzMt"
-          title="YouTube video player"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-        ></iframe> */}
+      <MessageDialog
+        onSaveCardboard={saveCardboard}
+        getExistingCardboard={getExistingCardboard}
+      />
+      <ShowLastBallot messageLastBallot={messageLastBallot} />
+
+      {/* Global Alert */}
+      {showAlert && (
+        <Alert
+          color={alertData.color}
+          onClose={() => setShowAlert(false)}
+          className="fixed w-11/12 bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
+        >
+          {alertData.message}
+        </Alert>
+      )}
+
+      {/* Status bar */}
+      {messageLastBallot && (
+        <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-gray-200 text-center text-xs py-1.5 px-4 shrink-0 border-b border-indigo-500/30">
+          <span className="tracking-wide">{messageLastBallot}</span>
+        </div>
+      )}
+
+      {/* ====== DESKTOP LAYOUT (lg+) ====== */}
+      <div className="hidden lg:flex flex-1 min-h-0 overflow-hidden gap-3 p-3">
+        {/* Left column: Card + Buttons */}
+        <div className="w-[55%] flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto">
+            {bingoConfig && (
+              <PlayerBingoCard
+                bingoCard={bingoCard}
+                rows={rows}
+                cols={cols}
+                bingoAppearance={bingoConfig.bingo_appearance}
+                onMarkSquare={handleMarkSquare}
+                cardboardCode={cardboardCode}
+                desktop
+              />
+            )}
+          </div>
+          <ActionButtons />
+        </div>
+
+        {/* Right column: Video + History + Chat */}
+        <div className="w-[45%] flex flex-col gap-3 min-h-0">
+          {/* Video */}
+          <div className="shrink-0">
+            <DesktopVideo />
+          </div>
+
+          {/* Ballot History */}
+          <div className="shrink-0 max-h-[35%] overflow-y-auto">
+            {bingoConfig && (
+              <BallotHistoryTable
+                bingoConfig={bingoConfig}
+                ballotsHistory={ballotsHistory}
+              />
+            )}
+          </div>
+
+          {/* Chat fills remaining space */}
+          <div className="flex-1 min-h-0">
+            <ChatPanel
+              visible={true}
+              onToggle={() => {}}
+              userUid={user?.uid}
+              chat={chat}
+              logs={logs}
+              message={message}
+              setMessage={setMessage}
+              sendChat={sendChat}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ====== MOBILE LAYOUT (<lg) ====== */}
+      <div className="flex lg:hidden flex-col flex-1 overflow-y-auto">
+        {/* Video — compact at the top */}
+        <div className="shrink-0 px-2 pt-2">
+          <div
+            className="relative w-full rounded-xl overflow-hidden border border-white/10"
+            style={{ aspectRatio: "16/9" }}
+          >
+            <img
+              src="/ESCENARIO.png"
+              alt="Video Placeholder"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Bingo Card */}
+        <div className="px-2 pt-3">
+          {bingoConfig && (
+            <PlayerBingoCard
+              bingoCard={bingoCard}
+              rows={rows}
+              cols={cols}
+              bingoAppearance={bingoConfig.bingo_appearance}
+              onMarkSquare={handleMarkSquare}
+              cardboardCode={cardboardCode}
+            />
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="px-2">
+          <ActionButtons mobile />
+        </div>
+
+        {/* Ballot History — collapsible */}
+        <div className="px-2 pb-20">
+          {bingoConfig && (
+            <BallotHistoryTable
+              bingoConfig={bingoConfig}
+              ballotsHistory={ballotsHistory}
+              defaultOpen={false}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Mobile chat — floating button + slide-up panel */}
+      <div className="lg:hidden">
+        {showChat ? (
+          <div className="fixed inset-x-0 bottom-0 z-20 h-[45vh] shadow-2xl">
+            <ChatPanel
+              visible={true}
+              onToggle={() => setShowChat(false)}
+              userUid={user?.uid}
+              chat={chat}
+              logs={logs}
+              message={message}
+              setMessage={setMessage}
+              sendChat={sendChat}
+            />
+          </div>
+        ) : (
+          <ChatPanel
+            visible={false}
+            onToggle={() => setShowChat(true)}
+            userUid={user?.uid}
+            chat={chat}
+            logs={logs}
+            message={message}
+            setMessage={setMessage}
+            sendChat={sendChat}
+          />
+        )}
       </div>
     </div>
   );
