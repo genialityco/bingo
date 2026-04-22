@@ -12,6 +12,8 @@ import { useLoading } from "../../../../context/LoadingContext";
 import bingoFigureServices from "../../../../services/bingoFigureServices";
 import { uploadBase64ImageToFirebase } from "../../../../utils/validationImageExternalUrl";
 
+import { TrashIcon } from "@heroicons/react/24/outline";
+
 const DEFAULT_FORMATS = ["3x3", "4x4", "5x5"];
 
 const FiguresBingo = () => {
@@ -194,6 +196,20 @@ const FiguresBingo = () => {
     }
   };
 
+  const handleDeleteFigure = async (id) => {
+    if (!window.confirm("¿Está seguro de eliminar esta figura?")) return;
+    
+    showLoading();
+    try {
+      await bingoFigureServices.deleteFigure(id);
+      await loadFigures();
+    } catch (err) {
+      setError("Error al eliminar la figura");
+    } finally {
+      hideLoading();
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="w-full max-w-6xl mx-auto">
@@ -335,8 +351,15 @@ const FiguresBingo = () => {
                   {items.map((figure) => (
                     <Card
                       key={figure._id}
-                      className="p-3 rounded-xl border border-blue-gray-100 shadow-sm"
+                      className="p-3 rounded-xl border border-blue-gray-100 shadow-sm relative group"
                     >
+                      <button
+                        onClick={() => handleDeleteFigure(figure._id)}
+                        className="absolute top-2 right-2 p-1.5 bg-red-50 text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                        title="Eliminar figura"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
                       <Typography
                         variant="small"
                         className="mb-2 text-blue-gray-700"
