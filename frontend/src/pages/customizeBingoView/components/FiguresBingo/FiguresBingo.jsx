@@ -133,7 +133,7 @@ const FiguresBingo = () => {
           <button
             key={index}
             type="button"
-            className={`w-8 h-8 text-xs rounded ${
+            className={`flex items-center justify-center w-8 h-8 text-xs rounded ${
               selectedPositions.includes(index)
                 ? "bg-green-500 text-white"
                 : "bg-blue-100 text-blue-gray-700"
